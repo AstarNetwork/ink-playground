@@ -1,0 +1,8 @@
+FROM python:3.7
+ENV PYTHONUNFERED 1
+RUN mkdir /config; \
+    mkdir /code; 
+COPY ./config/ /config
+RUN pip install -r /config/requirements.txt
+
+WORKDIR /code
