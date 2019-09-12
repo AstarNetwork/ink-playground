@@ -45,8 +45,9 @@ RUN set -eux;\
 
 WORKDIR /projects/sample
 
-CMD cp -f /share/lib.rs src/lib.rs; \
+CMD cp -f /share/lib.rs ./src/lib.rs; \
     ./build.sh; \
     cargo +nightly build --features ink-generate-abi; \
     tar -cvzf target.tgz target/sample* target/old_abi.json; \
-    cp -f target.tgz /share;
+    cp -f ./target.tgz /share; \
+		cp target/sample*.wat /share;

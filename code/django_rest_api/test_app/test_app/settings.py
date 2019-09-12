@@ -51,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',			# added
+		'django.middleware.common.CommonMiddleware',	# added
 ]
 
 ROOT_URLCONF = 'test_app.urls'
@@ -128,7 +129,9 @@ STATIC_URL = '/static/'
 
 # added
 CORS_ORIGIN_WHITELIST = (
-    'localhost:3000/',
-    'localhost:3000',
+    'http://ec2-18-179-60-53.ap-northeast-1.compute.amazonaws.com:3000/',
+		'http://ec2-18-179-60-53.ap-northeast-1.compute.amazonaws.com:3000',
+		'localhost:3000/',
+		'localhost:3000',
 )
 

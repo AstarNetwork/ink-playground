@@ -10,8 +10,12 @@ services:
     container_name: django_rest_api
     build:
       context: ./python
+    env_file:
+      - .env
     volumes:
-      - ./code/django_rest_api:/code
+      - ./code/django_rest_api:/code/
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./code/ink_compile:/share/
     tty: true
     ports: 
       - 8000:8000
@@ -32,9 +36,9 @@ services:
     container_name: ink_compiler
     build:
         context: ./ink 
-        dockerfile: DockerfileContract
+        dockerfile: Dockerfile
     volumes:
-      - ./code/ink_compile:/share
+      - .code/ink_compile:/share
     tty: true
 
 volumes:
