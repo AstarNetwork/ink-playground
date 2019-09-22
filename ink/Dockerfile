@@ -27,8 +27,9 @@ RUN set -eux;\
     mkdir ~/.cargo; \
     mkdir ~/.cargo/bin; \
     curl https://raw.githubusercontent.com/paritytech/scripts/master/install-wasm-binaries.sh -sSf |bash -s;\
-    cp -f ~/.cargo/bin/wat2wasm ${CARGO_HOME}/bin/; \
-    cp -f ~/.cargo/bin/wasm2wat ${CARGO_HOME}/bin/; \
+    ls ~/.cargo/bin; \
+    #cp -f ~/.cargo/bin/wat2wasm ${CARGO_HOME}/bin/; \
+    #cp -f ~/.cargo/bin/wasm2wat ${CARGO_HOME}/bin/; \
     rm -rf ~/.cargo; \
     cargo install pwasm-utils-cli --bin wasm-prune --force; \
     cargo install --force --git https://github.com/paritytech/ink cargo-contract; \
@@ -45,9 +46,10 @@ RUN set -eux;\
 
 WORKDIR /projects/sample
 
-CMD cp -f /share/lib.rs ./src/lib.rs; \
+CMD cp -f "/share/${NONCE}.rs" ./src/lib.rs; \
     ./build.sh; \
     cargo +nightly build --features ink-generate-abi; \
     tar -cvzf target.tgz target/sample* target/old_abi.json; \
     cp -f ./target.tgz /share; \
-		cp target/sample*.wat /share;
+		mkdir "/share/${NONCE}"; \
+		cp target/sample*.wat "/share/${NONCE}";

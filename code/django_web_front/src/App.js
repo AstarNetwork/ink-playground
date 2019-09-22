@@ -5,17 +5,17 @@ import './App.css';
 
 const axiosPost = axios.create({
 	xsrfHeaderName: 'X-CSRF-Token',
-	withCredentials: true
+	withCredentials: true,
 })
 
 const App = () => {
-  const [wat,setWat] = useState('');
+  const [wat,setWat] = useState('wat code is written here');
   const inputCode = useRef(null);
   const onCodeSubmit = () => {
     axiosPost.post('http://ec2-18-179-60-53.ap-northeast-1.compute.amazonaws.com:8000/api/compile/',{'code':inputCode.current.value})
-    .then(res =>res.json() )
-    .then(json => {
-      setWat(json['wat'])
+    .then(data => {
+			console.log(data);
+      setWat(data.data.wat);
     });
   }
 
@@ -34,7 +34,9 @@ const App = () => {
           </Button>
         </Grid>
         <Grid item xs={6} style={{padding:"10px"}}>
-          {wat}
+					<pre style={{align:'left'}}>
+						{wat}
+					</pre>
         </Grid>
       </Grid>
     </div>

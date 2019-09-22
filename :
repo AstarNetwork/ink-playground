@@ -2,8 +2,7 @@ from webapi.models import Profile
 from webapi.serializers import ProfileSerializer
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.decorators import api_view,renderer_classes
-from django.utils.crypto import get_random_string
+from rest_framework.views import api_view
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
 import json
@@ -19,19 +18,17 @@ class ProfileListCreate(generics.ListCreateAPIView):
 @api_view(['POST'])
 @renderer_classes([JSONRenderer])
 def Compile(request, format=None):
-	fname = 'lib'
 	try:
-		code = request.data['code']
-		fname = get_random_string(length = 15)
-		fcode = open('/share/%s.rs' % fname,'w')
+		code = request.POST['code']
+		fcode = open('/share/lib.rs','w')
 		fcode.write(code)
 		fcode.close()
 	except (KeyError):
 		print('no code')
 		pass
-	popen = subprocess.Popen("docker run -e NONCE=%s --rm -it -v $INK_DIR:/share proj_ink"%fname, shell=True)
+	popen = subprocess.Popen("docker run --rm -it -v $INK_DIR:/share proj_ink", shell=True)
 	popen.wait()
-	file = open('/share/%s/sample.wat' % fname,'r')
+	file = open('/share/sample.wat','r')
 	data = file.read()
 	file.close()
 	ret_data = {'wat':data}
