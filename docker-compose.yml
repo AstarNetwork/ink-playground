@@ -38,7 +38,7 @@ services:
         context: ./ink 
         dockerfile: Dockerfile
     volumes:
-      - .code/ink_compile:/share
+      - ./code/ink_compile:/share
     tty: true
 
 volumes:

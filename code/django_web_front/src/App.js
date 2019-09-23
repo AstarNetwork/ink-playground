@@ -34,7 +34,7 @@ const App = () => {
           </Button>
         </Grid>
         <Grid item xs={6} style={{padding:"10px"}}>
-					<pre style={{align:'left'}}>
+					<pre style={{textAlign:'left'}}>
 						{wat}
 					</pre>
         </Grid>

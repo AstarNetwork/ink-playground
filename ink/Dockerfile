@@ -50,6 +50,6 @@ CMD cp -f "/share/${NONCE}.rs" ./src/lib.rs; \
     ./build.sh; \
     cargo +nightly build --features ink-generate-abi; \
     tar -cvzf target.tgz target/sample* target/old_abi.json; \
-    cp -f ./target.tgz /share; \
 		mkdir "/share/${NONCE}"; \
+    cp -f ./target.tgz /share/${NONCE}; \
 		cp target/sample*.wat "/share/${NONCE}";
