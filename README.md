@@ -1,7 +1,7 @@
 # ink! playground
 
 # Deme movie
-![Imgur](https://imgur.com/xBDgM62)
+![Imgur](https://i.imgur.com/xBDgM62.png)
 
 you can see the movie from [here](https://imgur.com/Y6TVPFo)
 
