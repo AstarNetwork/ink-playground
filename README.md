@@ -1,7 +1,9 @@
 # ink! playground
 
 # Deme movie
-![Imgur](https://i.imgur.com/nf63QV4.gifv)
+![Imgur](https://imgur.com/xBDgM62)
+
+you can see the movie from [here](https://imgur.com/Y6TVPFo)
 
 # Introduction
 ink! playground is the browser IDE for Substrate's smart contract(srml-contract). This will be similar to [Remix](https://github.com/ethereum/remix), the smart contract IDE of Ethereum.
