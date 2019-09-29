@@ -34,7 +34,7 @@ const Editor = forwardRef((props,ref) => {
 
 	useEditorProp(editor, props.value, useCallback((editor, code) => {
 		editor.setValue(code);
-	}, [props.value]));
+	}, []));
 
 	return (
 		<div ref={child} style={{ position:'relative',width: '100%',height:'70%'}}> </div>

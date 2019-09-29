@@ -45,7 +45,8 @@ WORKDIR /projects/sample
 CMD cp -f "/share/${NONCE}.rs" ./src/lib.rs; \
     cargo contract build; \
     cargo +nightly build --features ink-generate-abi; \
-    tar -cvzf target.tgz target/sample* target/old_abi.json; \
+    #tar -cvzf target.tgz target/sample* target/old_abi.json; \
 		mkdir "/share/${NONCE}"; \
-    cp -f ./target.tgz /share/${NONCE}; \
-		cp target/sample*.wasm "/share/${NONCE}";
+    #cp -f ./target.tgz /share/${NONCE}; \
+		cp target/sample*.wasm "/share/${NONCE}"; \
+		cp target/old_abi.json "/share/${NONCE}";

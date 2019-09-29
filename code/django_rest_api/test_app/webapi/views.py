@@ -33,8 +33,13 @@ def Compile(request, format=None):
 	popen = subprocess.Popen("docker run -e NONCE=%s --rm -it -v $INK_DIR:/share ink_env"%fname, shell=True)
 	popen.wait()
 
-	file = open('/share/%s/sample.wasm' % fname,'rb')
-	data = file.read()
-	file.close()
-	ret_data = {'wasm':base64.b64encode(data)}
+	fwasm = open('/share/%s/sample.wasm' % fname,'rb')
+	wasm = fwasm.read()
+	fwasm.close()
+
+	fabi = open('/share/%s/old_abi.json' % fname,'r')
+	abi = fabi.read()
+	fabi.close()
+
+	ret_data = {'wasm':base64.b64encode(wasm),'abi':abi}
 	return Response(ret_data)

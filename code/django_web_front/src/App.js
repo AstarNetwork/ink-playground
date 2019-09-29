@@ -1,10 +1,12 @@
 import React, {useRef,useState} from 'react';
-import {Grid,Button} from '@material-ui/core'
+import {Grid,Button} from '@material-ui/core';
 import axios from 'axios';
-import Editor from './Editor'
-import Loader from './Loader'
+import Editor from './Editor';
+import Loader from './Loader';
+import DownloadWasm from './DownloadWasm';
+import DownloadAbi from './DownloadAbi';
 import './App.css';
-import codeTemplate from './CodeTemplate'
+import codeTemplate from './CodeTemplate';
 
 const axiosPost = axios.create({
 	xsrfHeaderName: 'X-CSRF-Token',
@@ -12,12 +14,15 @@ const axiosPost = axios.create({
 })
 
 const App = () => {
-	const [wasm,setWasm] = useState([]);
+	const [wasm,setWasm] = useState(null);
+	const [abi, setAbi] = useState(null);
 	const [loadFlag, setLoadFlag] = useState(false);
 	const codeRef = useRef(null);
 
 	const onCodeSubmit = () => {
 		setLoadFlag(true);
+		setAbi(null);
+		setWasm(null);
 
 		axiosPost.post('http://ec2-18-179-1-103.ap-northeast-1.compute.amazonaws.com:8000/api/compile/',
 			{'code':codeRef.current.getValue()})
@@ -25,7 +30,7 @@ const App = () => {
 			console.log(codeRef.current.getValue());
 			console.log(data);
 			setWasm(data.data.wasm);
-			console.log(data.data.wasm);
+			setAbi(data.data.abi);
 			setLoadFlag(false);
     })
 		.catch(err=>{
@@ -49,10 +54,17 @@ const App = () => {
             Compile Code
           </Button>
         </Grid>
-        <Grid item xs={6} style={{padding:"10px"}}>
-					<Loader flag={loadFlag}/>
-					{wasm}
-        </Grid>
+        <Grid item xs={6} style={{padding:"10px"}}><Grid container>
+          <Grid item xs={6}>
+            <DownloadWasm wasm={wasm}/>
+          </Grid>
+          <Grid item xs={6}>
+            <DownloadAbi abi={abi}/>
+          </Grid>
+					<Grid item xs={12}>
+						<Loader flag={loadFlag}/>
+					</Grid>
+        </Grid></Grid>
       </Grid>
     </div>
   );

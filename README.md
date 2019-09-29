@@ -1,5 +1,8 @@
 # ink! playground
 
+# Deme movie
+[Imgur](https://imgur.com/Y6TVPFo)
+
 # Introduction
 ink! playground is the browser IDE for Substrate's smart contract(srml-contract). This will be similar to [Remix](https://github.com/ethereum/remix), the smart contract IDE of Ethereum.
 Currently, if developers want to run ink! smart contract, they have to install substrate and ink into local environment. But this takes many steps, and also it is not easy to run stably because of version compatibility issues or so.
@@ -55,9 +58,5 @@ cd ink-playground
 docker exec django_rest_api "python3 test_app/manage.py runserver 0:8000" &
 docker exec django_web_front "yarn start" &
 ```
-
-# Demo
 After running, you can access to page by http://127.0.0.1:3000
-
-![Imgur](https://i.imgur.com/qGdbcUU.png)
 
