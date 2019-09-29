@@ -1,7 +1,10 @@
 import React, {useRef,useState} from 'react';
 import {Grid,Button} from '@material-ui/core'
 import axios from 'axios';
+import Editor from './Editor'
+import Loader from './Loader'
 import './App.css';
+import codeTemplate from './CodeTemplate'
 
 const axiosPost = axios.create({
 	xsrfHeaderName: 'X-CSRF-Token',
@@ -9,34 +12,46 @@ const axiosPost = axios.create({
 })
 
 const App = () => {
-  const [wat,setWat] = useState('wat code is written here');
-  const inputCode = useRef(null);
-  const onCodeSubmit = () => {
-    axiosPost.post('http://ec2-18-179-60-53.ap-northeast-1.compute.amazonaws.com:8000/api/compile/',{'code':inputCode.current.value})
+	const [wasm,setWasm] = useState([]);
+	const [loadFlag, setLoadFlag] = useState(false);
+	const codeRef = useRef(null);
+
+	const onCodeSubmit = () => {
+		setLoadFlag(true);
+
+		axiosPost.post('http://ec2-18-179-1-103.ap-northeast-1.compute.amazonaws.com:8000/api/compile/',
+			{'code':codeRef.current.getValue()})
     .then(data => {
+			console.log(codeRef.current.getValue());
 			console.log(data);
-      setWat(data.data.wat);
-    });
+			setWasm(data.data.wasm);
+			console.log(data.data.wasm);
+			setLoadFlag(false);
+    })
+		.catch(err=>{
+			setLoadFlag(false);
+			console.log(err.response);
+		});
+		;
   }
 
   return (
     <div className="App">
       <div className="App-header">
           <div style={{textAlign:"center"}}>
-            <h1>ink! playground</h1>
+            <h1 style={{margin:'5px'}}  >ink! playground</h1>
           </div>
       </div>
-      <Grid container >
+      <Grid container style={{height:'100%'}} >
         <Grid item xs={6} style={{padding:"10px"}}>
-          <textarea ref={inputCode} id="librs" rows="10" style={{width:"80%",marginBottom:"20px",marginTop:"20px"}} placeholder="input your ink! code here"/>
+					<Editor value={codeTemplate} ref={codeRef} theme="monokai" style={{width:"80%",height:"70%",marginBottom:"40px",marginTop:"20px"}} />
           <Button onClick={onCodeSubmit} variant="contained" color="primary" style={{width:"80%",marginTop:"10px",marginBottom:"10px"}} >
             Compile Code
           </Button>
         </Grid>
         <Grid item xs={6} style={{padding:"10px"}}>
-					<pre style={{textAlign:'left'}}>
-						{wat}
-					</pre>
+					<Loader flag={loadFlag}/>
+					{wasm}
         </Grid>
       </Grid>
     </div>

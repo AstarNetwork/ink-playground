@@ -128,8 +128,8 @@ STATIC_URL = '/static/'
 
 # added
 CORS_ORIGIN_WHITELIST = [
-    'http://ec2-18-179-60-53.ap-northeast-1.compute.amazonaws.com:3000',
-    'http://ec2-18-179-60-53.ap-northeast-1.compute.amazonaws.com:5000',
+    'http://ec2-18-179-1-103.ap-northeast-1.compute.amazonaws.com:3000',
+    'http://ec2-18-179-1-103.ap-northeast-1.compute.amazonaws.com:5000',
 ]
 
 CORS_ALLOW_CREDENTIALS = True

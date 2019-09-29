@@ -37,6 +37,7 @@ services:
     build:
         context: ./ink 
         dockerfile: Dockerfile
+    image: ink_env
     volumes:
       - ./code/ink_compile:/share
     tty: true

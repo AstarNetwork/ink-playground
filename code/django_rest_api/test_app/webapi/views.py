@@ -7,6 +7,7 @@ from django.utils.crypto import get_random_string
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics
 import json
+import base64
 import mimetypes
 import subprocess
 
@@ -29,10 +30,11 @@ def Compile(request, format=None):
 	except (KeyError):
 		print('no code')
 		pass
-	popen = subprocess.Popen("docker run -e NONCE=%s --rm -it -v $INK_DIR:/share proj_ink"%fname, shell=True)
+	popen = subprocess.Popen("docker run -e NONCE=%s --rm -it -v $INK_DIR:/share ink_env"%fname, shell=True)
 	popen.wait()
-	file = open('/share/%s/sample.wat' % fname,'r')
+
+	file = open('/share/%s/sample.wasm' % fname,'rb')
 	data = file.read()
 	file.close()
-	ret_data = {'wat':data}
+	ret_data = {'wasm':base64.b64encode(data)}
 	return Response(ret_data)
