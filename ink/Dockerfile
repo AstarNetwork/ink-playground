@@ -23,7 +23,7 @@ RUN set -eux;\
     curl --silent --show-error --location --fail --retry 3 --output /usr/bin/jq $JQ_URL; \
     chmod +x /usr/bin/jq; \
     jq --version; \
-    : "ここからwasm"; \
+    : "wasm from here"; \
     curl https://raw.githubusercontent.com/paritytech/scripts/master/install-wasm-binaries.sh -sSf |bash -s;\
     #cp -f ~/.cargo/bin/wat2wasm ${CARGO_HOME}/bin/; \
     #cp -f ~/.cargo/bin/wasm2wat ${CARGO_HOME}/bin/; \
