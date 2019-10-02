@@ -24,7 +24,7 @@ const App = () => {
 		setAbi(null);
 		setWasm(null);
 
-		axiosPost.post('http://ec2-18-179-1-103.ap-northeast-1.compute.amazonaws.com:8000/api/compile/',
+		axiosPost.post('http://ec2-18-179-1-103.ap-northeast-1.compute.amazonaws.com/api/compile/',
 			{'code':codeRef.current.getValue()})
     .then(data => {
 			console.log(codeRef.current.getValue());

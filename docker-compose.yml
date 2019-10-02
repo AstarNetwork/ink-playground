@@ -1,6 +1,12 @@
 version : "3"
 
 services:
+  proxy:
+    image: nginx:latest
+    volumes:
+      - ./proxy/etc/nginx/conf.d:/etc/nginx/conf.d
+    ports:
+      - 80:80
   db:
     container_name: django_db
     image: postgres:11.2
