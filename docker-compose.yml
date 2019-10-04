@@ -7,46 +7,34 @@ services:
       - ./proxy/etc/nginx/conf.d:/etc/nginx/conf.d
     ports:
       - 80:80
-  db:
-    container_name: django_db
-    image: postgres:11.2
-    volumes:
-      - django_data_volume:/var/lib/postgresql/data
+    depends_on:
+      - web_front
   rest_api:
-    container_name: django_rest_api
+    container_name: rest_api
     build:
       context: ./python
     env_file:
       - .env
     volumes:
-      - ./code/django_rest_api:/code/
+      - ./code/rest_api:/code/
       - /var/run/docker.sock:/var/run/docker.sock
       - ./code/ink_compile:/share/
     tty: true
     ports: 
       - 8000:8000
-    depends_on:
-      - db
   web_front:
-    container_name: django_web_front
+    container_name: web_front
     build:
       context: ./node
+    env_file:
+      - .env
     volumes:
-      - ./code/django_web_front:/code
+      - ./code/web_front:/code
     tty: true
     ports:
       - 3000:3000
     depends_on:
       - rest_api
-  ink:
-    container_name: ink_compiler
-    build:
-        context: ./ink 
-        dockerfile: Dockerfile
-    image: ink_env
-    volumes:
-      - ./code/ink_compile:/share
-    tty: true
 
 volumes:
   django_data_volume:

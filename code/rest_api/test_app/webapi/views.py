@@ -1,5 +1,3 @@
-from webapi.models import Profile
-from webapi.serializers import ProfileSerializer
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,renderer_classes
@@ -12,11 +10,6 @@ import shutil
 import base64
 import mimetypes
 import subprocess
-
-
-class ProfileListCreate(generics.ListCreateAPIView):
-	queryset = Profile.objects.all()
-	serializer_class = ProfileSerializer
 
 @csrf_exempt
 @api_view(['POST'])

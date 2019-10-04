@@ -24,10 +24,6 @@ RUN set -eux;\
     chmod +x /usr/bin/jq; \
     jq --version; \
     : "wasm from here"; \
-    curl https://raw.githubusercontent.com/paritytech/scripts/master/install-wasm-binaries.sh -sSf |bash -s;\
-    #cp -f ~/.cargo/bin/wat2wasm ${CARGO_HOME}/bin/; \
-    #cp -f ~/.cargo/bin/wasm2wat ${CARGO_HOME}/bin/; \
-    cargo install pwasm-utils-cli --bin wasm-prune --force; \
     cargo install --force --git https://github.com/paritytech/ink cargo-contract; \
     rustup target add wasm32-unknown-unknown; 
 
@@ -38,15 +34,14 @@ RUN set -eux;\
     cd sample; \
     cargo contract build; \
     cargo +nightly build --features ink-generate-abi; \
-    rm target/sample* target/old_abi.json src/lib.rs;
+    rm target/sample* target/old_abi.json;
 
 WORKDIR /projects/sample
 
-CMD cp -f "/share/${NONCE}.rs" ./src/lib.rs; \
+CMD rm ./src/lib.rs; \
+		cp -f "/share/${NONCE}.rs" ./src/lib.rs; \
     cargo contract build; \
     cargo +nightly build --features ink-generate-abi; \
-    #tar -cvzf target.tgz target/sample* target/old_abi.json; \
 		mkdir "/share/${NONCE}"; \
-    #cp -f ./target.tgz /share/${NONCE}; \
 		cp target/sample*.wasm "/share/${NONCE}"; \
 		cp target/old_abi.json "/share/${NONCE}";
