@@ -8,6 +8,8 @@ import DownloadAbi from './DownloadAbi';
 import './App.css';
 import codeTemplate from './CodeTemplate';
 
+const api_url = 'http://' + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
+
 const axiosPost = axios.create({
 	xsrfHeaderName: 'X-CSRF-Token',
 	withCredentials: true,
@@ -24,7 +26,7 @@ const App = () => {
 		setAbi(null);
 		setWasm(null);
 
-		axiosPost.post('http://ec2-18-179-1-103.ap-northeast-1.compute.amazonaws.com:8000/api/compile/',
+		axiosPost.post(api_url,
 			{'code':codeRef.current.getValue()})
     .then(data => {
 			console.log(codeRef.current.getValue());

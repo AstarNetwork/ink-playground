@@ -77,16 +77,13 @@ WSGI_APPLICATION = 'test_app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-# **edited**
 DATABASES = {
     'default': {
-    'ENGINE': 'django.db.backends.postgresql',
-    'NAME': 'test_app',
-    'USER': 'postgres',
-    'HOST': 'db',
-    'PORT': 5432,
-  }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -127,10 +124,12 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # added
+
+PUBLIC_DNS = os.environ['PUBLIC_DNS']
+
 CORS_ORIGIN_WHITELIST = [
-    'http://ec2-18-179-1-103.ap-northeast-1.compute.amazonaws.com:3000',
-    'http://ec2-18-179-1-103.ap-northeast-1.compute.amazonaws.com:5000',
+	'http://%s'%PUBLIC_DNS,
+	'https://%s'%PUBLIC_DNS,
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-

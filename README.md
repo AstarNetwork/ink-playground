@@ -29,14 +29,14 @@ mounted directory is /code/ink_compile/
 ## api container
 Configure is written at "rest_api" in docker-compose.yml
 Dockerfile is located at python/Dockerfile
-Django source code is in /code/django_rest_api/test_app
+Django source code is in /code/rest_api/test_app
 
 This is an api server to compile ink! code into wasm. This container calls ink container for compiling.
 
 ## web front container
 Configure is written at "web_front" in docker-compose.yml
 Dockerfile is located at node/Dockerfile
-ReactJS source code is in is /code/django_web_front/
+ReactJS source code is in is /code/web_front/
 
 
 # How to run
@@ -51,14 +51,16 @@ git clone https://github.com/stakedtechnologies/ink-playground.git
 cd ink-playground
 
 #make .env file
-./init.sh
+./init.sh <PUBLIC_DNS>
 ```
+At <PUBLIC_DNS>, insert public dns of the server (exclude "http://")
 
 ## Running
 ```
 ./build.sh
+docker up -d
 docker exec django_rest_api "python3 test_app/manage.py runserver 0:8000" &
 docker exec django_web_front "yarn start" &
 ```
-After running, you can access to page by http://127.0.0.1:3000
+After running, you can access to page by http://127.0.0.1
 
