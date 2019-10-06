@@ -31,8 +31,8 @@ const App = () => {
     .then(data => {
 			console.log(codeRef.current.getValue());
 			console.log(data);
-			setWasm(data.data.wasm);
-			setAbi(data.data.abi);
+			if(data.data.hasOwnProperty('wasm')){ setWasm(data.data.wasm); }
+			if(data.data.hasOwnProperty('abi')){ setAbi(data.data.abi); }
 			setLoadFlag(false);
     })
 		.catch(err=>{
@@ -56,7 +56,7 @@ const App = () => {
             Compile Code
           </Button>
         </Grid>
-        <Grid item xs={6} style={{padding:"10px"}}><Grid container>
+        <Grid item xs={6} style={{display:"flex",alignItems:"center",padding:"10px"}}><Grid container>
           <Grid item xs={6}>
             <DownloadWasm wasm={wasm}/>
           </Grid>

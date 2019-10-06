@@ -29,7 +29,7 @@ const DownloadWasm = (props) => {
 	}
 	
 	return (
-	<Button onClick={onDownload} variant="contained" color="secondary" style={{width:'90%',display:(props.wasm!==null?'':'none')}}>
+	<Button onClick={onDownload} variant="contained" color="secondary" style={{height:'100%',width:'90%',display:(props.wasm!==null?'':'none')}}>
     <Icon style={{marginRight: 8 }} >save_alt_rounded</Icon>
     wasm
 	</Button>
