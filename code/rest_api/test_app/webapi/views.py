@@ -28,16 +28,36 @@ def Compile(request, format=None):
 	popen = subprocess.Popen("docker run -e NONCE=%s --rm -it -v $INK_DIR:/share ink_env"%fname, shell=True)
 	popen.wait()
 
-	fwasm = open('/share/%s/sample.wasm' % fname,'rb')
-	wasm = fwasm.read()
-	fwasm.close()
+	retobj={}
 
-	fabi = open('/share/%s/old_abi.json' % fname,'r')
-	abi = fabi.read()
-	fabi.close()
+	try:
+		fwasm = open('/share/%s/sample.wasm' % fname,'rb')
+		wasm = fwasm.read()
+		fwasm.close()
+	except:
+		pass
+	else:
+		retobj['wasm']=base64.b64encode(wasm)
+
+	try:
+		fabi = open('/share/%s/old_abi.json' % fname,'r')
+		abi = fabi.read()
+		fabi.close()
+	except:
+		pass
+	else:
+		retobj['abi']=abi
 	
+	try:
+		flog = open('/share/%s/log.txt' % fname,'r')
+		log = flog.read()
+		flog.close()
+	except:
+		pass
+	else:
+		retobj['log']=log
+
 	shutil.rmtree('/share/%s/' % fname )
 	os.remove('/share/%s.rs' % fname)
 
-	ret_data = {'wasm':base64.b64encode(wasm),'abi':abi}
-	return Response(ret_data)
+	return Response(retobj)

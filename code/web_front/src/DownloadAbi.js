@@ -12,7 +12,7 @@ const DownloadAbi = (props) => {
 	}
 	
 	return (
-	<Button onClick={onDownload} variant="contained" color="secondary" style={{width:'90%',display:(props.abi!==null?'':'none')}}>
+	<Button onClick={onDownload} variant="contained" color="secondary" style={{height:'150px',width:'90%',display:(props.abi!==null?'':'none')}}>
 		<Icon style={{marginRight: 8 }} >save_alt_rounded</Icon>
     abi
 	</Button>

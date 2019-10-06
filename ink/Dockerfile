@@ -40,8 +40,8 @@ WORKDIR /projects/sample
 
 CMD rm ./src/lib.rs; \
 		cp -f "/share/${NONCE}.rs" ./src/lib.rs; \
-    cargo contract build; \
-    cargo +nightly build --features ink-generate-abi; \
 		mkdir "/share/${NONCE}"; \
+    cargo contract build > "/share/${NONCE}/log.txt" 2>&1; \
+    cargo +nightly build --features ink-generate-abi >> "/share/${NONCE}/log.txt" 2>&1; \
 		cp target/sample*.wasm "/share/${NONCE}"; \
 		cp target/old_abi.json "/share/${NONCE}";
