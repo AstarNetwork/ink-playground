@@ -1,17 +1,16 @@
 # ink! playground
 
-# Deme movie
-you can try from [here](http://ec2-3-114-212-146.ap-northeast-1.compute.amazonaws.com/)
-you can see the movie from [here](https://imgur.com/Y6TVPFo)
-
-![Imgur](https://i.imgur.com/xBDgM62.png)
-
 # Introduction
 ink! playground is the browser IDE for Substrate's smart contract(srml-contract). This will be similar to [Remix](https://github.com/ethereum/remix), the smart contract IDE of Ethereum.
 Currently, if developers want to run ink! smart contract, they have to install substrate and ink into local environment. But this takes many steps, and also it is not easy to run stably because of version compatibility issues or so.
 By using ink! playground, Substrate developers can test contracts easily just by writing main code on browser.
 It doesn't require installing Substrate or running Substrate node. This is very useful for Substrate smart contract developers.
 For the future works, ink! playground also provides high level security audits. This is for developer who wants to make high secured smart contracts like for enterprise use.
+
+# Demo
+you can try from [here](http://ec2-3-114-212-146.ap-northeast-1.compute.amazonaws.com/)
+
+![Imgur](https://i.imgur.com/xBDgM62.png)
 
 # Specification
 ## overview
