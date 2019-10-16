@@ -4,8 +4,7 @@ import axios from 'axios';
 import Editor from './Editor';
 import ResultArea from './ResultArea';
 import Loader from './Loader';
-import DownloadWasm from './DownloadWasm';
-import DownloadAbi from './DownloadAbi';
+import DownloadButton from './DownloadButton';
 import './App.css';
 import codeTemplate from './CodeTemplate';
 
@@ -15,6 +14,15 @@ const axiosPost = axios.create({
 	xsrfHeaderName: 'X-CSRF-Token',
 	withCredentials: true,
 })
+
+const base64ToBuffer = (base64)=>{
+	var bin = atob(base64.replace(/^.*,/, ''));
+  var buffer = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) {
+    buffer[i] = bin.charCodeAt(i);
+  }
+	return buffer;
+}
 
 const App = () => {
 	const [wasm,setWasm] = useState(null);
@@ -36,7 +44,7 @@ const App = () => {
 		.then(data => {
 			var result_ = "";
 			console.log(data);
-			if(data.hasOwnProperty('wasm')){ setWasm(data.wasm); }
+			if(data.hasOwnProperty('wasm')){ setWasm(base64ToBuffer(data.wasm)); }
 			if(data.hasOwnProperty('abi')){
 					setAbi(data.abi);
 					result_ =data.abi;
@@ -77,13 +85,13 @@ const App = () => {
             <Loader flag={loadFlag}/>
 					</Grid>
 					<Grid item xs={6} style={{padding: '10px'}}>
-            <DownloadWasm wasm={wasm}/>
+            <DownloadButton label={"wasm"} name={"sample.wasm"} mimeType={"application/wasm"} data={wasm}/>
           </Grid>
           <Grid item xs={6} style={{padding: '10px'}}>
-            <DownloadAbi abi={abi}/>
+            <DownloadButton label={"old abi"} name={"old_abi.json"} mimeType={"application/json"} data={abi} />
           </Grid>
 				</Grid>
-					<div style={{display:'flex',height:'100%'}}>
+					<div style={{display:'flex',height : '100%'}}>
 						<ResultArea value={result} ref={resultRef} theme="monokai"/>
         	</div>
 				</Grid>
