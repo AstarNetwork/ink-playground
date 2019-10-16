@@ -2,6 +2,7 @@ import React, {useRef,useState} from 'react';
 import {Grid,Button} from '@material-ui/core';
 import axios from 'axios';
 import Editor from './Editor';
+import ResultArea from './ResultArea';
 import Loader from './Loader';
 import DownloadWasm from './DownloadWasm';
 import DownloadAbi from './DownloadAbi';
@@ -18,28 +19,40 @@ const axiosPost = axios.create({
 const App = () => {
 	const [wasm,setWasm] = useState(null);
 	const [abi, setAbi] = useState(null);
+	const [result, setResult] = useState('');
 	const [loadFlag, setLoadFlag] = useState(false);
 	const codeRef = useRef(null);
+	const resultRef = useRef(null);
 
 	const onCodeSubmit = () => {
 		setLoadFlag(true);
 		setAbi(null);
 		setWasm(null);
+		setResult('');
 
 		axiosPost.post(api_url,
 			{'code':codeRef.current.getValue()})
-    .then(data => {
-			console.log(codeRef.current.getValue());
+    .then(response => response.data)
+		.then(data => {
+			var result_ = "";
 			console.log(data);
-			if(data.data.hasOwnProperty('wasm')){ setWasm(data.data.wasm); }
-			if(data.data.hasOwnProperty('abi')){ setAbi(data.data.abi); }
+			if(data.hasOwnProperty('wasm')){ setWasm(data.wasm); }
+			if(data.hasOwnProperty('abi')){
+					setAbi(data.abi);
+					result_ =data.abi;
+					result_ += "\n\n"
+			}
+			if(data.hasOwnProperty('log')){
+					result_ += data.log;
+			}
+			console.log(result_);
+			setResult(result_);
 			setLoadFlag(false);
     })
 		.catch(err=>{
 			setLoadFlag(false);
 			console.log(err.response);
 		});
-		;
   }
 
   return (
@@ -51,22 +64,29 @@ const App = () => {
       </div>
       <Grid container style={{height:'100%'}} >
         <Grid item xs={6} style={{padding:"10px"}}>
-					<Editor value={codeTemplate} ref={codeRef} theme="monokai" style={{width:"80%",height:"70%",marginBottom:"40px",marginTop:"20px"}} />
-          <Button onClick={onCodeSubmit} variant="contained" color="primary" style={{width:"80%",marginTop:"10px",marginBottom:"10px"}} >
+          <Button onClick={onCodeSubmit} variant="contained" color="primary" style={{width:"100%",marginTop:"10px",marginBottom:"10px"}} >
             Compile Code
           </Button>
-        </Grid>
-        <Grid item xs={6} style={{display:"flex",alignItems:"center",padding:"10px"}}><Grid container>
-          <Grid item xs={6}>
+					<div style={{display:'flex',height:'100%'}}>
+						<Editor value={codeTemplate} ref={codeRef} theme="monokai" style={{width:"100%",height:"100%",marginBottom:"40px",marginTop:"20px"}} />
+        	</div>
+				</Grid>
+        <Grid item xs={6} style={{padding: '10px'}} >
+				<Grid container>
+          <Grid item xs={12}>
+            <Loader flag={loadFlag}/>
+					</Grid>
+					<Grid item xs={6} style={{padding: '10px'}}>
             <DownloadWasm wasm={wasm}/>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={6} style={{padding: '10px'}}>
             <DownloadAbi abi={abi}/>
           </Grid>
-					<Grid item xs={12}>
-						<Loader flag={loadFlag}/>
-					</Grid>
-        </Grid></Grid>
+				</Grid>
+					<div style={{display:'flex',height:'100%'}}>
+						<ResultArea value={result} ref={resultRef} theme="monokai"/>
+        	</div>
+				</Grid>
       </Grid>
     </div>
   );

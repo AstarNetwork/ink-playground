@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState,useEffect} from 'react';
 import {Button} from '@material-ui/core';
 import Icon from'@material-ui/core/Icon';
 
@@ -8,7 +8,7 @@ function toBlob(base64,mime) {
 	for (var i = 0; i < bin.length; i++) {
 		buffer[i] = bin.charCodeAt(i);
 	}
-	// Blobを作成
+	//make Blob
 	try{
 		var blob = new Blob([buffer.buffer], {
 			type: mime
@@ -20,6 +20,7 @@ function toBlob(base64,mime) {
 }
 
 const DownloadWasm = (props) => {
+	const [css,setCss] = useState();
 	const onDownload=()=>{
 		const wasm = toBlob(props.wasm,'application/wasm');
 		var link = document.createElement('a');
@@ -28,8 +29,14 @@ const DownloadWasm = (props) => {
 		link.click();
 	}
 	
+	useEffect(()=>{
+		var css={width:"100%"};
+		css.display=(props.wasm!==null? '' : 'none');
+		setCss(css);
+	},[props.wasm])
+	
 	return (
-	<Button onClick={onDownload} variant="contained" color="secondary" style={{height:'100%',width:'90%',display:(props.wasm!==null?'':'none')}}>
+	<Button style={css} onClick={onDownload} variant="contained" color="secondary">
     <Icon style={{marginRight: 8 }} >save_alt_rounded</Icon>
     wasm
 	</Button>
