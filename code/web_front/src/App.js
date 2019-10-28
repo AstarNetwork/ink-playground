@@ -45,13 +45,14 @@ const App = () => {
 			var result_ = "";
 			console.log(data);
 			if(data.hasOwnProperty('wasm')){ setWasm(base64ToBuffer(data.wasm)); }
-			if(data.hasOwnProperty('abi')){
-					setAbi(data.abi);
-					result_ =data.abi;
-					result_ += "\n\n"
-			}
 			if(data.hasOwnProperty('log')){
-					result_ += data.log;
+				result_ += data.log;
+				result_ += "\n"
+			}
+			if(data.hasOwnProperty('abi')){
+				setAbi(data.abi);
+				result_ += "[abi.json]\n"
+				result_ +=data.abi;
 			}
 			console.log(result_);
 			setResult(result_);
@@ -88,7 +89,7 @@ const App = () => {
             <DownloadButton label={"wasm"} name={"sample.wasm"} mimeType={"application/wasm"} data={wasm}/>
           </Grid>
           <Grid item xs={6} style={{padding: '10px'}}>
-            <DownloadButton label={"old abi"} name={"old_abi.json"} mimeType={"application/json"} data={abi} />
+            <DownloadButton label={"abi"} name={"abi.json"} mimeType={"application/json"} data={abi} />
           </Grid>
 				</Grid>
 					<div style={{display:'flex',height : '100%'}}>

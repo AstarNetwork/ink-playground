@@ -40,7 +40,7 @@ def Compile(request, format=None):
 		retobj['wasm']=base64.b64encode(wasm)
 
 	try:
-		fabi = open('/share/%s/old_abi.json' % fname,'r')
+		fabi = open('/share/%s/abi.json' % fname,'r')
 		abi = fabi.read()
 		fabi.close()
 	except:
