@@ -9,6 +9,7 @@ import './App.css';
 import codeTemplate from './CodeTemplate';
 
 const api_url = 'http://' + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
+const websocket_url = 'ws://' + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
 
 const axiosPost = axios.create({
 	xsrfHeaderName: 'X-CSRF-Token',
@@ -37,14 +38,47 @@ const App = () => {
 		setAbi(null);
 		setWasm(null);
 		setResult('');
+		var result_="";
+		var ws = new WebSocket(websocket_url);
+		ws.onopen = function() {
+			console.log("open");
+			ws.send(JSON.stringify({'code':codeRef.current.getValue()}));
+		}
+		ws.onmessage = (e) => {
+			console.log("get message");
+			var data = JSON.parse(e.data);
+			if(data.hasOwnProperty('wasm')){
+        setWasm(base64ToBuffer(data.wasm));
+      }
+			if(data.hasOwnProperty('log')){
+        result_ += data.log;
+        result_ += "\n"
+      }
+      if(data.hasOwnProperty('abi')){
+        setAbi(data.abi);
+        result_ += "[abi.json]\n"
+        result_ += data.abi;
+      }
+      console.log(result_);
+      setResult(result_);
+      setLoadFlag(false);
+			ws.close();
+		}
+		ws.onclose = () => {
+			console.log("conection closed");
+			setLoadFlag(false);
+		}
 
+		/*
 		axiosPost.post(api_url,
-			{'code':codeRef.current.getValue()})
+			{'code':codeRef.current.getValue()} )
     .then(response => response.data)
 		.then(data => {
 			var result_ = "";
 			console.log(data);
-			if(data.hasOwnProperty('wasm')){ setWasm(base64ToBuffer(data.wasm)); }
+			if(data.hasOwnProperty('wasm')){
+				setWasm(base64ToBuffer(data.wasm));
+			}
 			if(data.hasOwnProperty('log')){
 				result_ += data.log;
 				result_ += "\n"
@@ -52,7 +86,7 @@ const App = () => {
 			if(data.hasOwnProperty('abi')){
 				setAbi(data.abi);
 				result_ += "[abi.json]\n"
-				result_ +=data.abi;
+				result_ += data.abi;
 			}
 			console.log(result_);
 			setResult(result_);
@@ -62,6 +96,7 @@ const App = () => {
 			setLoadFlag(false);
 			console.log(err.response);
 		});
+		*/
   }
 
   return (
