@@ -2,17 +2,26 @@ FROM buildpack-deps:buster
 
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
-    PATH=/usr/local/cargo/bin:$PATH \
-    INK_VERSION=b0429dea376e21cd24cdaa8fb8e3d43bc44c8924
+		PATH=/usr/local/cargo/bin:$PATH \
+		RUST_VERSION=1.39.0 \
+		INK_VERSION=b0429dea376e21cd24cdaa8fb8e3d43bc44c8924
 
 SHELL ["/bin/bash","-c"]
 
 RUN set -eux; \
-    \
-    url="https://static.rust-lang.org/rustup/dist/x86_64-unknown-linux-gnu/rustup-init"; \
+    dpkgArch="$(dpkg --print-architecture)"; \
+    case "${dpkgArch##*-}" in \
+        amd64) rustArch='x86_64-unknown-linux-gnu'; rustupSha256='e68f193542c68ce83c449809d2cad262cc2bbb99640eb47c58fc1dc58cc30add' ;; \
+        armhf) rustArch='armv7-unknown-linux-gnueabihf'; rustupSha256='7c1c329a676e50c287d8183b88f30cd6afd0be140826a9fbbc0e3d717fab34d7' ;; \
+        arm64) rustArch='aarch64-unknown-linux-gnu'; rustupSha256='d861cc86594776414de001b96964be645c4bfa27024052704f0976dc3aed1b18' ;; \
+        i386) rustArch='i686-unknown-linux-gnu'; rustupSha256='89f1f797dca2e5c1d75790c3c6b7be0ee473a7f4eca9663e623a41272a358da0' ;; \
+        *) echo >&2 "unsupported architecture: ${dpkgArch}"; exit 1 ;; \
+    esac; \
+    url="https://static.rust-lang.org/rustup/archive/1.20.2/${rustArch}/rustup-init"; \
     wget "$url"; \
+    echo "${rustupSha256} *rustup-init" | sha256sum -c -; \
     chmod +x rustup-init; \
-    ./rustup-init -y --no-modify-path --default-toolchain nightly; \
+    ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION; \
     rm rustup-init; \
     chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \
     rustup --version; \
@@ -27,8 +36,10 @@ RUN set -eux;\
     chmod +x /usr/bin/jq; \
     jq --version; \
     : "wasm from here"; \
-    cargo install --force --git https://github.com/paritytech/ink --rev $INK_VERSION cargo-contract; \
-    rustup target add wasm32-unknown-unknown; 
+    rustup install nightly-2019-11-11; \
+    rustup target add wasm32-unknown-unknown; \
+    : "install cargo contract"; \
+    cargo install --force --git https://github.com/paritytech/ink --rev $INK_VERSION cargo-contract; 
 
 RUN set -eux; \
     mkdir /projects; \
@@ -36,20 +47,17 @@ RUN set -eux; \
     cargo contract new sample; \
     cd sample; \
     cargo contract build; \
-    cargo +nightly build --features ink-generate-abi; \
-		cargo +nightly run -p abi-gen; \
-    rm target/sample* target/old_abi.json target/abi.json;
+    cargo +nightly-2019-11-11 run -p abi-gen; \
+    rm target/sample* target/abi.json;
 
 WORKDIR /projects/sample
 
 CMD rm ./src/lib.rs; \
-		cp -f "/share/${NONCE}.rs" ./src/lib.rs; \
-		mkdir "/share/${NONCE}"; \
-		echo -e "[build wasm]\n cargo contract build" > "/share/${NONCE}/log.txt"; \
+    cp -f "/share/${NONCE}.rs" ./src/lib.rs; \
+    mkdir "/share/${NONCE}"; \
+    echo -e "[build wasm]\n cargo contract build" > "/share/${NONCE}/log.txt"; \
     cargo contract build >> "/share/${NONCE}/log.txt" 2>&1; \
-    #cargo +nightly build --features ink-generate-abi >> "/share/${NONCE}/log.txt" 2>&1; \
-    echo -e "\n[build abi]\n cargo +nightly run -p abi-gen" >> "/share/${NONCE}/log.txt"; \
-    cargo +nightly run -p abi-gen >> "/share/${NONCE}/log.txt" 2>&1; \
+    echo -e "\n[build abi]\n cargo +nightly-2019-11-11 run -p abi-gen" >> "/share/${NONCE}/log.txt"; \
+    cargo +nightly-2019-11-11 run -p abi-gen >> "/share/${NONCE}/log.txt" 2>&1; \
     cp target/sample*.wasm "/share/${NONCE}"; \
-		cp target/old_abi.json "/share/${NONCE}"; \
-		cp target/abi.json "/share/${NONCE}";
+    cp target/abi.json "/share/${NONCE}";
