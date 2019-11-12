@@ -2,9 +2,10 @@ FROM buildpack-deps:buster
 
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
-		PATH=/usr/local/cargo/bin:$PATH \
-		RUST_VERSION=1.39.0 \
-		INK_VERSION=b0429dea376e21cd24cdaa8fb8e3d43bc44c8924
+    PATH=/usr/local/cargo/bin:$PATH \
+    RUST_VERSION=1.39.0 \
+    INK_VERSION="507834d7141b9828ef854b510bea8a4d85489f24" \
+    NIGHTLY_VERSION="nightly-2019-11-11"
 
 SHELL ["/bin/bash","-c"]
 
@@ -35,19 +36,22 @@ RUN set -eux;\
     curl --silent --show-error --location --fail --retry 3 --output /usr/bin/jq $JQ_URL; \
     chmod +x /usr/bin/jq; \
     jq --version; \
-    : "wasm from here"; \
-    rustup install nightly-2019-11-11; \
-    rustup target add wasm32-unknown-unknown; \
-    : "install cargo contract"; \
-    cargo install --force --git https://github.com/paritytech/ink --rev $INK_VERSION cargo-contract; 
+    rustup install $NIGHTLY_VERSION;
+
+RUN set -eux;\
+    \ 
+    cargo install --force --git https://github.com/paritytech/ink --rev $INK_VERSION cargo-contract;
 
 RUN set -eux; \
+    \
+    rustup default $NIGHTLY_VERSION; \
+    rustup target add wasm32-unknown-unknown --toolchain $NIGHTLY_VERSION;\
     mkdir /projects; \
     cd /projects; \
     cargo contract new sample; \
     cd sample; \
     cargo contract build; \
-    cargo +nightly-2019-11-11 run -p abi-gen; \
+    cargo run -p abi-gen; \
     rm target/sample* target/abi.json;
 
 WORKDIR /projects/sample
@@ -57,7 +61,7 @@ CMD rm ./src/lib.rs; \
     mkdir "/share/${NONCE}"; \
     echo -e "[build wasm]\n cargo contract build" > "/share/${NONCE}/log.txt"; \
     cargo contract build >> "/share/${NONCE}/log.txt" 2>&1; \
-    echo -e "\n[build abi]\n cargo +nightly-2019-11-11 run -p abi-gen" >> "/share/${NONCE}/log.txt"; \
-    cargo +nightly-2019-11-11 run -p abi-gen >> "/share/${NONCE}/log.txt" 2>&1; \
+    echo -e "\n[build abi]\n cargo run -p abi-gen" >> "/share/${NONCE}/log.txt"; \
+    cargo run -p abi-gen >> "/share/${NONCE}/log.txt" 2>&1; \
     cp target/sample*.wasm "/share/${NONCE}"; \
     cp target/abi.json "/share/${NONCE}";
