@@ -1,6 +1,8 @@
-import React, {useRef,useState} from 'react';
+import React, {useRef,useState,useEffect} from 'react';
 import {Grid,Button} from '@material-ui/core';
 import axios from 'axios';
+import { ApiPromise, WsProvider } from '@polkadot/api'; 
+
 import Editor from './Editor';
 import ResultArea from './ResultArea';
 import Loader from './Loader';
@@ -8,13 +10,8 @@ import DownloadButton from './DownloadButton';
 import './App.css';
 import codeTemplate from './CodeTemplate';
 
-const api_url = 'http://' + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
-const websocket_url = 'ws://' + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
-
-const axiosPost = axios.create({
-	xsrfHeaderName: 'X-CSRF-Token',
-	withCredentials: true,
-})
+const WS_PROVIDER = 'ws://localhost:9944';
+const WEBSOCKET_URL = 'ws://' + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
 
 const base64ToBuffer = (base64)=>{
 	var bin = atob(base64.replace(/^.*,/, ''));
@@ -30,8 +27,26 @@ const App = () => {
 	const [abi, setAbi] = useState(null);
 	const [result, setResult] = useState('');
 	const [loadFlag, setLoadFlag] = useState(false);
+	const [api,setApi] = useState();
+	const [apiReady,setApiReady] = useState();
+	const [substrateHeaderNumber, setSubstrateHeaderNumber] = useState();
 	const codeRef = useRef(null);
 	const resultRef = useRef(null);
+
+  useEffect(()=>{
+    const provider = new WsProvider(WS_PROVIDER);
+    ApiPromise.create(provider)
+    .then((api)=>{
+      setApi(api);
+      api.isReady.then(() => {
+        setApiReady(true);
+        api.rpc.chain.subscribeNewHeads((header)=>{
+          setSubstrateHeaderNumber(header.number);
+        });
+      });
+    })
+    .catch((e)=>{/*console.error(e)*/;});
+  },[]);
 
 	const onCodeSubmit = () => {
 		setLoadFlag(true);
@@ -39,11 +54,7 @@ const App = () => {
 		setWasm(null);
 		setResult('');
 		var result_="";
-		var ws = new WebSocket(websocket_url);
-		ws.onopen = function() {
-			console.log("open");
-			ws.send(JSON.stringify({'code':codeRef.current.getValue()}));
-		}
+		var ws = new WebSocket(WEBSOCKET_URL);
 		ws.onmessage = (e) => {
 			console.log("get message");
 			var data = JSON.parse(e.data);
@@ -56,10 +67,9 @@ const App = () => {
       }
       if(data.hasOwnProperty('abi')){
         setAbi(data.abi);
-        result_ += "[abi.json]\n"
-        result_ += data.abi;
+//			result_ += "[abi.json]\n"
+//			result_ += data.abi;
       }
-      console.log(result_);
       setResult(result_);
       setLoadFlag(false);
 			ws.close();
@@ -68,70 +78,47 @@ const App = () => {
 			console.log("conection closed");
 			setLoadFlag(false);
 		}
-
-		/*
-		axiosPost.post(api_url,
-			{'code':codeRef.current.getValue()} )
-    .then(response => response.data)
-		.then(data => {
-			var result_ = "";
-			console.log(data);
-			if(data.hasOwnProperty('wasm')){
-				setWasm(base64ToBuffer(data.wasm));
-			}
-			if(data.hasOwnProperty('log')){
-				result_ += data.log;
-				result_ += "\n"
-			}
-			if(data.hasOwnProperty('abi')){
-				setAbi(data.abi);
-				result_ += "[abi.json]\n"
-				result_ += data.abi;
-			}
-			console.log(result_);
-			setResult(result_);
-			setLoadFlag(false);
-    })
-		.catch(err=>{
-			setLoadFlag(false);
-			console.log(err.response);
-		});
-		*/
+		ws.onopen = function() {
+			console.log("open");
+			ws.send(JSON.stringify({'code':codeRef.current.getValue()}));
+		}
   }
 
   return (
     <div className="App">
       <div className="App-header">
-          <div style={{textAlign:"center"}}>
-            <h1 style={{margin:'5px'}}  >ink! playground</h1>
-          </div>
-      </div>
-      <Grid container style={{height:'100%'}} >
-        <Grid item xs={6} style={{padding:"10px"}}>
-          <Button onClick={onCodeSubmit} variant="contained" color="primary" style={{width:"100%",marginTop:"10px",marginBottom:"10px"}} >
-            Compile Code
-          </Button>
-					<div style={{display:'flex',height:'100%'}}>
+          <div style={{float:"left"}}>
+            <h1 style={{margin:'5px', display:'inline'}}>ink! playground</h1>
+					</div>
+					<div style={{float:"right"}}>
+							Substrate Node :
+							{apiReady? (" #"+(substrateHeaderNumber) ) : " not connected"}
+					</div>
+			</div>
+			<div style={{flex:'1',display:'flex',flexDirection:'row'}}>
+			<div style={{flex:'1',display:'flex',flexDirection:'column',margin:"10px"}}>
+        <Button onClick={onCodeSubmit} variant="contained" color="primary" style={{width:"100%"}} >
+          Compile Code
+        </Button>
+				<div style={{flex:'1',display:'flex'}}>
+					<div style={{flex:'1',position: 'relative',marginTop:'10px',marginBottom:'10px',border:'2px solid #333', borderRadius:'2px'}}>
 						<Editor value={codeTemplate} ref={codeRef} theme="monokai" style={{width:"100%",height:"100%",marginBottom:"40px",marginTop:"20px"}} />
         	</div>
-				</Grid>
-        <Grid item xs={6} style={{padding: '10px'}} >
-				<Grid container>
-          <Grid item xs={12}>
-            <Loader flag={loadFlag}/>
-					</Grid>
-					<Grid item xs={6} style={{padding: '10px'}}>
-            <DownloadButton label={"wasm"} name={"sample.wasm"} mimeType={"application/wasm"} data={wasm}/>
-          </Grid>
-          <Grid item xs={6} style={{padding: '10px'}}>
-            <DownloadButton label={"abi"} name={"abi.json"} mimeType={"application/json"} data={abi} />
-          </Grid>
-				</Grid>
-					<div style={{display:'flex',height : '100%'}}>
-						<ResultArea value={result} ref={resultRef} theme="monokai"/>
-        	</div>
-				</Grid>
-      </Grid>
+				</div>
+				<div style={{display:(result!="")?'flex':'none',height : '200px',overflow:'scroll'}}>
+					<ResultArea value={result} ref={resultRef} theme="monokai"/>
+        </div>
+      </div> 
+			<div style={{ overflow:'scroll',borderLeft:"3px solid #444",width:'300px',padding:'10px'}}>	
+				<Loader flag={loadFlag}/>
+				<div style={{marginBottom:"10px"}}>
+					<DownloadButton label={"wasm"} name={"sample.wasm"} mimeType={"application/wasm"} data={wasm}/>
+        </div>
+				<div>
+						<DownloadButton label={"abi"} name={"abi.json"} mimeType={"application/json"} data={abi} />
+				</div>
+			</div>
+			</div>
     </div>
   );
 }

@@ -23,7 +23,6 @@ const ResultArea = forwardRef((props,ref) => {
     //editor.getSession().setMode("ace/mode/bash");
 		editor.setReadOnly(true);
 		editor.renderer.setShowGutter(false);
-		editor.clearSelection();
   }, [child]);
 
   useEditorProp(editor, props.theme, useCallback((editor, theme) => {
@@ -32,6 +31,7 @@ const ResultArea = forwardRef((props,ref) => {
 
 	useEditorProp(editor, props.value, useCallback((editor, code) => {
 		editor.setValue(code);
+		editor.clearSelection();
 	}, []));
 
 	return (

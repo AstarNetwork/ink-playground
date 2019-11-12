@@ -1,15 +1,18 @@
 .App {
-	height: 100%;
+	min-height: 100vh;
 	background-color: #222;
   text-align: center;
 	margin: 0px;
 	padding: 0px;
+	display: flex;
+	flex-direction: column;
+	box-sizing: border-box;
   color: white;
 }
 
 .App-header {
   background-color: #444;
 	margin: 0px;
-	padding: 2px;
+	padding: 10px;
   color: white;
 }
