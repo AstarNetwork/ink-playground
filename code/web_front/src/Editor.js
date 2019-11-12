@@ -25,7 +25,6 @@ const Editor = forwardRef((props,ref) => {
     const editor = ace.edit(child.current);
     setEditor(editor);
     editor.getSession().setMode("ace/mode/rust");
-		editor.clearSelection();
   }, [child]);
 
   useEditorProp(editor, props.theme, useCallback((editor, theme) => {
@@ -34,6 +33,7 @@ const Editor = forwardRef((props,ref) => {
 
 	useEditorProp(editor, props.value, useCallback((editor, code) => {
 		editor.setValue(code);
+		editor.clearSelection();
 	}, []));
 
 	return (
