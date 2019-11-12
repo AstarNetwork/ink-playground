@@ -47,8 +47,8 @@ RUN set -eux; \
     cargo contract new sample; \
     cd sample; \
     cargo contract build; \
-    cargo +nightly run -p abi-gen; \
-    rm target/sample* target/old_abi.json target/abi.json;
+    cargo +nightly-2019-11-11 run -p abi-gen; \
+    rm target/sample* target/abi.json;
 
 WORKDIR /projects/sample
 
@@ -57,9 +57,7 @@ CMD rm ./src/lib.rs; \
     mkdir "/share/${NONCE}"; \
     echo -e "[build wasm]\n cargo contract build" > "/share/${NONCE}/log.txt"; \
     cargo contract build >> "/share/${NONCE}/log.txt" 2>&1; \
-    #cargo +nightly build --features ink-generate-abi >> "/share/${NONCE}/log.txt" 2>&1; \
-    echo -e "\n[build abi]\n cargo run -p abi-gen" >> "/share/${NONCE}/log.txt"; \
-    cargo +nightly run -p abi-gen >> "/share/${NONCE}/log.txt" 2>&1; \
+    echo -e "\n[build abi]\n cargo +nightly-2019-11-11 run -p abi-gen" >> "/share/${NONCE}/log.txt"; \
+    cargo +nightly-2019-11-11 run -p abi-gen >> "/share/${NONCE}/log.txt" 2>&1; \
     cp target/sample*.wasm "/share/${NONCE}"; \
-    cp target/old_abi.json "/share/${NONCE}"; \
     cp target/abi.json "/share/${NONCE}";
