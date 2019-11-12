@@ -37,9 +37,9 @@ RUN set -eux;\
     jq --version; \
     : "wasm from here"; \
     rustup install nightly-2019-11-11; \
-		rustup target add wasm32-unknown-unknown; \
+    rustup target add wasm32-unknown-unknown; \
     : "install cargo contract"; \
-		cargo install --force --git https://github.com/paritytech/ink --rev $INK_VERSION cargo-contract; \
+    cargo install --force --git https://github.com/paritytech/ink --rev $INK_VERSION cargo-contract; 
 
 RUN set -eux; \
     mkdir /projects; \
@@ -47,19 +47,19 @@ RUN set -eux; \
     cargo contract new sample; \
     cd sample; \
     cargo contract build; \
-		cargo +nightly run -p abi-gen; \
+    cargo +nightly run -p abi-gen; \
     rm target/sample* target/old_abi.json target/abi.json;
 
 WORKDIR /projects/sample
 
 CMD rm ./src/lib.rs; \
-		cp -f "/share/${NONCE}.rs" ./src/lib.rs; \
-		mkdir "/share/${NONCE}"; \
-		echo -e "[build wasm]\n cargo contract build" > "/share/${NONCE}/log.txt"; \
+    cp -f "/share/${NONCE}.rs" ./src/lib.rs; \
+    mkdir "/share/${NONCE}"; \
+    echo -e "[build wasm]\n cargo contract build" > "/share/${NONCE}/log.txt"; \
     cargo contract build >> "/share/${NONCE}/log.txt" 2>&1; \
     #cargo +nightly build --features ink-generate-abi >> "/share/${NONCE}/log.txt" 2>&1; \
     echo -e "\n[build abi]\n cargo run -p abi-gen" >> "/share/${NONCE}/log.txt"; \
     cargo +nightly run -p abi-gen >> "/share/${NONCE}/log.txt" 2>&1; \
     cp target/sample*.wasm "/share/${NONCE}"; \
-		cp target/old_abi.json "/share/${NONCE}"; \
-		cp target/abi.json "/share/${NONCE}";
+    cp target/old_abi.json "/share/${NONCE}"; \
+    cp target/abi.json "/share/${NONCE}";
