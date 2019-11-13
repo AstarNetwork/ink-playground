@@ -26,6 +26,7 @@ const App = () => {
 	const [wasm,setWasm] = useState(null);
 	const [abi, setAbi] = useState(null);
 	const [result, setResult] = useState('');
+	const [showResult, setShowResult ] = useState(false);
 	const [loadFlag, setLoadFlag] = useState(false);
 	const [api,setApi] = useState();
 	const [apiReady,setApiReady] = useState();
@@ -49,10 +50,13 @@ const App = () => {
   },[]);
 
 	const onCodeSubmit = () => {
+		if(loadFlag)
+			return ()=>{};
 		setLoadFlag(true);
 		setAbi(null);
 		setWasm(null);
 		setResult('');
+		setShowResult(true);
 		var result_="";
 		var ws = new WebSocket(WEBSOCKET_URL);
 		ws.onmessage = (e) => {
@@ -105,7 +109,7 @@ const App = () => {
 						<Editor value={codeTemplate} ref={codeRef} theme="monokai" style={{width:"100%",height:"100%",marginBottom:"40px",marginTop:"20px"}} />
         	</div>
 				</div>
-				<div style={{display:(result!="")?'flex':'none',height : '200px',overflow:'scroll'}}>
+				<div style={{display:showResult?'flex':'none',height : '170px',overflow:'scroll'}}>
 					<ResultArea value={result} ref={resultRef} theme="monokai"/>
         </div>
       </div> 
