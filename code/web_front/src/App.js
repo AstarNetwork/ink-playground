@@ -11,7 +11,9 @@ import './App.css';
 import codeTemplate from './CodeTemplate';
 
 const WS_PROVIDER = 'ws://localhost:9944';
-const WEBSOCKET_URL = 'ws://' + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
+const WEBSOCKET_URL = (process.env.REACT_APP_TLS=='TRUE'?'wss://':'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
+
+console.log(process.env);
 
 const base64ToBuffer = (base64)=>{
 	var bin = atob(base64.replace(/^.*,/, ''));
