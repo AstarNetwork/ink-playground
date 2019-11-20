@@ -61,6 +61,7 @@ If you want to test locally, do like this: `./init.sh localhost`
 ## Running
 ```bash
 ./build.sh
+docker build -t ink_env ink
 docker up -d
 ```
 
@@ -81,5 +82,3 @@ After running, you can access to page by http://localhost/
 ```bash
 docker down
 ```
-
-
