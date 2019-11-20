@@ -32,7 +32,7 @@ def compile():
 			print('no code')
 			pass
 		
-		print('begin compile')
+		print("begin compile: docker run -e NONCE=%s --rm -it -v $INK_DIR:/share ink_env" % fname)
 		popen = subprocess.Popen("docker run -e NONCE=%s --rm -it -v $INK_DIR:/share ink_env"%fname, shell=True)
 		popen.wait()
 		

@@ -1,7 +1,7 @@
 
 # ink! playground
 
-http://ink-playground.com/
+https://ink-playground.com/
 
 # Introduction
 ink! playground is the browser IDE for Substrate's smart contract(srml-contract). This will be similar to [Remix](https://github.com/ethereum/remix), the smart contract IDE of Ethereum.
@@ -11,9 +11,9 @@ It doesn't require installing Substrate or running Substrate node. This is very 
 For the future works, ink! playground also provides high level security audits. This is for developer who wants to make high secured smart contracts like for enterprise use.
 
 # Demo
-you can try from [here](http://ink-playground.com/)
+you can try from [here](https://ink-playground.com/)
 
-![Imgur](https://i.imgur.com/xBDgM62.png)
+![Imgur](https://i.imgur.com/1RDpCOz.png)
 
 # Specification
 ## overview
@@ -59,15 +59,22 @@ At <PUBLIC_DNS>, insert public dns of the server (exclude "http://").
 If you want to test locally, do like this: `./init.sh localhost`
 
 ## Running
-```
+```bash
 ./build.sh
+docker build -t ink_env ink
 docker up -d
+```
 
+open another terminal and do the following.
+```bash
 #start api server
-docker exec -it -d rest_api python3 websocket_app/server.py &
+docker exec -it rest_api python3 websocket_app/server.py
+```
 
+open another terimnal and do the following.
+```bash
 #start web front server
-docker exec -it -d web_front yarn start &
+docker exec -it web_front yarn start
 ```
 After running, you can access to page by http://localhost/
 
@@ -75,5 +82,3 @@ After running, you can access to page by http://localhost/
 ```bash
 docker down
 ```
-
-

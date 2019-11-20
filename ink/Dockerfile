@@ -56,8 +56,8 @@ RUN set -eux; \
 
 WORKDIR /projects/sample
 
-CMD rm ./src/lib.rs; \
-    cp -f "/share/${NONCE}.rs" ./src/lib.rs; \
+CMD rm ./lib.rs; \
+    cp -f "/share/${NONCE}.rs" ./lib.rs; \
     mkdir "/share/${NONCE}"; \
     echo -e "[build wasm]\n cargo contract build" > "/share/${NONCE}/log.txt"; \
     cargo contract build >> "/share/${NONCE}/log.txt" 2>&1; \
