@@ -68,13 +68,13 @@ docker up -d
 open another terminal and do the following.
 ```bash
 #start api server
-docker exec -it rest_api python3 websocket_app/server.py
+docker exec rest_api python3 websocket_app/server.py
 ```
 
 open another terimnal and do the following.
 ```bash
 #start web front server
-docker exec -it web_front yarn start
+docker exec web_front yarn start
 ```
 After running, you can access to page by http://localhost/
 
