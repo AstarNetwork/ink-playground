@@ -62,23 +62,26 @@ If you want to test locally, do like this: `./init.sh localhost`
 ```bash
 ./build.sh
 docker build -t ink_env ink
-docker up -d
+docker-compose up -d
 ```
 
 open another terminal and do the following.
 ```bash
 #start api server
-docker exec rest_api python3 websocket_app/server.py
+docker-compose exec rest_api python3 websocket_app/server.py
 ```
 
 open another terimnal and do the following.
 ```bash
+#only for the first time before running
+docker-compose exec web_front yarn install
+
 #start web front server
-docker exec web_front yarn start
+docker-compose exec web_front yarn start
 ```
 After running, you can access to page by http://localhost/
 
 ## Stopping
 ```bash
-docker down
+docker-compose down
 ```
