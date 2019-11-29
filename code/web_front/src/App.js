@@ -2,18 +2,18 @@ import React, {useRef,useState,useEffect} from 'react';
 import {Grid,Button} from '@material-ui/core';
 import axios from 'axios';
 import { ApiPromise, WsProvider } from '@polkadot/api'; 
+import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
+import keyring from '@polkadot/ui-keyring';
 
 import Editor from './Editor';
 import ResultArea from './ResultArea';
 import Loader from './Loader';
 import DownloadButton from './DownloadButton';
+import Chains from './Chains';
 import './App.css';
 import codeTemplate from './CodeTemplate';
 
-const WS_PROVIDER = 'ws://localhost:9944';
 const WEBSOCKET_URL = (process.env.REACT_APP_TLS=='TRUE'?'wss://':'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
-
-console.log(process.env);
 
 const base64ToBuffer = (base64)=>{
 	var bin = atob(base64.replace(/^.*,/, ''));
@@ -32,13 +32,17 @@ const App = () => {
 	const [loadFlag, setLoadFlag] = useState(false);
 	const [api,setApi] = useState();
 	const [apiReady,setApiReady] = useState();
+	const [accountLoaded, setaccountLoaded] = useState(false);
 	const [substrateHeaderNumber, setSubstrateHeaderNumber] = useState();
+	const [chain,setChain] = useState(Chains.plasm_testnet);
+
 	const codeRef = useRef(null);
 	const resultRef = useRef(null);
 
   useEffect(()=>{
-    const provider = new WsProvider(WS_PROVIDER);
-    ApiPromise.create(provider)
+    const provider = new WsProvider(chain.ws_provider);
+		const types = chain.types;
+    ApiPromise.create({provider,types})
     .then((api)=>{
       setApi(api);
       api.isReady.then(() => {
@@ -49,7 +53,7 @@ const App = () => {
       });
     })
     .catch((e)=>{/*console.error(e)*/;});
-  },[]);
+  },[chain]);
 
 	const onCodeSubmit = () => {
 		if(loadFlag)
@@ -89,6 +93,34 @@ const App = () => {
 			ws.send(JSON.stringify({'code':codeRef.current.getValue()}));
 		}
   }
+
+	useEffect(() => {
+  web3Enable('ink-playground')
+  .then((extensions) => {
+  web3Accounts()
+      .then((accounts) => {
+          return accounts.map(({ address, meta }) => ({
+              address,
+              meta: {
+              ...meta,
+              name: `${meta.name} (${meta.source})`
+              }
+          }));
+      })
+      .then((injectedAccounts) => {
+          loadAccounts(injectedAccounts);
+      })
+      .catch(console.error);
+  })
+  .catch(console.error);
+  }, []);
+
+	const loadAccounts = (injectedAccounts) => {
+	keyring.loadAll({
+  	  isDevelopment: true
+	}, injectedAccounts);
+	setaccountLoaded(true);
+	};
 
   return (
     <div className="App">
