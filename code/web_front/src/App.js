@@ -1,6 +1,5 @@
 import React, {useRef,useState,useEffect} from 'react';
 import {Grid,Button} from '@material-ui/core';
-import axios from 'axios';
 import { ApiPromise, WsProvider } from '@polkadot/api'; 
 import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
 import keyring from '@polkadot/ui-keyring';
@@ -81,15 +80,16 @@ const App = () => {
 //			result_ += data.metadata;
       }
       setResult(result_);
-      setLoadFlag(false);
 			ws.close();
 		}
 		ws.onclose = () => {
-			console.log("conection closed");
 			setLoadFlag(false);
 		}
+		ws.onerror = () => {
+			setLoadFlag(false);
+			setResult("Connection Error");
+		}
 		ws.onopen = function() {
-			console.log("open");
 			ws.send(JSON.stringify({'code':codeRef.current.getValue()}));
 		}
   }
@@ -140,7 +140,7 @@ const App = () => {
         </Button>
 				<div style={{flex:'1',display:'flex'}}>
 					<div style={{flex:'1',position: 'relative',marginTop:'10px',marginBottom:'10px',border:'2px solid #333', borderRadius:'2px'}}>
-						<Editor value={codeTemplate} ref={codeRef} theme="monokai" style={{width:"100%",height:"100%",marginBottom:"40px",marginTop:"20px"}} />
+						<Editor  value={codeTemplate} ref={codeRef} theme="monokai" style={{width:"100%",height:"100%",marginBottom:"40px",marginTop:"20px"}} />
         	</div>
 				</div>
 				<div style={{display:showResult?'flex':'none',height : '170px',overflow:'scroll'}}>
