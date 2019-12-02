@@ -26,7 +26,7 @@ const base64ToBuffer = (base64)=>{
 
 const App = () => {
 	const [wasm,setWasm] = useState(null);
-	const [abi, setAbi] = useState(null);
+	const [metadata, setMetadata] = useState(null);
 	const [result, setResult] = useState('');
 	const [showResult, setShowResult ] = useState(false);
 	const [loadFlag, setLoadFlag] = useState(false);
@@ -59,7 +59,7 @@ const App = () => {
 		if(loadFlag)
 			return ()=>{};
 		setLoadFlag(true);
-		setAbi(null);
+		setMetadata(null);
 		setWasm(null);
 		setResult('');
 		setShowResult(true);
@@ -75,10 +75,10 @@ const App = () => {
         result_ += data.log;
         result_ += "\n"
       }
-      if(data.hasOwnProperty('abi')){
-        setAbi(data.abi);
-//			result_ += "[abi.json]\n"
-//			result_ += data.abi;
+      if(data.hasOwnProperty('metadata')){
+        setMetadata(data.metadata);
+//			result_ += "[metadata.json]\n"
+//			result_ += data.metadata;
       }
       setResult(result_);
       setLoadFlag(false);
@@ -153,7 +153,7 @@ const App = () => {
 					<DownloadButton label={"wasm"} name={"sample.wasm"} mimeType={"application/wasm"} data={wasm}/>
         </div>
 				<div>
-						<DownloadButton label={"abi"} name={"abi.json"} mimeType={"application/json"} data={abi} />
+						<DownloadButton label={"metadata"} name={"metadata.json"} mimeType={"application/json"} data={metadata} />
 				</div>
 			</div>
 			</div>

@@ -47,13 +47,13 @@ def compile():
 		else:
 			retobj['wasm']=base64.b64encode(wasm).decode('utf-8')
 		try:
-			fabi = open('/share/%s/abi.json' % fname,'r')
-			abi = fabi.read()
-			fabi.close()
+			fmetadata = open('/share/%s/metadata.json' % fname,'r')
+			metadata = fmetadata.read()
+			fmetadata.close()
 		except:
 			pass
 		else:
-			retobj['abi']=abi
+			retobj['metadata']=metadata
 		try:
 			flog = open('/share/%s/log.txt' % fname,'r')
 			log = flog.read()

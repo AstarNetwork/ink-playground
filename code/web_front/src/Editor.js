@@ -24,17 +24,18 @@ const Editor = forwardRef((props,ref) => {
 
     const editor = ace.edit(child.current);
     setEditor(editor);
+    editor.setAutoScrollEditorIntoView(true);
     editor.getSession().setMode("ace/mode/rust");
   }, [child]);
 
   useEditorProp(editor, props.theme, useCallback((editor, theme) => {
 		editor.setTheme(`ace/theme/${theme}`);
-  }, []));
+  }));
 
 	useEditorProp(editor, props.value, useCallback((editor, code) => {
 		editor.setValue(code);
 		editor.clearSelection();
-	}, []));
+	}));
 
 	return (
 		<div ref={child} style={{ position:'relative',width: '100%',height:'100%'}}> </div>

@@ -4,7 +4,7 @@ ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH \
     RUST_VERSION=1.39.0 \
-    INK_VERSION="507834d7141b9828ef854b510bea8a4d85489f24" \
+    CARGO_CONTRACT_VERSION="bedf3fd43b9f1ff7d502ed2be003765b02c9998c" \
     NIGHTLY_VERSION="nightly-2019-11-11"
 
 SHELL ["/bin/bash","-c"]
@@ -40,7 +40,7 @@ RUN set -eux;\
 
 RUN set -eux;\
     \ 
-    cargo install --force --git https://github.com/paritytech/ink --rev $INK_VERSION cargo-contract;
+    cargo install --force --git https://github.com/paritytech/cargo-contract --rev $CARGO_CONTRACT_VERSION cargo-contract;
 
 RUN set -eux; \
     \
@@ -51,8 +51,8 @@ RUN set -eux; \
     cargo contract new sample; \
     cd sample; \
     cargo contract build; \
-    cargo run -p abi-gen; \
-    rm target/sample* target/abi.json;
+    cargo contract generate-metadata; \
+    rm target/sample* target/metadata.json;
 
 WORKDIR /projects/sample
 
@@ -61,7 +61,7 @@ CMD rm ./lib.rs; \
     mkdir "/share/${NONCE}"; \
     echo -e "[build wasm]\n cargo contract build" > "/share/${NONCE}/log.txt"; \
     cargo contract build >> "/share/${NONCE}/log.txt" 2>&1; \
-    echo -e "\n[build abi]\n cargo run -p abi-gen" >> "/share/${NONCE}/log.txt"; \
-    cargo run -p abi-gen >> "/share/${NONCE}/log.txt" 2>&1; \
+    echo -e "\n[build abi]\n cargo contract generate-metadata" >> "/share/${NONCE}/log.txt"; \
+    cargo contract generate-metadata >> "/share/${NONCE}/log.txt" 2>&1; \
     cp target/sample*.wasm "/share/${NONCE}"; \
-    cp target/abi.json "/share/${NONCE}";
+    cp target/metadata.json "/share/${NONCE}";
