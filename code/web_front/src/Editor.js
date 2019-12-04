@@ -18,13 +18,12 @@ const Editor = forwardRef((props,ref) => {
 	useImperativeHandle( ref,()=>({
 		getValue: () => {return editor.getValue();},
 	}));
-	
+
 	useEffect(() => {
     if (!child.current) { return; }
 
     const editor = ace.edit(child.current);
     editor.getSession().setMode("ace/mode/rust");
-    console.log(Infinity);
 
     setEditor(editor);
   }, [child]);

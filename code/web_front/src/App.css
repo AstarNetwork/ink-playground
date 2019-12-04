@@ -12,6 +12,8 @@
 
 .App-header {
   background-color: #444;
+	display: flex;
+	flex-direction: row;
 	margin: 0px;
 	padding: 10px;
   color: white;

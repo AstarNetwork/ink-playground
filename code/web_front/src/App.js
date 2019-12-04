@@ -1,18 +1,19 @@
-import React, {useRef,useState,useEffect} from 'react';
+import React, {useRef,useState,useEffect,createContext} from 'react';
 import {Grid,Button} from '@material-ui/core';
-import { ApiPromise, WsProvider } from '@polkadot/api'; 
-import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
+import { ApiPromise, WsProvider } from '@polkadot/api';
 import keyring from '@polkadot/ui-keyring';
 
+import AppHeader from './AppHeader';
 import Editor from './Editor';
 import ResultArea from './ResultArea';
 import Loader from './Loader';
 import DownloadButton from './DownloadButton';
 import Chains from './Chains';
 import './App.css';
+import {ChainContext} from './Contexts';
 import codeTemplate from './CodeTemplate';
 
-const WEBSOCKET_URL = (process.env.REACT_APP_TLS=='TRUE'?'wss://':'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
+export const WEBSOCKET_URL = (process.env.REACT_APP_TLS=='TRUE'?'wss://':'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
 
 const base64ToBuffer = (base64)=>{
 	var bin = atob(base64.replace(/^.*,/, ''));
@@ -31,28 +32,40 @@ const App = () => {
 	const [loadFlag, setLoadFlag] = useState(false);
 	const [api,setApi] = useState();
 	const [apiReady,setApiReady] = useState();
-	const [accountLoaded, setaccountLoaded] = useState(false);
 	const [substrateHeaderNumber, setSubstrateHeaderNumber] = useState();
-	const [chain,setChain] = useState(Chains.plasm_testnet);
+	const [chain,setChain] = useState(Chains.flaming_fir);
 
 	const codeRef = useRef(null);
 	const resultRef = useRef(null);
 
   useEffect(()=>{
-    const provider = new WsProvider(chain.ws_provider);
-		const types = chain.types;
-    ApiPromise.create({provider,types})
-    .then((api)=>{
-      setApi(api);
-      api.isReady.then(() => {
-        setApiReady(true);
-        api.rpc.chain.subscribeNewHeads((header)=>{
-          setSubstrateHeaderNumber(header.number);
-        });
-      });
-    })
-    .catch((e)=>{/*console.error(e)*/;});
-  },[chain]);
+		console.log("called effect");
+		const effect = async ()=>{
+	    const provider = new WsProvider(chain.ws_provider);
+			const types = chain.types;
+			const api = await ApiPromise.create({provider,types});
+	    setApi(api);
+			api.once('disconnected', (): void => {
+				console.log('mmmmm disconnected');
+			});
+			api.once('error', (): void => {
+				console.log('mmmmm error');
+			});
+					    if(api.isReady){
+	        setApiReady(true);
+	        const unsub = await api.rpc.chain.subscribeNewHeads((header)=>{
+	          setSubstrateHeaderNumber(header.number);
+	        }).catch((e)=>{/*console.error(e)*/;});
+					return (
+						()=>{
+							setApiReady(false);
+							unsub();
+						}
+					);
+	    }
+		}
+		effect();
+  },[chain.name]);
 
 	const onCodeSubmit = () => {
 		if(loadFlag)
@@ -94,45 +107,12 @@ const App = () => {
 		}
   }
 
-	useEffect(() => {
-  web3Enable('ink-playground')
-  .then((extensions) => {
-  web3Accounts()
-      .then((accounts) => {
-          return accounts.map(({ address, meta }) => ({
-              address,
-              meta: {
-              ...meta,
-              name: `${meta.name} (${meta.source})`
-              }
-          }));
-      })
-      .then((injectedAccounts) => {
-          loadAccounts(injectedAccounts);
-      })
-      .catch(console.error);
-  })
-  .catch(console.error);
-  }, []);
-
-	const loadAccounts = (injectedAccounts) => {
-	keyring.loadAll({
-  	  isDevelopment: true
-	}, injectedAccounts);
-	setaccountLoaded(true);
-	};
-
   return (
     <div className="App">
-      <div className="App-header">
-          <div style={{float:"left"}}>
-            <h1 style={{margin:'5px', display:'inline'}}>ink! playground</h1>
-					</div>
-					<div style={{float:"right"}}>
-							Substrate Node :
-							{apiReady? (" #"+(substrateHeaderNumber) ) : " not connected"}
-					</div>
-			</div>
+			 <ChainContext.Provider value={[chain,setChain]}>
+       <AppHeader props={{apiReady,substrateHeaderNumber}}/>
+			 </ChainContext.Provider>
+
 			<div style={{flex:'1',display:'flex',flexDirection:'row'}}>
 			<div style={{flex:'1',display:'flex',flexDirection:'column',margin:"10px"}}>
         <Button onClick={onCodeSubmit} variant="contained" color="primary" style={{width:"100%"}} >
@@ -146,8 +126,8 @@ const App = () => {
 				<div style={{display:showResult?'flex':'none',height : '170px',overflow:'scroll'}}>
 					<ResultArea value={result} ref={resultRef} theme="monokai"/>
         </div>
-      </div> 
-			<div style={{ overflow:'scroll',borderLeft:"3px solid #444",width:'300px',padding:'10px'}}>	
+      </div>
+			<div style={{ overflow:'scroll',borderLeft:"3px solid #444",width:'300px',padding:'10px'}}>
 				<Loader flag={loadFlag}/>
 				<div style={{marginBottom:"10px"}}>
 					<DownloadButton label={"wasm"} name={"sample.wasm"} mimeType={"application/wasm"} data={wasm}/>
