@@ -1,17 +1,15 @@
-import React, {useRef,useState,useEffect,createContext} from 'react';
-import {Grid,Button} from '@material-ui/core';
-import { ApiPromise, WsProvider } from '@polkadot/api';
-import keyring from '@polkadot/ui-keyring';
+import React, { useRef, useState, useEffect, createContext } from 'react';
+import { Button } from '@material-ui/core';
 
 import AppHeader from './AppHeader';
 import Editor from './Editor';
 import ResultArea from './ResultArea';
 import Loader from './Loader';
 import DownloadButton from './DownloadButton';
-import Chains from './Chains';
-import './App.css';
-import {ChainContext} from './Contexts';
-import codeTemplate from './CodeTemplate';
+import TxButton from './TxButton';
+import Chains from '../Chains';
+import '../App.css';
+import codeTemplate from '../CodeTemplate';
 
 export const WEBSOCKET_URL = (process.env.REACT_APP_TLS=='TRUE'?'wss://':'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
 
@@ -30,42 +28,9 @@ const App = () => {
 	const [result, setResult] = useState('');
 	const [showResult, setShowResult ] = useState(false);
 	const [loadFlag, setLoadFlag] = useState(false);
-	const [api,setApi] = useState();
-	const [apiReady,setApiReady] = useState();
-	const [substrateHeaderNumber, setSubstrateHeaderNumber] = useState();
-	const [chain,setChain] = useState(Chains.flaming_fir);
 
 	const codeRef = useRef(null);
 	const resultRef = useRef(null);
-
-  useEffect(()=>{
-		console.log("called effect");
-		const effect = async ()=>{
-	    const provider = new WsProvider(chain.ws_provider);
-			const types = chain.types;
-			const api = await ApiPromise.create({provider,types});
-	    setApi(api);
-			api.once('disconnected', (): void => {
-				console.log('mmmmm disconnected');
-			});
-			api.once('error', (): void => {
-				console.log('mmmmm error');
-			});
-					    if(api.isReady){
-	        setApiReady(true);
-	        const unsub = await api.rpc.chain.subscribeNewHeads((header)=>{
-	          setSubstrateHeaderNumber(header.number);
-	        }).catch((e)=>{/*console.error(e)*/;});
-					return (
-						()=>{
-							setApiReady(false);
-							unsub();
-						}
-					);
-	    }
-		}
-		effect();
-  },[chain.name]);
 
 	const onCodeSubmit = () => {
 		if(loadFlag)
@@ -89,33 +54,24 @@ const App = () => {
       }
       if(data.hasOwnProperty('metadata')){
         setMetadata(data.metadata);
-//			result_ += "[metadata.json]\n"
-//			result_ += data.metadata;
       }
       setResult(result_);
 			ws.close();
 		}
-		ws.onclose = () => {
-			setLoadFlag(false);
-		}
+		ws.onclose = () => {setLoadFlag(false);}
 		ws.onerror = () => {
 			setLoadFlag(false);
 			setResult("Connection Error");
 		}
-		ws.onopen = function() {
-			ws.send(JSON.stringify({'code':codeRef.current.getValue()}));
-		}
+		ws.onopen = function() {ws.send(JSON.stringify({'code':codeRef.current.getValue()}));}
   }
 
   return (
     <div className="App">
-			 <ChainContext.Provider value={[chain,setChain]}>
-       <AppHeader props={{apiReady,substrateHeaderNumber}}/>
-			 </ChainContext.Provider>
-
+		  <AppHeader/>
 			<div style={{flex:'1',display:'flex',flexDirection:'row'}}>
 			<div style={{flex:'1',display:'flex',flexDirection:'column',margin:"10px"}}>
-        <Button onClick={onCodeSubmit} variant="contained" color="primary" style={{width:"100%"}} >
+      	<Button onClick={onCodeSubmit} variant="contained" color="primary" style={{width:"100%"}} >
           Compile Code
         </Button>
 				<div style={{flex:'1',display:'flex'}}>
@@ -133,7 +89,11 @@ const App = () => {
 					<DownloadButton label={"wasm"} name={"sample.wasm"} mimeType={"application/wasm"} data={wasm}/>
         </div>
 				<div>
-						<DownloadButton label={"metadata"} name={"metadata.json"} mimeType={"application/json"} data={metadata} />
+					<DownloadButton label={"metadata"} name={"metadata.json"} mimeType={"application/json"} data={metadata} />
+				</div>
+				<hr/>
+				<div>
+					<TxButton label={"put code"} tx={'contracts.putCode'} params={[500000,'']} display={true} />
 				</div>
 			</div>
 			</div>

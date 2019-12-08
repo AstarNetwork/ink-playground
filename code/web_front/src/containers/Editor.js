@@ -15,7 +15,7 @@ const Editor = forwardRef((props,ref) => {
 	const [editor, setEditor] = useState(null);
 	const child = useRef(null);
 
-	useImperativeHandle( ref,()=>({
+	useImperativeHandle(ref,()=>({
 		getValue: () => {return editor.getValue();},
 	}));
 
