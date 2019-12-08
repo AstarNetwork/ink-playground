@@ -33,7 +33,7 @@ const AppHeader = ({ account, accounts, accountsLoaded, setAccount, chain, chain
 		{Object.values(chains).map((chain_, index) => {
 			return (
 				<MenuItem key={index} onClick={handleClose(setAnchorElChain,setChain,chain_.id)} >{chain_.name}</MenuItem>
-    	)
+			)
 		})}
 		</Menu>
 
@@ -51,7 +51,7 @@ const AppHeader = ({ account, accounts, accountsLoaded, setAccount, chain, chain
 		{(accountsLoaded)?accounts.map((account, index) => {
 			return (
 				<MenuItem key={index} onClick={handleClose(setAnchorElAccount,setAccount,account)} >{account.address} : {account.meta.name}</MenuItem>
-    	)
+			)
 		}):[]}
 		</Menu>
 		<div style={{float:"right",width:"40px"}}>
