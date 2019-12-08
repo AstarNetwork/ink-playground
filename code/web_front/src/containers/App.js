@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, createContext } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from '@material-ui/core';
 
 import AppHeader from './AppHeader';
@@ -7,11 +7,10 @@ import ResultArea from './ResultArea';
 import Loader from './Loader';
 import DownloadButton from './DownloadButton';
 import TxButton from './TxButton';
-import Chains from '../Chains';
 import '../App.css';
 import codeTemplate from '../CodeTemplate';
 
-export const WEBSOCKET_URL = (process.env.REACT_APP_TLS=='TRUE'?'wss://':'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
+export const WEBSOCKET_URL = (process.env.REACT_APP_TLS==='TRUE'?'wss://':'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
 
 const base64ToBuffer = (base64)=>{
 	var bin = atob(base64.replace(/^.*,/, ''));
@@ -93,7 +92,7 @@ const App = () => {
 				</div>
 				<hr/>
 				<div>
-					<TxButton label={"put code"} tx={'contracts.putCode'} params={[500000,'']} display={true} />
+					<TxButton label={"put code"} tx={'contracts.putCode'} params={[500000,wasm]} display={wasm != null && metadata != null} />
 				</div>
 			</div>
 			</div>
