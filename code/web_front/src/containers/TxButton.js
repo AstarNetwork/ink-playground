@@ -34,14 +34,15 @@ var TxButton = ({label,display,tx,params}) => {
 					setResult('Transaction status:'+status.type);
 
       		if (status.isFinalized) {
-	        	setResult('Completed at block hash'+ status.asFinalized.string());
+	        	setResult('Completed at block hash'+ status.asFinalized.toString());
 	        	setResult('Events:');
 
 	        	events.forEach(({ phase, event: { data, method, section } }) => {
 	          	setResult('\t'+phase.toString()+`: ${section}.${method}`+data.toString());
 	        	});
-	        	process.exit(0);
+						// process.exit(0);
 	      	}
+
     		}).catch((e) => {
         	console.log('ERROR:', e);
     		});

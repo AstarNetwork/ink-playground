@@ -28,7 +28,6 @@ const App = () => {
 
 	const [wasm,setWasm] = useState(null);
 	const [metadata, setMetadata] = useState(null);
-	const [showResult, setShowResult ] = useState(false);
 	const [loadFlag, setLoadFlag] = useState(false);
 
 	const result = useSelector(state => state.consoleArea.value);
@@ -43,7 +42,6 @@ const App = () => {
 		setMetadata(null);
 		setWasm(null);
 		setResult('');
-		setShowResult(true);
 		var result_="";
 		var ws = new WebSocket(WEBSOCKET_URL);
 		ws.onmessage = (e) => {
@@ -97,7 +95,7 @@ const App = () => {
 					<TxButton label={"put code"} tx={'contracts.putCode'} params={[500000,wasm]} display={wasm != null && metadata != null} />
 				</div>
 			</div>
-			<div style={{overflow:'scroll',flex:'1'}}>
+			<div style={{flex:'1'}}>
 				<ResultArea value={result} ref={resultRef} theme="monokai"/>
 			</div>
 			</div>

@@ -23,6 +23,7 @@ const ResultArea = forwardRef((props,ref) => {
     //editor.getSession().setMode("ace/mode/bash");
 		editor.setReadOnly(true);
 		editor.renderer.setShowGutter(false);
+    editor.getSession().setUseWrapMode(true)
   }, [child]);
 
   useEditorProp(editor, props.theme, useCallback((editor, theme) => {
@@ -35,7 +36,8 @@ const ResultArea = forwardRef((props,ref) => {
 	}, []));
 
 	return (
-		<div ref={child} style={{ position:'relative',width:'100%',height:'100%'}}> </div>
+		<div ref={child} style={{ position:'relative',width:'100%',height:'100%'}}>
+    </div>
 	);
 
 });

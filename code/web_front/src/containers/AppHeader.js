@@ -66,7 +66,7 @@ const AppHeader = ({}) =>  {
 		}):[]}
 		</Menu>
 		<div style={{float:"right",width:"40px"}}>
-			<a href="https://github.com/stakedtechnologies/ink-playground" target="_blank" ><img src={GitHubIcon} height={"30px"} /></a>
+			<a href="https://github.com/staketechnologies/ink-playground" target="_blank" ><img src={GitHubIcon} height={"30px"} /></a>
 		</div>
 		</div>
   );
