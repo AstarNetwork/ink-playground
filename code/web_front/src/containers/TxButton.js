@@ -9,7 +9,7 @@ import { addConsole } from '../actions'
 
 var TxButton = ({label,display,tx,params}) => {
 	const dispatch = useDispatch();
-	const addConsole = (x) => dispatch(addConsole(x))
+	const setResult = (x) => dispatch(addConsole(x))
 
 	const account = useSelector(state => state.account.selectedAccount);
 	const chainApi = useSelector(state => state.chain.chainApi);
@@ -34,7 +34,7 @@ var TxButton = ({label,display,tx,params}) => {
         	if (status.isFinalized) {
 						console.log(status.asFinalized.toString);
         	} else {
-						addConsole(status.type);
+						setResult(status.type);
         	}
     		}).catch((e) => {
         	console.log('ERROR:', e);
