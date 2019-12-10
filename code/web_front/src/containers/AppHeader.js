@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
+import { useSelector, useDispatch, connect } from 'react-redux';
 import PropTypes from 'prop-types'
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
@@ -8,7 +8,18 @@ import { selectAccount, selectChainById, startSelectedChain } from '../actions';
 
 import GitHubIcon from '../images/GitHub.png'
 
-const AppHeader = ({ account, accounts, accountsLoaded, setAccount, chain, chains, setChain }) =>  {
+const AppHeader = ({}) =>  {
+	const dispatch = useDispatch()
+
+	const account = useSelector(state => state.account.selectedAccount)
+	const accounts = useSelector(state =>  state.account.items)
+	const accountsLoaded = useSelector(state => state.account.accountsLoaded)
+	const chain = useSelector(state => state.chain.items[state.chain.selectedChainId])
+	const chains = useSelector(state => state.chain.items)
+
+	const setChain = (x) => {dispatch(selectChainById(x));dispatch(startSelectedChain());}
+	const setAccount = (x) => dispatch(selectAccount(x));
+
 	const [anchorElChain, setAnchorElChain] = useState(null);
 	const [anchorElAccount, setAnchorElAccount] = useState(null);
 
@@ -28,7 +39,7 @@ const AppHeader = ({ account, accounts, accountsLoaded, setAccount, chain, chain
 			anchorEl={anchorElChain}
 			keepMounted
 			open={Boolean(anchorElChain)}
-			onClose={handleClose(setAnchorElChain,setChain,chain.id)}
+			onClose={()=>{setAnchorElChain(null)}}
 		>
 		{Object.values(chains).map((chain_, index) => {
 			return (
@@ -45,7 +56,7 @@ const AppHeader = ({ account, accounts, accountsLoaded, setAccount, chain, chain
 			anchorEl={anchorElAccount}
 			keepMounted
 			open={Boolean(anchorElAccount)}
-			onClose={handleClose(setAnchorElAccount,setAccount,account)}
+			onClose={()=>{setAnchorElAccount(null)}}
 		>
 
 		{(accountsLoaded)?accounts.map((account, index) => {
@@ -61,39 +72,4 @@ const AppHeader = ({ account, accounts, accountsLoaded, setAccount, chain, chain
   );
 }
 
-const mapStateToProps = (state,ownProps) => {
-	return({
-		props: {...ownProps},
-		account: state.account.selectedAccount,
-		accounts: state.account.items,
-		accountsLoaded: state.account.accountsLoaded,
-		chain: state.chain.items[state.chain.selectedChainId],
-		chains: state.chain.items,
-	})
-
-}
-
-const mapDispatchToProps = (dispatch) => {
-	return({
-		setChain: (x) => {
-			dispatch(selectChainById(x))
-			dispatch(startSelectedChain())
-		},
-		setAccount: (x) => dispatch(selectAccount(x)),
-	})
-}
-
-AppHeader.propTypes = {
-	account: PropTypes.object,
-	accounts: PropTypes.array.isRequired,
-	accountsLoaded: PropTypes.bool.isRequired,
-	chain: PropTypes.object.isRequired,
-	chains: PropTypes.object.isRequired,
-	setChain: PropTypes.func.isRequired,
-	setAccount: PropTypes.func.isRequired,
-
-}
-
-
-
-export default connect(mapStateToProps,mapDispatchToProps)(AppHeader);
+export default AppHeader;

@@ -5,11 +5,11 @@ import PropTypes from 'prop-types'
 import { web3FromSource } from '@polkadot/extension-dapp';
 import PublishRoundedIcon from '@material-ui/icons/PublishRounded';
 
-import { addConsole } from '../actions'
+import { addConsoleLine } from '../actions'
 
 var TxButton = ({label,display,tx,params}) => {
 	const dispatch = useDispatch();
-	const setResult = (x) => dispatch(addConsole(x))
+	const setResult = (x) => dispatch(addConsoleLine(x))
 
 	const account = useSelector(state => state.account.selectedAccount);
 	const chainApi = useSelector(state => state.chain.chainApi);
@@ -30,12 +30,18 @@ var TxButton = ({label,display,tx,params}) => {
 				}
 
 				chainApi.tx[section][method](...params)
-				.signAndSend(fromParam,({ status }) => {
-        	if (status.isFinalized) {
-						console.log(status.asFinalized.toString);
-        	} else {
-						setResult(status.type);
-        	}
+				.signAndSend(fromParam,({ events = [], status }) => {
+					setResult('Transaction status:'+status.type);
+
+      		if (status.isFinalized) {
+	        	setResult('Completed at block hash'+ status.asFinalized.string());
+	        	setResult('Events:');
+
+	        	events.forEach(({ phase, event: { data, method, section } }) => {
+	          	setResult('\t'+phase.toString()+`: ${section}.${method}`+data.toString());
+	        	});
+	        	process.exit(0);
+	      	}
     		}).catch((e) => {
         	console.log('ERROR:', e);
     		});

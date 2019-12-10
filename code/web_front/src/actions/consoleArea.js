@@ -9,3 +9,8 @@ export const addConsole = (text) => ({
   type: ADD_CONSOLE,
   payload: text,
 })
+
+export const addConsoleLine = (text) => ({
+  type: ADD_CONSOLE,
+  payload: text+'\n',
+})
