@@ -1,11 +1,19 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import {Button} from '@material-ui/core'
 import PropTypes from 'prop-types'
 import { web3FromSource } from '@polkadot/extension-dapp';
 import PublishRoundedIcon from '@material-ui/icons/PublishRounded';
 
-var TxButton = ({label,display,account,chainApi,chainApiIsReady,tx,params}) => {
+import { addConsole } from '../actions'
+
+var TxButton = ({label,display,tx,params}) => {
+	const dispatch = useDispatch();
+	const addConsole = (x) => dispatch(addConsole(x))
+
+	const account = useSelector(state => state.account.selectedAccount);
+	const chainApi = useSelector(state => state.chain.chainApi);
+	const chainApiIsReady = useSelector(state => state.chain.chainApiIsReady);
 
 	const [section, method] = tx.split('.');
 
@@ -20,14 +28,13 @@ var TxButton = ({label,display,account,chainApi,chainApiIsReady,tx,params}) => {
 					} else {
 			    	fromParam = account;
 				}
-				console.log('fromParam:',fromParam);
 
 				chainApi.tx[section][method](...params)
 				.signAndSend(fromParam,({ status }) => {
         	if (status.isFinalized) {
 						console.log(status.asFinalized.toString);
         	} else {
-						console.log(status.type);
+						addConsole(status.type);
         	}
     		}).catch((e) => {
         	console.log('ERROR:', e);
@@ -38,7 +45,7 @@ var TxButton = ({label,display,account,chainApi,chainApiIsReady,tx,params}) => {
 	}
 
 	return (
-	<Button variant="contained" color="primary" onClick={onClick} style = {{display:(chainApiIsReady&&display?'':'none')}}>
+	<Button variant="contained" color="primary" onClick={onClick} style = {{width:"100%",display:(chainApiIsReady&&display?'':'none')}}>
 		<PublishRoundedIcon style={{marginRight: 8}} />
     {label}
 	</Button>
@@ -48,16 +55,8 @@ var TxButton = ({label,display,account,chainApi,chainApiIsReady,tx,params}) => {
 TxButton.propTypes = {
 	label: PropTypes.string,
 	display: PropTypes.bool,
-	account: PropTypes.object,
-	chainApi: PropTypes.object,
-	chainApiIsReady: PropTypes.bool.isRequired,
+	tx: PropTypes.string.isRequired,
+	params: PropTypes.array,
 }
 
-const mapStateToProps = (state,ownProps) => ({
-	...ownProps,
-	account: state.account.selectedAccount,
-	chainApi: state.chain.chainApi,
-	chainApiIsReady: state.chain.chainApiIsReady,
-})
-
-export default connect(mapStateToProps)(TxButton);
+export default TxButton;

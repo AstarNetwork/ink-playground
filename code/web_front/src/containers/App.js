@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@material-ui/core';
+import { useSelector, useDispatch } from 'react-redux'
 
 import AppHeader from './AppHeader';
 import Editor from './Editor';
@@ -7,6 +8,7 @@ import ResultArea from './ResultArea';
 import Loader from './Loader';
 import DownloadButton from './DownloadButton';
 import TxButton from './TxButton';
+import { addConsole } from '../actions'
 import '../App.css';
 import codeTemplate from '../CodeTemplate';
 
@@ -22,12 +24,15 @@ const base64ToBuffer = (base64)=>{
 }
 
 const App = () => {
+	const dispatch = useDispatch();
+
 	const [wasm,setWasm] = useState(null);
 	const [metadata, setMetadata] = useState(null);
-	const [result, setResult] = useState('');
 	const [showResult, setShowResult ] = useState(false);
 	const [loadFlag, setLoadFlag] = useState(false);
 
+	const result = useSelector(state => state.consoleArea.value);
+	const setResult = x => dispatch(addConsole(x));
 	const codeRef = useRef(null);
 	const resultRef = useRef(null);
 
@@ -60,7 +65,7 @@ const App = () => {
 		ws.onclose = () => {setLoadFlag(false);}
 		ws.onerror = () => {
 			setLoadFlag(false);
-			setResult("Connection Error");
+			setResult("Connection Error\n");
 		}
 		ws.onopen = function() {ws.send(JSON.stringify({'code':codeRef.current.getValue()}));}
   }
@@ -69,7 +74,7 @@ const App = () => {
     <div className="App">
 		  <AppHeader/>
 			<div style={{flex:'1',display:'flex',flexDirection:'row'}}>
-			<div style={{flex:'1',display:'flex',flexDirection:'column',margin:"10px"}}>
+			<div style={{flex:'2',display:'flex',flexDirection:'column',margin:"10px"}}>
       	<Button onClick={onCodeSubmit} variant="contained" color="primary" style={{width:"100%"}} >
           Compile Code
         </Button>
@@ -78,11 +83,8 @@ const App = () => {
 						<Editor  value={codeTemplate} ref={codeRef} theme="monokai" style={{width:"100%",height:"100%",marginBottom:"40px",marginTop:"20px"}} />
         	</div>
 				</div>
-				<div style={{display:showResult?'flex':'none',height : '170px',overflow:'scroll'}}>
-					<ResultArea value={result} ref={resultRef} theme="monokai"/>
-        </div>
       </div>
-			<div style={{ overflow:'scroll',borderLeft:"3px solid #444",width:'300px',padding:'10px'}}>
+			<div style={{ overflow:'scroll',borderLeft:"3px solid #444",width:'250px',padding:'10px'}}>
 				<Loader flag={loadFlag}/>
 				<div style={{marginBottom:"10px"}}>
 					<DownloadButton label={"wasm"} name={"sample.wasm"} mimeType={"application/wasm"} data={wasm}/>
@@ -94,6 +96,9 @@ const App = () => {
 				<div>
 					<TxButton label={"put code"} tx={'contracts.putCode'} params={[500000,wasm]} display={wasm != null && metadata != null} />
 				</div>
+			</div>
+			<div style={{overflow:'scroll',flex:'1'}}>
+				<ResultArea value={result} ref={resultRef} theme="monokai"/>
 			</div>
 			</div>
     </div>
