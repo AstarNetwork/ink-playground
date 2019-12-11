@@ -20,6 +20,7 @@ const base64ToBuffer = (base64)=>{
   for (var i = 0; i < bin.length; i++) {
     buffer[i] = bin.charCodeAt(i);
   }
+	console.log(buffer)
 	return buffer;
 }
 
