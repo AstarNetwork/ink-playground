@@ -4,10 +4,9 @@ import {Button} from '@material-ui/core'
 import PropTypes from 'prop-types'
 import { web3FromSource } from '@polkadot/extension-dapp';
 import PublishRoundedIcon from '@material-ui/icons/PublishRounded';
-
 import { addConsoleLine } from '../actions'
 
-var TxButton = ({label,display,tx,params}) => {
+var TxButton = ({label,tx,params,onSend,style}) => {
 	const dispatch = useDispatch();
 	const setResult = (x) => dispatch(addConsoleLine(x))
 
@@ -15,9 +14,11 @@ var TxButton = ({label,display,tx,params}) => {
 	const chainApi = useSelector(state => state.chain.chainApi);
 	const chainApiIsReady = useSelector(state => state.chain.chainApiIsReady);
 
-	const [section, method] = tx.split('.');
-
 	const onClick = () => {
+
+		console.log('clicked: ',tx);
+		const [section, method] = tx.split('.');
+
 		const main = async () => {
 			if(chainApiIsReady && account != null){
 				let fromParam
@@ -29,22 +30,13 @@ var TxButton = ({label,display,tx,params}) => {
 			    	fromParam = account;
 				}
 
+				if(!(chainApi.tx[section] && chainApi.tx[section][method])){setResult(`Unable to find api.tx.${section}.${method}`);}
+
+				const nonce = await chainApi.query.system.accountNonce(account.address);
+
 				chainApi.tx[section][method](...params)
-				.signAndSend(fromParam,({ events = [], status }) => {
-					setResult('Transaction status:'+status.type);
-
-      		if (status.isFinalized) {
-	        	setResult('Completed at block hash'+ status.asFinalized.toString());
-	        	setResult('Events:');
-
-	        	events.forEach(({ phase, event: { data, method, section } }) => {
-	          	setResult('\t'+phase.toString()+`: ${section}.${method}`+data.toString());
-	        	});
-						// process.exit(0);
-	      	}
-
-    		}).catch((e) => {
-        	console.log('ERROR:', e);
+				.signAndSend(fromParam, { nonce }, onSend ).catch((e) => {
+        	setResult(e.toString());
     		});
 			}
 		}
@@ -52,7 +44,7 @@ var TxButton = ({label,display,tx,params}) => {
 	}
 
 	return (
-	<Button variant="contained" color="primary" onClick={onClick} style = {{width:"100%",display:(chainApiIsReady&&display?'':'none')}}>
+	<Button variant="contained" color="primary" onClick={onClick} style = {{...style,width:"100%"}}>
 		<PublishRoundedIcon style={{marginRight: 8}} />
     {label}
 	</Button>
@@ -63,7 +55,8 @@ TxButton.propTypes = {
 	label: PropTypes.string,
 	display: PropTypes.bool,
 	tx: PropTypes.string.isRequired,
-	params: PropTypes.array,
+	params: PropTypes.array.isRequired,
+	onSend: PropTypes.func.isRequired,
 }
 
 export default TxButton;

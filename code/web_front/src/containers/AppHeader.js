@@ -8,6 +8,9 @@ import { selectAccount, selectChainById, startSelectedChain } from '../actions';
 
 import GitHubIcon from '../images/GitHub.png'
 
+const sliceText = (text) => (text.length > 15 ? (text).slice(0,15)+"…" : text);
+
+
 const AppHeader = ({}) =>  {
 	const dispatch = useDispatch()
 
@@ -61,7 +64,7 @@ const AppHeader = ({}) =>  {
 
 		{(accountsLoaded)?accounts.map((account, index) => {
 			return (
-				<MenuItem key={index} onClick={handleClose(setAnchorElAccount,setAccount,account)} >{account.address} : {account.meta.name}</MenuItem>
+				<MenuItem key={index} onClick={handleClose(setAnchorElAccount,setAccount,account)} > {account.meta.name+' : '+sliceText(account.address)}</MenuItem>
 			)
 		}):[]}
 		</Menu>

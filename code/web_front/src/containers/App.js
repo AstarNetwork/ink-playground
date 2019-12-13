@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -7,10 +7,11 @@ import Editor from './Editor';
 import ResultArea from './ResultArea';
 import Loader from './Loader';
 import DownloadButton from './DownloadButton';
-import TxButton from './TxButton';
 import { addConsole } from '../actions'
 import '../App.css';
 import codeTemplate from '../CodeTemplate';
+import ChainStatus from './ChainStatus';
+
 
 export const WEBSOCKET_URL = (process.env.REACT_APP_TLS==='TRUE'?'wss://':'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
 
@@ -20,7 +21,6 @@ const base64ToBuffer = (base64)=>{
   for (var i = 0; i < bin.length; i++) {
     buffer[i] = bin.charCodeAt(i);
   }
-	console.log(buffer)
 	return buffer;
 }
 
@@ -31,10 +31,19 @@ const App = () => {
 	const [metadata, setMetadata] = useState(null);
 	const [loadFlag, setLoadFlag] = useState(false);
 
+	const api = useSelector(state => state.chain.chainApi);
+	const apiIsReady = useSelector(state => state.chain.chainApiIsReady);
+
 	const result = useSelector(state => state.consoleArea.value);
 	const setResult = x => dispatch(addConsole(x));
 	const codeRef = useRef(null);
 	const resultRef = useRef(null);
+
+	useEffect(()=>{
+		if(apiIsReady){
+			console.log(api.consts.contracts.contractFee.toNumber(),api.consts.contracts.creationFee.toNumber(),);
+		}
+	},[apiIsReady])
 
 	const onCodeSubmit = () => {
 		if(loadFlag)
@@ -46,7 +55,6 @@ const App = () => {
 		var result_="";
 		var ws = new WebSocket(WEBSOCKET_URL);
 		ws.onmessage = (e) => {
-			console.log("get message");
 			var data = JSON.parse(e.data);
 			if(data.hasOwnProperty('wasm')){
         setWasm(base64ToBuffer(data.wasm));
@@ -64,7 +72,7 @@ const App = () => {
 		ws.onclose = () => {setLoadFlag(false);}
 		ws.onerror = () => {
 			setLoadFlag(false);
-			setResult("Connection Error\n");
+			setResult("Compiler server connection error\n");
 		}
 		ws.onopen = function() {ws.send(JSON.stringify({'code':codeRef.current.getValue()}));}
   }
@@ -93,7 +101,12 @@ const App = () => {
 				</div>
 				<hr/>
 				<div>
-					<TxButton label={"put code"} tx={'contracts.putCode'} params={[500000,wasm]} display={wasm != null && metadata != null} />
+					<ChainStatus
+						api = {api}
+						apiIsReady = {apiIsReady}
+						wasm = {wasm}
+						metadata = {metadata}
+					/>
 				</div>
 			</div>
 			<div style={{flex:'1'}}>

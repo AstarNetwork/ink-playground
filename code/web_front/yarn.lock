@@ -1400,6 +1400,14 @@
   resolved "https://registry.yarnpkg.com/@nodelib/fs.stat/-/fs.stat-1.1.3.tgz#2b5a3ab3f918cca48a8c754c08168e3f03eba61b"
   integrity sha512-shAmDyaQC4H92APFoIaVDHCx5bStIocgvbwQyxPRrbUY20V1EYTbSDchWbuwlMG3V17cprZhA6+78JfB+3DTPw==
 
+"@polkadot/api-contract@^0.99.0-beta.16":
+  version "0.99.0-beta.16"
+  resolved "https://registry.yarnpkg.com/@polkadot/api-contract/-/api-contract-0.99.0-beta.16.tgz#eff01e21bb8b24dcdd70e0491648c5a24c1ccbdd"
+  integrity sha512-NVgAFBoyi3mwG6JpJLTtTEICje4ReMMT4F0nUz8tatsHhBmQvIMDfdF42fWg0MKizPui2JGkc55On5ABYmf/Bg==
+  dependencies:
+    "@babel/runtime" "^7.7.5"
+    "@polkadot/types" "^0.99.0-beta.16"
+
 "@polkadot/api-derive@^0.99.0-beta.13":
   version "0.99.0-beta.13"
   resolved "https://registry.yarnpkg.com/@polkadot/api-derive/-/api-derive-0.99.0-beta.13.tgz#347ebc6ad7ca8a5491e2bff8c9045b8709484189"
@@ -1464,6 +1472,16 @@
     "@polkadot/util" "^1.7.1"
     "@polkadot/util-crypto" "^1.7.1"
 
+"@polkadot/metadata@^0.99.0-beta.16":
+  version "0.99.0-beta.16"
+  resolved "https://registry.yarnpkg.com/@polkadot/metadata/-/metadata-0.99.0-beta.16.tgz#23421f67dc4a526ced76d746a4227503e3cb0246"
+  integrity sha512-XPXzcvsU58MEouUC8PnGrryAl31EQMHqWmLlHUyREDCZ8MUZgw+ivplHwf5Ar2bnZvLHYKghmVFcyB6F/4NFzQ==
+  dependencies:
+    "@babel/runtime" "^7.7.5"
+    "@polkadot/types" "^0.99.0-beta.16"
+    "@polkadot/util" "^1.7.1"
+    "@polkadot/util-crypto" "^1.7.1"
+
 "@polkadot/rpc-core@^0.99.0-beta.13":
   version "0.99.0-beta.13"
   resolved "https://registry.yarnpkg.com/@polkadot/rpc-core/-/rpc-core-0.99.0-beta.13.tgz#d2edcc86f35360c85b782951f5d2e5bcc2fd21cb"
@@ -1496,6 +1514,18 @@
   dependencies:
     "@babel/runtime" "^7.7.5"
     "@polkadot/metadata" "^0.99.0-beta.13"
+    "@polkadot/util" "^1.7.1"
+    "@polkadot/util-crypto" "^1.7.1"
+    "@types/memoizee" "^0.4.3"
+    memoizee "^0.4.14"
+
+"@polkadot/types@^0.99.0-beta.16":
+  version "0.99.0-beta.16"
+  resolved "https://registry.yarnpkg.com/@polkadot/types/-/types-0.99.0-beta.16.tgz#d6bc5d5d293564e8bb1fa6d7041f7aaeb466fbe2"
+  integrity sha512-XkAWdD+STV0TDoDWYwkDmdDhSLeHbk8yySYtQGUP2EpzkxC3NWfWKHEEbxLe4qWK6zzBlF9kw5XUywvf5+CnJw==
+  dependencies:
+    "@babel/runtime" "^7.7.5"
+    "@polkadot/metadata" "^0.99.0-beta.16"
     "@polkadot/util" "^1.7.1"
     "@polkadot/util-crypto" "^1.7.1"
     "@types/memoizee" "^0.4.3"
