@@ -1,9 +1,8 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import {Button} from '@material-ui/core'
+import { Button } from '@material-ui/core'
 import PropTypes from 'prop-types'
 import { web3FromSource } from '@polkadot/extension-dapp';
-import PublishRoundedIcon from '@material-ui/icons/PublishRounded';
 import { addConsoleLine } from '../actions'
 
 var TxButton = ({label,tx,params,onSend,style}) => {
@@ -16,7 +15,6 @@ var TxButton = ({label,tx,params,onSend,style}) => {
 
 	const onClick = () => {
 
-		console.log('clicked: ',tx);
 		const [section, method] = tx.split('.');
 
 		const main = async () => {
@@ -45,8 +43,7 @@ var TxButton = ({label,tx,params,onSend,style}) => {
 
 	return (
 	<Button variant="contained" color="primary" onClick={onClick} style = {{...style,width:"100%"}}>
-		<PublishRoundedIcon style={{marginRight: 8}} />
-    {label}
+    	{label}
 	</Button>
 	);
 }

@@ -6,7 +6,7 @@ import AppHeader from './AppHeader';
 import Editor from './Editor';
 import ResultArea from './ResultArea';
 import Loader from './Loader';
-import DownloadButton from './DownloadButton';
+import DownloadButton from '../components/DownloadButton';
 import { addConsole } from '../actions'
 import '../App.css';
 import codeTemplate from '../CodeTemplate';
@@ -43,7 +43,7 @@ const App = () => {
 		if(apiIsReady){
 			console.log(api.consts.contracts.contractFee.toNumber(),api.consts.contracts.creationFee.toNumber(),);
 		}
-	},[apiIsReady])
+	},[api,apiIsReady])
 
 	const onCodeSubmit = () => {
 		if(loadFlag)

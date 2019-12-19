@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch, connect } from 'react-redux';
-import PropTypes from 'prop-types'
+import { useSelector, useDispatch } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -11,7 +10,7 @@ import GitHubIcon from '../images/GitHub.png'
 const sliceText = (text) => (text.length > 15 ? (text).slice(0,15)+"…" : text);
 
 
-const AppHeader = ({}) =>  {
+const AppHeader = () =>  {
 	const dispatch = useDispatch()
 
 	const account = useSelector(state => state.account.selectedAccount)
@@ -69,7 +68,7 @@ const AppHeader = ({}) =>  {
 		}):[]}
 		</Menu>
 		<div style={{float:"right",width:"40px"}}>
-			<a href="https://github.com/staketechnologies/ink-playground" target="_blank" ><img src={GitHubIcon} height={"30px"} /></a>
+			<a href="https://github.com/staketechnologies/ink-playground" rel="noopener noreferrer" target="_blank" ><img src={GitHubIcon} height={"30px"} alt="github" /></a>
 		</div>
 		</div>
   );
