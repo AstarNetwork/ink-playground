@@ -6,6 +6,15 @@ export const selectChainById = (chainId) => ({
   payload:chainId,
 })
 
+export const SET_CUSTOM = "SET_CUSTOM"
+export const setCustom = (ws_provider, type={}) => ({
+  type:SET_CUSTOM,
+  payload: {
+    ws_provider,
+    type,
+  },
+})
+
 export const CHAIN_API_READY = 'CHAIN_API_READY';
 const chainApiReady = (isReady) => ({
   type: CHAIN_API_READY,
@@ -17,6 +26,7 @@ const createApi = (chainApi) => ({
   type: CREATE_API,
   payload: chainApi,
 })
+
 
 export const startSelectedChain = () => {
   return (dispatch,getState) => {

@@ -18,6 +18,8 @@ const CallContractModalButton = ({api,codes,instances}) => {
   const [instance,setInstance] = useState(null);
   const [abi,setAbi] = useState();
   const [callMessage, setCallMessage] = useState();
+  const [returnVal, setReturnVal] = useState(null);
+
   const modalRef = useRef();
 
   useEffect(() => {
@@ -27,8 +29,10 @@ const CallContractModalButton = ({api,codes,instances}) => {
     }
   },[instance,codes])
 
-  const onSend = ({ events = [], status }) => {
+  const onSend = ({ events = [], status}, result ) => {
     modalRef.current.handleClose()
+
+    setReturnVal(result);
 
     setResult('Transaction status: ' + status.type);
 
@@ -85,6 +89,7 @@ const CallContractModalButton = ({api,codes,instances}) => {
         setCallMessage={setCallMessage}
       />:[]}
       
+      {!!returnVal?"Return: "+returnVal.toString():[]}
       {!!instance?
       <TxButton
         label={"send"}
@@ -95,6 +100,7 @@ const CallContractModalButton = ({api,codes,instances}) => {
           gasLimit,
           !!callMessage?callMessage:[]
         ]}
+        setReturnVal={setReturnVal}
         onSend={onSend}
         style = {{marginBottom:"10px",width:"100%"}}
       />

@@ -29,8 +29,8 @@ const ModalTemplate = forwardRef(({children}, ref) => {
   const [open, setOpen] = React.useState(false);
 
   const handleOpen = () => {
-      setOpen(true);
-    };
+    setOpen(true);
+  };
 
   const handleClose = () => {
     setOpen(false);

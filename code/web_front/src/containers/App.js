@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux'
 
@@ -38,12 +38,6 @@ const App = () => {
 	const setResult = x => dispatch(addConsole(x));
 	const codeRef = useRef(null);
 	const resultRef = useRef(null);
-
-	useEffect(()=>{
-		if(apiIsReady){
-			console.log(api.consts.contracts.contractFee.toNumber(),api.consts.contracts.creationFee.toNumber(),);
-		}
-	},[api,apiIsReady])
 
 	const onCodeSubmit = () => {
 		if(loadFlag)

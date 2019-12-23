@@ -17,7 +17,16 @@ const InstantiateModalButton = ({api,codes,instances,setInstances}) => {
   const [codeHash, setCodeHash] = useState(null)
   const [constructorMessage, setConstructorMessage] = useState(null)
   const [instanceName, setInstanceName] = useState("")
+  const [endowment,setEndowment] = useState(0);
+
   const modalRef = useRef(null);
+
+  useEffect(()=>{
+    if(!api||!api.consts)
+      return
+    var contractObj = (!!api.consts.contracts)?api.consts.contracts:api.consts.contract
+    setEndowment(contractObj.contractFee.toNumber()+contractObj.creationFee.toNumber())
+  },[api]);
 
   useEffect(()=>{
     setConstructorMessage(null)
@@ -86,7 +95,8 @@ const InstantiateModalButton = ({api,codes,instances,setInstances}) => {
       <TxButton
         label={"send"}
         tx={api.tx.contract?'contract.instantiate':'contracts.instantiate'}
-        params={[(api.consts.contracts.contractFee.toNumber()+api.consts.contracts.creationFee.toNumber())
+        params={[
+          endowment
           ,gasLimit
           ,Object.keys(codes)[0]
           ,!!constructorMessage?constructorMessage:[]

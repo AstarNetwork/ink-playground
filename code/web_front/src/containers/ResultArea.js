@@ -1,4 +1,4 @@
-import React, {forwardRef,useImperativeHandle,useState,useRef,useEffect,useCallback} from 'react';
+import React, {forwardRef,useState,useRef,useEffect,useCallback} from 'react';
 import ace from 'brace'
 import 'brace/mode/rust';
 import 'brace/theme/monokai';
@@ -16,19 +16,18 @@ const ResultArea = forwardRef((props,ref) => {
 	const child = useRef(null);
 
 	useEffect(() => {
-    if (!child.current) { return; }
-
-    const editor = ace.edit(child.current);
-    setEditor(editor);
-    //editor.getSession().setMode("ace/mode/bash");
+		if (!child.current) { return; }
+		const editor = ace.edit(child.current);
+		setEditor(editor);
+		//editor.getSession().setMode("ace/mode/bash");
 		editor.setReadOnly(true);
 		editor.renderer.setShowGutter(false);
-    editor.getSession().setUseWrapMode(true)
-  }, [child]);
+		editor.getSession().setUseWrapMode(true)
+	},[child]);
 
-  useEditorProp(editor, props.theme, useCallback((editor, theme) => {
+	useEditorProp(editor, props.theme, useCallback((editor, theme) => {
 		editor.setTheme(`ace/theme/${theme}`);
-  }, []));
+	}, []));
 
 	useEditorProp(editor, props.value, useCallback((editor, code) => {
 		editor.setValue(code);

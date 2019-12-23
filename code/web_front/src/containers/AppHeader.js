@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { selectAccount, selectChainById, startSelectedChain } from '../actions';
-
+import Modal from '../components/ModalTemplate'
 import GitHubIcon from '../images/GitHub.png'
+import CustomChainSetting from './CustomChainSetting'
 
 const sliceText = (text) => (text.length > 15 ? (text).slice(0,15)+"…" : text);
 
@@ -18,6 +19,7 @@ const AppHeader = () =>  {
 	const accountsLoaded = useSelector(state => state.account.accountsLoaded)
 	const chain = useSelector(state => state.chain.items[state.chain.selectedChainId])
 	const chains = useSelector(state => state.chain.items)
+	const customModalRef = useRef(null)
 
 	const setChain = (x) => {dispatch(selectChainById(x));dispatch(startSelectedChain());}
 	const setAccount = (x) => dispatch(selectAccount(x));
@@ -27,6 +29,8 @@ const AppHeader = () =>  {
 
 	const handleClick = (setAnchorEl) => (event => {setAnchorEl(event.currentTarget);});
 	const handleClose = (setAnchorEl,setVal,newVal) => (()=>{setVal(newVal);setAnchorEl(null);});
+
+	const handleModal = () => {setAnchorElChain(false);customModalRef.current.handleOpen()};
 
   return (
 		<div className="App-header">
@@ -44,10 +48,11 @@ const AppHeader = () =>  {
 			onClose={()=>{setAnchorElChain(null)}}
 		>
 		{Object.values(chains).map((chain_, index) => {
-			return (
+			if(chain_.id!=='custom'){return (
 				<MenuItem key={index} onClick={handleClose(setAnchorElChain,setChain,chain_.id)} >{chain_.name}</MenuItem>
-			)
+			)}else{return([])}
 		})}
+			<MenuItem onClick={handleModal}> {chains.custom.name} </MenuItem>
 		</Menu>
 
 		<Button aria-controls="account-menu" aria-haspopup="true" onClick={handleClick(setAnchorElAccount)} style={{color:"#FFF"}}>
@@ -70,6 +75,10 @@ const AppHeader = () =>  {
 		<div style={{float:"right",width:"40px"}}>
 			<a href="https://github.com/staketechnologies/ink-playground" rel="noopener noreferrer" target="_blank" ><img src={GitHubIcon} height={"30px"} alt="github" /></a>
 		</div>
+
+		<Modal ref={customModalRef}>
+			<CustomChainSetting handleClose={()=>customModalRef.current.handleClose()} />
+		</Modal>
 		</div>
   );
 }

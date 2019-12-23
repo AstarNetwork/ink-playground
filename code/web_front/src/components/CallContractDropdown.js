@@ -41,6 +41,7 @@ const CallContractDropdown = ({abi,setCallMessage}) =>  {
     if(!!abi.messages&&!!abi.messages[name]){
       var func = abi.messages[name];
       if(func.args.length===Object.keys(params).length){
+        console.log(func,func(...Object.values(params)))
         setCallMessage(func(...Object.values(params)))
       }
     }
