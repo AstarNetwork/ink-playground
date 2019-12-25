@@ -9,8 +9,7 @@ const DownloadButton = (props) => {
 		const name = props.name;
 		const data = props.data;
 
-		var bom  = new Uint8Array([0xEF, 0xBB, 0xBF]);
-		var blob = new Blob([bom, data],{type : mimeType});	
+		var blob = new Blob([data],{type : mimeType});	
 		var a = document.createElement('a');
 		a.download = name;
 		a.target = '_blank';
@@ -33,14 +32,14 @@ const DownloadButton = (props) => {
 			window.open('data:' + mimeType + ';base64,' + window.Base64.encode(data), '_blank');
 		}
 	}
-	
+
 	useEffect(()=>{
 		var css={};
 		css = {width:'100%'};
 		css.display=(props.data!==null?'':'none');
 		setCss(css);
 	},[props.data]);
-	
+
 	return (
 	<Button onClick={onDownload} style={css} variant="contained" color="secondary" >
 		<Icon style={{marginRight: 8}} >save_alt_rounded</Icon>
