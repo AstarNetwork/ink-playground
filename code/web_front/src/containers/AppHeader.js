@@ -5,6 +5,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { selectAccount, selectChainById, startSelectedChain } from '../actions';
 import Modal from '../components/ModalTemplate'
+import About from '../components/About'
 import GitHubIcon from '../images/GitHub.png'
 import CustomChainSetting from './CustomChainSetting'
 
@@ -20,6 +21,7 @@ const AppHeader = () =>  {
 	const chain = useSelector(state => state.chain.items[state.chain.selectedChainId])
 	const chains = useSelector(state => state.chain.items)
 	const customModalRef = useRef(null)
+	const aboutModalRef = useRef(null)
 
 	const setChain = (x) => {dispatch(selectChainById(x));dispatch(startSelectedChain());}
 	const setAccount = (x) => dispatch(selectAccount(x));
@@ -72,12 +74,18 @@ const AppHeader = () =>  {
 			)
 		}):[]}
 		</Menu>
+		<Button aria-haspopup="true" onClick={()=>aboutModalRef.current.handleOpen()} style={{color:"#FFF"}} >
+			About
+		</Button>
 		<div style={{float:"right",width:"40px"}}>
 			<a href="https://github.com/staketechnologies/ink-playground" rel="noopener noreferrer" target="_blank" ><img src={GitHubIcon} height={"30px"} alt="github" /></a>
 		</div>
 
 		<Modal ref={customModalRef}>
 			<CustomChainSetting handleClose={()=>customModalRef.current.handleClose()} />
+		</Modal>
+		<Modal ref={aboutModalRef}>
+			<About handleClose={()=>aboutModalRef.current.handleClose()} />
 		</Modal>
 		</div>
   );
