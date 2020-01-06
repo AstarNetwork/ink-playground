@@ -3,7 +3,7 @@ import ace from 'brace'
 import 'brace/mode/rust';
 import 'brace/theme/monokai';
 
-function useEditorProp(editor, prop, whenPresent) {
+function useEditorProp(editor:(ace.Editor | null), prop: any, whenPresent: any) {
   useEffect(() => {
     if (editor) {
 			return whenPresent(editor, prop);
@@ -11,12 +11,17 @@ function useEditorProp(editor, prop, whenPresent) {
   }, [editor, prop, whenPresent]);
 }
 
-const Editor = forwardRef((props,ref) => {
-	const [editor, setEditor] = useState(null);
-	const child = useRef(null);
+type PropType = {
+	value: string,
+	theme: string,
+	style: any,
+}
+const Editor = forwardRef((props: PropType, ref) => {
+	const [editor, setEditor] = useState<ace.Editor | null>(null);
+	const child = useRef<HTMLInputElement>(null);
 
-	useImperativeHandle(ref,()=>({
-		getValue: () => {return editor.getValue();},
+	useImperativeHandle(ref ,()=>({
+		getValue: () => {if(editor){return editor.getValue();}},
 	}));
 
 	useEffect(() => {
@@ -34,17 +39,19 @@ const Editor = forwardRef((props,ref) => {
     }
   });
 
-  useEditorProp(editor, props.theme, useCallback((editor, theme) => {
+  useEditorProp(editor, props.theme, useCallback((editor:ace.Editor, theme:string) => {
 		editor.setTheme(`ace/theme/${theme}`);
   },[]));
 
-	useEditorProp(editor, props.value, useCallback((editor, code) => {
+	useEditorProp(editor, props.value, useCallback((editor:ace.Editor, code:string) => {
 		editor.setValue(code);
 		editor.clearSelection();
 	},[]));
 
 	return (
-		<div ref={child} style={{ position:'relative',width: '100%',height:'100%'}}> </div>
+		<div ref={child} style={{ position:'relative',width: '100%',height:'100%'}}>
+			[]
+		</div>
 	);
 
 });

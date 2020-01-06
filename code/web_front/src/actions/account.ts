@@ -1,24 +1,26 @@
 import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
-import keyring from '@polkadot/ui-keyring';
+import keyring, { Keyring } from '@polkadot/ui-keyring';
+import { KeyringPair } from '@polkadot/keyring/types';
+import { Dispatch } from 'redux';
 
-export const SELECT_ACCOUNT = 'SELECT_ACCOUNT'
-export const selectAccount = (account) => ({
+export const SELECT_ACCOUNT = 'SELECT_ACCOUNT' as const;
+export const selectAccount = (account : KeyringPair) => ({
   type: SELECT_ACCOUNT,
   payload: account,
 })
 
-export const REQUEST_ACCOUNTS = 'REQUEST_ACCOUNTS';
+export const REQUEST_ACCOUNTS = 'REQUEST_ACCOUNTS' as const;
 const requestAccounts = () => ({
   type: REQUEST_ACCOUNTS,
 })
 
-export const RECEIVE_ACCOUNTS = 'RECEIVE_ACCOUNTS';
-const receiveAccounts = (accounts) => ({
+export const RECEIVE_ACCOUNTS = 'RECEIVE_ACCOUNTS' as const;
+const receiveAccounts = (accounts : KeyringPair[]) => ({
   type: RECEIVE_ACCOUNTS,
   payload: accounts,
 })
 
-const loadAccounts = (injectedAccounts) => {
+const loadAccounts = (injectedAccounts : KeyringPair[]) => {
   keyring.loadAll({
     isDevelopment: true
   }, injectedAccounts);
@@ -26,7 +28,7 @@ const loadAccounts = (injectedAccounts) => {
 };
 
 export const getAccounts = () => {
-  return (dispatch,getState) => {
+  return (dispatch: Dispatch<Actions>, getState: any) => {
     dispatch(requestAccounts());
     web3Enable('ink-playground')
     .then((extensions) => {
@@ -38,8 +40,11 @@ export const getAccounts = () => {
         }));
       })
       .then((injectedAccounts) => {
-        dispatch(receiveAccounts(loadAccounts(injectedAccounts)));
+        dispatch(receiveAccounts(loadAccounts(injectedAccounts as any)));
       }).catch(console.error);
     }).catch(console.error);
   }
 }
+
+export type Actions = ReturnType<typeof selectAccount | typeof requestAccounts | typeof receiveAccounts>
+

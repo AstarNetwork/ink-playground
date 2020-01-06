@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@material-ui/core';
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux';
 
 import AppHeader from './AppHeader';
 import Editor from './Editor';
@@ -15,27 +15,27 @@ import ChainStatus from './ChainStatus';
 
 export const WEBSOCKET_URL = (process.env.REACT_APP_TLS==='TRUE'?'wss://':'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
 
-const base64ToBuffer = (base64)=>{
+const base64ToBuffer = (base64: string)=>{
 	var bin = atob(base64.replace(/^.*,/, ''));
-  var buffer = new Uint8Array(bin.length);
-  for (var i = 0; i < bin.length; i++) {
-    buffer[i] = bin.charCodeAt(i);
-  }
+	var buffer = new Uint8Array(bin.length);
+	for (var i = 0; i < bin.length; i++) {
+		buffer[i] = bin.charCodeAt(i);
+	}
 	return buffer;
 }
 
 const App = () => {
 	const dispatch = useDispatch();
 
-	const [wasm,setWasm] = useState(null);
-	const [metadata, setMetadata] = useState(null);
-	const [loadFlag, setLoadFlag] = useState(false);
+	const [wasm,setWasm] = useState<Uint8Array | null>(null);
+	const [metadata, setMetadata] = useState<string | null>(null);
+	const [loadFlag, setLoadFlag] = useState<boolean>(false);
 
-	const api = useSelector(state => state.chain.chainApi);
-	const apiIsReady = useSelector(state => state.chain.chainApiIsReady);
+	const api = useSelector((state:any) => state.chain.chainApi);
+	const apiIsReady = useSelector((state:any) => state.chain.chainApiIsReady);
 
-	const result = useSelector(state => state.consoleArea.value);
-	const setResult = x => dispatch(addConsole(x));
+	const result = useSelector((state:any) => state.consoleArea.value);
+	const setResult = (x: string) => dispatch(addConsole(x));
 	const codeRef = useRef(null);
 	const resultRef = useRef(null);
 
@@ -68,7 +68,7 @@ const App = () => {
 			setLoadFlag(false);
 			setResult("Compiler server connection error\n");
 		}
-		ws.onopen = function() {ws.send(JSON.stringify({'code':codeRef.current.getValue()}));}
+		ws.onopen = function() {ws.send(JSON.stringify({'code':(codeRef as any).current.getValue()}));}
   }
 
   return (
