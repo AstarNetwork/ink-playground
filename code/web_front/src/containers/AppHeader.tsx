@@ -4,24 +4,25 @@ import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { selectAccount, selectChainById, startSelectedChain } from '../actions';
-import Modal from '../components/ModalTemplate'
+import Modal, { ModalTemplateHandler } from '../components/ModalTemplate'
 import About from '../components/About'
 import GitHubIcon from '../images/GitHub.png'
 import CustomChainSetting from './CustomChainSetting'
+import { RootStore } from './Root'
 
-const sliceText = (text) => (text.length > 15 ? (text).slice(0,15)+"…" : text);
+const sliceText = (text :string) => (text.length > 15 ? (text).slice(0,15)+"…" : text);
 
 
 const AppHeader = () =>  {
-	const dispatch = useDispatch()
+	const dispatch = useDispatch<any>()
 
-	const account = useSelector(state => state.account.selectedAccount)
-	const accounts = useSelector(state =>  state.account.items)
-	const accountsLoaded = useSelector(state => state.account.accountsLoaded)
-	const chain = useSelector(state => state.chain.items[state.chain.selectedChainId])
-	const chains = useSelector(state => state.chain.items)
-	const customModalRef = useRef(null)
-	const aboutModalRef = useRef(null)
+	const account = useSelector((state: RootStore) => state.account.selectedAccount)
+	const accounts = useSelector((state: RootStore) =>  state.account.items)
+	const accountsLoaded = useSelector((state: RootStore) => state.account.accountsLoaded)
+	const chain = useSelector((state: RootStore) => state.chain.items[state.chain.selectedChainId])
+	const chains = useSelector((state: RootStore) => state.chain.items)
+	const customModalRef = useRef({} as ModalTemplateHandler)
+	const aboutModalRef = useRef({} as ModalTemplateHandler)
 
 	const setChain = (x) => {dispatch(selectChainById(x));dispatch(startSelectedChain());}
 	const setAccount = (x) => dispatch(selectAccount(x));
@@ -32,7 +33,7 @@ const AppHeader = () =>  {
 	const handleClick = (setAnchorEl) => (event => {setAnchorEl(event.currentTarget);});
 	const handleClose = (setAnchorEl,setVal,newVal) => (()=>{setVal(newVal);setAnchorEl(null);});
 
-	const handleModal = () => {setAnchorElChain(false);customModalRef.current.handleOpen()};
+	const handleModal = () => {setAnchorElChain(null);customModalRef.current.handleOpen()};
 
   return (
 		<div className="App-header">

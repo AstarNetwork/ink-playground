@@ -11,10 +11,14 @@ function useEditorProp(editor:(ace.Editor | null), prop: any, whenPresent: any) 
   }, [editor, prop, whenPresent]);
 }
 
+export interface EditorHandler{
+	getValue() : void;
+}
+
 type PropType = {
 	value: string,
 	theme: string,
-	style: any,
+	style: object,
 }
 const Editor = forwardRef((props: PropType, ref) => {
 	const [editor, setEditor] = useState<ace.Editor | null>(null);

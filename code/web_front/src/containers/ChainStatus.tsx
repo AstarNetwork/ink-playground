@@ -1,16 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import { useSelector } from 'react-redux';
 import { Abi } from '@polkadot/api-contract';
+import { RootStore } from './Root';
 import PutCodeModalButton from './PutCodeModalButton';
 import InstantiateModalButton from './InstantiateModalButton';
 import CallContractModalButton from './CallContractModalButton';
+import { ApiPromise } from '@polkadot/api';
 
-const ChainStatus = ( {api, apiIsReady, wasm, metadata} ) => {
+export type CodesObject = {
+  [s: string]: {
+    codeHash: string;
+    name: string;
+    abi: Abi;
+  };
+}
 
-  const [codes,setCodes] = useState({})
+export type InstancesObject = {
+  [s: string]: {
+    address: string;
+    codeHash: string;
+    name: string;
+  };
+}
+
+type propType = {
+  api: ApiPromise | null;
+  apiIsReady: boolean,
+  wasm: Uint8Array | null;
+  metadata: string | null;
+}
+
+const ChainStatus = ( {api, apiIsReady, wasm, metadata}:propType ) => {
+
+  const [codes,setCodes] = useState<CodesObject>({})
   const [instances,setInstances] = useState({})
+  const [abi,setAbi] = useState<Abi | null>(null);
 
-  const [abi,setAbi] = useState(null);
+  const selectedChainId = useSelector((state: RootStore) => state.chain.selectedChainId);
+
+  useEffect(()=>{
+    setCodes({});
+    setInstances({});
+  },[selectedChainId])
 
   useEffect(()=>{
     console.log("new codes:\n",codes)
@@ -34,27 +65,25 @@ const ChainStatus = ( {api, apiIsReady, wasm, metadata} ) => {
   }else {
     return (<>
       <p>Able to use contract module.</p>
-      <PutCodeModalButton api={api} abi={abi} wasm={wasm} codes={codes} setCodes={setCodes} />
+      {(!!abi&&!!wasm)
+        ?<PutCodeModalButton api={api} abi={abi} wasm={wasm} codes={codes} setCodes={setCodes} />
+        :[]
+      }
     {Object.keys(codes).length>0?<InstantiateModalButton
         api={api}
         codes={codes}
         instances={instances}
         setInstances={setInstances}
+        selectedChainId={selectedChainId}
       />:[]}
     {Object.keys(instances).length>0?<CallContractModalButton
         api={api}
         codes={codes}
         instances={instances}
+        selectedChainId={selectedChainId}
     />:[]}
     </>)
   }
-}
-
-ChainStatus.propTypes = {
-  api: PropTypes.object,
-  apiIsReady: PropTypes.bool.isRequired,
-  wasm: PropTypes.object,
-  metadata: PropTypes.string,
 }
 
 export default ChainStatus

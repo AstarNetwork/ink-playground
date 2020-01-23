@@ -1,5 +1,7 @@
 import { ApiPromise, WsProvider } from '@polkadot/api';
+import { RootActions } from './'
 import { Dispatch } from 'redux';
+import { RootStore } from '../containers/Root';
 
 export const SELECT_CHAIN = 'SELECT_CHAIN' as const;
 export const selectChainById = (chainId: string) => ({
@@ -8,7 +10,7 @@ export const selectChainById = (chainId: string) => ({
 })
 
 export const SET_CUSTOM = "SET_CUSTOM" as const;
-export const setCustom = (ws_provider: WsProvider, type: object = {}) => ({
+export const setCustom = (ws_provider: string, type: object = {}) => ({
   type:SET_CUSTOM,
   payload: {
     ws_provider,
@@ -28,23 +30,19 @@ const createApi = (chainApi: ApiPromise) => ({
   payload: chainApi,
 })
 
-export type Actions = ReturnType<typeof selectChainById | typeof setCustom | typeof chainApiReady | typeof createApi | typeof disconnectChain>
-
-export const startSelectedChain = () => {
-  return (dispatch: Dispatch<Actions>, getState: any) => {
-    stopChain(dispatch, getState);
-    const state = getState();
-    const { selectedChainId } = state.chain
-    const selectedChain = state.chain.items[selectedChainId]
-    const provider = new WsProvider(selectedChain.ws_provider);
-    dispatch(chainApiReady(false))
-    const chainApi = new ApiPromise({provider, types:selectedChain.types })
-    chainApi.on('ready',()=>{dispatch(chainApiReady(true))})
-    chainApi.on('disconnected',()=>{dispatch(chainApiReady(false))})
-    dispatch(createApi(chainApi))
-    return Promise.resolve();
-  }
-}
+export const startSelectedChain = () => ((dispatch: Dispatch<RootActions>, getState: (()=>RootStore)) => {
+  const state: RootStore = getState();
+  stopChain(dispatch, state);
+  const { selectedChainId } = state.chain
+  const selectedChain = state.chain.items[selectedChainId]
+  const provider = new WsProvider(selectedChain.ws_provider);
+  dispatch(chainApiReady(false))
+  const chainApi = new ApiPromise({provider, types:selectedChain.types })
+  chainApi.on('ready',()=>{dispatch(chainApiReady(true))})
+  chainApi.on('disconnected',()=>{dispatch(chainApiReady(false))})
+  dispatch(createApi(chainApi))
+  return Promise.resolve();
+})
 
 export const DISCONNECT_CHAIN = 'DISCONNECT_CHAIN' as const;
 const disconnectChain = () => ({
@@ -52,8 +50,7 @@ const disconnectChain = () => ({
   payload: true,
 })
 
-const stopChain = (dispatch: Dispatch<Actions> ,getState: any):void => {
-  const state = getState();
+const stopChain = (dispatch: Dispatch<RootActions> ,state: RootStore):void => {
   const { chainApiDisconnected, chainApi } = state.chain;
   if( chainApi && !chainApiDisconnected ){
     chainApi.disconnect();
@@ -61,3 +58,4 @@ const stopChain = (dispatch: Dispatch<Actions> ,getState: any):void => {
   }
 }
 
+export type Actions = ReturnType<typeof selectChainById | typeof setCustom | typeof chainApiReady | typeof createApi | typeof disconnectChain >

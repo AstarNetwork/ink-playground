@@ -7,9 +7,11 @@ import { startSelectedChain, selectChainById ,getAccounts } from '../actions'
 
 const store = configureStore()
 
-store.dispatch(getAccounts());
+export type RootStore = ReturnType<typeof store.getState>;
+
+store.dispatch<any>(getAccounts());
 store.dispatch(selectChainById('local'));
-store.dispatch(startSelectedChain());
+store.dispatch<any>(startSelectedChain());
 
 Modal.setAppElement('#root');
 

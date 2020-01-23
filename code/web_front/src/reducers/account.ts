@@ -2,7 +2,6 @@ import { combineReducers } from 'redux'
 import { SELECT_ACCOUNT, RECEIVE_ACCOUNTS, REQUEST_ACCOUNTS } from '../actions'
 import { Actions } from '../actions/account'
 import { KeyringPair } from '@polkadot/keyring/types'
-import { Keyring } from '@polkadot/ui-keyring'
 
 const selectedAccount = (state: (KeyringPair | null) = null, action : Actions) => {
   switch(action.type){
