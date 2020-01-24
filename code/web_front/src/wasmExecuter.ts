@@ -1,4 +1,15 @@
-class ResizableBuffer extends Uint8Array {
+const bytesPerPage = 64 * 1024;
+
+function growif(mem : WebAssembly.Memory,byteLength: number){
+    var pages = Math.ceil(byteLength / bytesPerPage);
+    if(pages !== mem.buffer.byteLength / bytesPerPage){
+        mem.grow(pages);
+        return true;
+    }
+    return false;
+}
+
+export class ResizableBuffer extends Uint8Array {
     _size: number;
     constructor(ab: ArrayBuffer, _size: number){
         super(ab);
@@ -11,39 +22,42 @@ class ResizableBuffer extends Uint8Array {
         this._size=_size;
     }
     subarray(begin?:number, end?:number){
-        return super.subarray(begin, end);
+        var res = super.subarray(begin, end) as ResizableBuffer;
+        res._size=res.length;
+        return res;
     };
-    set(array: ArrayLike<number>, offset?: number | undefined ){
-        return super.set(array, offset);
-    };
-
 }
 
-export class importObject {
+export class ImportObject {
     constructor(){
         this.scratch_buf_memory = new WebAssembly.Memory({initial:2, maximum:16});
-        const local_memory = new WebAssembly.Memory({initial:2, maximum:16});
-        this.scratch_buf = new ResizableBuffer(this.scratch_buf_memory.buffer,0);
-        this.local = new Uint8Array(local_memory.buffer);
+        this.env.memory = this.scratch_buf_memory;
+        this.scratch_buf = new Uint8Array(this.scratch_buf_memory.buffer);
+        this.scratch_buf_len = 0;
+        this.local_memory = new WebAssembly.Memory({initial:2, maximum:16});
+        this.local = new Uint8Array(this.local_memory.buffer);
         this.ctx_storage = {};
     }
     scratch_buf_memory: WebAssembly.Memory;
-    scratch_buf :ResizableBuffer;
+    scratch_buf: Uint8Array;
+    scratch_buf_len: number;
+    local_memory: WebAssembly.Memory;
     local : Uint8Array;
     ctx_storage:{[x:string]: Uint8Array};
 
     env = {
+        memory: WebAssembly.Memory.prototype,
         //from here
-        memory: this.scratch_buf_memory,
         ext_set_storage:(
             key_ptr: number,
             value_non_null: number,
             value_ptr: number,
             value_len: number,
         )=>{
+            console.log('ext_set_storage');
             const key = this.local.subarray(key_ptr,key_ptr+32);
             var value;
-            if(value_non_null!=0){
+            if(value_non_null!==0){
                 value = this.local.subarray(value_ptr,value_ptr+value_len);
             }else{
                 value = null;
@@ -51,6 +65,7 @@ export class importObject {
             this.ctx_storage[key.toString()]=value.toString();
         },
         ext_get_storage:(key_ptr: number): number =>{
+            console.log('ext_get_storage');
             const key = this.local.subarray(key_ptr,key_ptr+32);
             const key_str = key.toString();
             if(this.ctx_storage.hasOwnProperty(key_str)){
@@ -61,22 +76,33 @@ export class importObject {
             }
         },
         ext_scratch_size:(): number => {
-            return this.scratch_buf.length;
+            console.log('ext_scratch_size()');
+            console.log('result:' + this.scratch_buf_len);
+            return this.scratch_buf_len;
         },
+
+        //scratch -> sandbox
         ext_scratch_read:(dst_ptr: number, offset: number, len: number)=>{
-            if( offset > this.scratch_buf.length ) {
+            console.log('ext_scratch_read(dst_ptr: '+dst_ptr+', offset: '+offset+',len: '+len);
+            if( offset > this.scratch_buf_len ) {
                 return 1;
             };
-            const src = this.scratch_buf.subarray(offset,offset+this.scratch_buf.length);
-            if( this.scratch_buf.length != len ){
+            if( this.scratch_buf_len !== len ){
                 return 1;
             }
+            if(growif(this.local_memory,dst_ptr+len)){
+                this.local = new Uint8Array(this.local_memory.buffer);
+            }
+            const newBuf = new Uint8Array(this.scratch_buf_memory.buffer);
+            const src = newBuf.subarray(offset,offset+len);
             this.local.set(src,dst_ptr);
             return 0;
         },
+        //sandbox -> scratch
         ext_scratch_write:(src_ptr: number, len: number)=>{
+            console.log('ext_scratch_write');
             this.scratch_buf.set(this.local.subarray(src_ptr,src_ptr+len));
-            this.scratch_buf.length = len;
+            this.scratch_buf_len = len;
         },
 
 

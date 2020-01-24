@@ -6,6 +6,7 @@ import PutCodeModalButton from './PutCodeModalButton';
 import InstantiateModalButton from './InstantiateModalButton';
 import CallContractModalButton from './CallContractModalButton';
 import { ApiPromise } from '@polkadot/api';
+import LocalWasmTesterModalButton from '../components/LocalWasmTesterModalButton'
 
 export type CodesObject = {
   [s: string]: {
@@ -54,6 +55,7 @@ const ChainStatus = ( {api, apiIsReady, wasm, metadata}:propType ) => {
   useEffect(()=>{
     if(apiIsReady&&api&&api.registry&&metadata!=null){
       const _abi = new Abi(api.registry,JSON.parse(metadata));
+      console.log(_abi);
       setAbi(_abi);
     }
   },[apiIsReady,api,metadata])
@@ -67,6 +69,10 @@ const ChainStatus = ( {api, apiIsReady, wasm, metadata}:propType ) => {
       <p>Able to use contract module.</p>
       {(!!abi&&!!wasm)
         ?<PutCodeModalButton api={api} abi={abi} wasm={wasm} codes={codes} setCodes={setCodes} />
+        :[]
+      }
+      {(!!abi&&!!wasm)
+        ?<LocalWasmTesterModalButton label="Test wasm in local" abi={abi} wasm={wasm} />
         :[]
       }
     {Object.keys(codes).length>0?<InstantiateModalButton

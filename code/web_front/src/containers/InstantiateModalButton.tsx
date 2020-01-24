@@ -26,7 +26,7 @@ const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChainI
 
   const [gasLimit, setGasLimit] = useState(500000)
   const [codeHash, setCodeHash] = useState<string|null>(null)
-  const [constructorMessage, setConstructorMessage] = useState(null)
+  const [constructorMessage, setConstructorMessage] = useState<Uint8Array|null>(null)
   const [instanceName, setInstanceName] = useState("")
   const [endowment,setEndowment] = useState(0);
 

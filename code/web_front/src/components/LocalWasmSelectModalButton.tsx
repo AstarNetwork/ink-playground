@@ -25,8 +25,15 @@ const LocalWasmSelectModalButton = ({ label, setWasm, setMetadata }: PropType) =
                     type="file"
                     onChange={(e:any) => {
                         var file = e.target.files[0];
-                        const bytes = new Uint8Array(file);
-                        setWasm(bytes);
+                        var reader = new FileReader();
+                        reader.onload = (e:any)=>{
+                            if(!e.target.error){
+                                const buffer = new Uint8Array(e.target.result as ArrayBuffer);
+                                setWasm(buffer);
+                            }
+                        };
+                        reader.readAsArrayBuffer(file);
+
                     }}
                     style={{ opacity: 0, appearance: "none", position: "absolute" }}
                     accept="application/wasm"
@@ -38,7 +45,14 @@ const LocalWasmSelectModalButton = ({ label, setWasm, setMetadata }: PropType) =
                     type="file"
                     onChange={(e:any) => {
                         var file = e.target.files[0];
-                        setMetadata(file);
+                        var reader = new FileReader();
+                        reader.onload = (e:any)=>{
+                            if(e.target.result!==null){
+                                setMetadata(e.target.result.toString());
+                            }
+                        };
+                        reader.readAsText(file);
+
                     }}
                     style={{ opacity: 0, appearance: "none", position: "absolute" }}
                     accept="application/json"

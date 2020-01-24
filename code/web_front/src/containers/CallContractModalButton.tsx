@@ -27,8 +27,8 @@ const CallContractModalButton = ({api,codes,instances, selectedChainId}:PropType
   const [gasLimit, setGasLimit] = useState(500000)
   const [value, setValue] = useState(0)
   const [instance,setInstance] = useState<InstancesObject[keyof InstancesObject] | null>(null);
-  const [abi,setAbi] = useState<Abi>();
-  const [callMessage, setCallMessage] = useState<Object>();
+  const [abi,setAbi] = useState<Abi | null>(null);
+  const [callMessage, setCallMessage] = useState<Uint8Array | null>(null);
 
   const modalRef = useRef({} as ModalTemplateHandler);
 
@@ -37,7 +37,7 @@ const CallContractModalButton = ({api,codes,instances, selectedChainId}:PropType
   },[selectedChainId]);
 
   useEffect(() => {
-    setCallMessage(undefined)
+    setCallMessage(null)
     if(instance!=null){
       setAbi(codes[instance.codeHash].abi)
     }
