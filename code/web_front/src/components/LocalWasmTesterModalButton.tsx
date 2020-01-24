@@ -42,7 +42,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, abi }: PropType) => {
                 const result = wasmInstance;
                 const deployFunc = result.instance.exports.deploy as Function;
                 console.log(result.instance);
-                const scratch_buf = importObject.scratch_buf;
+                const scratch_buf = new Uint8Array(importObject.env.memory.buffer);
                 scratch_buf.set(message);
                 importObject.scratch_buf_len = message.length;
                 console.log(scratch_buf.subarray(0,message.length));
