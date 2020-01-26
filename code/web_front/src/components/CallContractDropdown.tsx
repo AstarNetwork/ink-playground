@@ -57,7 +57,7 @@ const CallContractDropdown = ({abi,setCallMessage}: PropType) =>  {
         for (var i = 0; i < func.args.length;i++){
           array.push(params[i]);
         }
-        setCallMessage(func(array));
+        setCallMessage(func(...array));
       }
     }
   },[abi,setCallMessage,index,params])

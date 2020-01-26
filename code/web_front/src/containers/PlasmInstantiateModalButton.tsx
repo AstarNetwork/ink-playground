@@ -2,15 +2,19 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField';
+import { ApiPromise } from '@polkadot/api';
+import { SubmittableResultValue } from '@polkadot/api/types';
+import { getTypeDef } from '@polkadot/types';
+import Param from '@polkadot/react-params/Param';
+import { RawParamOnChangeValue } from '@polkadot/react-params/types';
+import getInitValue from '@polkadot/react-params/initValue';
 import AccountDropdown from './AccountDropdown'
 import TxButton from './TxButton'
 import Modal, { ModalTemplateHandler } from '../components/ModalTemplate'
 import Dropdown from '../components/Dropdown'
 import ConstructorDropdown from '../components/ConstructorDropdown'
 import { addConsoleLine } from '../actions'
-import { ApiPromise } from '@polkadot/api';
 import { CodesObject, InstancesObject } from './ChainStatus';
-import { SubmittableResultValue } from '@polkadot/api/types';
 
 type PropType = {
   api: ApiPromise;
@@ -20,15 +24,18 @@ type PropType = {
   selectedChainId: string;
 }
 
-const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChainId} : PropType) => {
+const ParametersType = getTypeDef('{"canBeNominated": "bool", "optionExpied" : "u128", "optionP" : "u32" }')
+
+const PlasmInstantiateModalButton = ({api,codes,instances,setInstances,selectedChainId} : PropType) => {
   const dispatch = useDispatch();
 	const setResult = (x) => dispatch(addConsoleLine(x))
 
+  const [endowment,setEndowment] = useState(0);
   const [gasLimit, setGasLimit] = useState(500000)
   const [codeHash, setCodeHash] = useState<string|null>(null)
+  const [parameters, setParameters] = useState(null);
   const [constructorMessage, setConstructorMessage] = useState<Uint8Array|null>(null)
   const [instanceName, setInstanceName] = useState("")
-  const [endowment,setEndowment] = useState(0);
 
   const modalRef = useRef({} as ModalTemplateHandler);
 
@@ -37,10 +44,8 @@ const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChainI
   },[selectedChainId]);
 
   useEffect(()=>{
-    if(!api||!api.consts)
-      return
     var contractObj = api.consts.contracts;
-    setEndowment(contractObj.contractFee.toNumber()+contractObj.creationFee.toNumber())
+    setEndowment(contractObj.contractFee.toNumber()+contractObj.creationFee.toNumber())  
   },[api]);
 
   useEffect(()=>{
@@ -112,6 +117,17 @@ const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChainI
         style = {{marginBottom:"10px",width:"100%"}}
       />
 
+      <div className="ui--Params-Content">
+        <div className="ui--Param-composite">
+          <Param
+            name="Parameters"
+            onChange={(e:RawParamOnChangeValue)=>{setParameters(e.value);}}
+            type={ParametersType}
+            defaultValue={getInitValue(ParametersType)}
+          />
+        </div>
+      </div>
+
       <TxButton
         label={"send"}
         tx={'contracts.instantiate'}
@@ -120,6 +136,7 @@ const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChainI
           ,gasLimit
           ,Object.keys(codes)[0]
           ,!!constructorMessage?constructorMessage:[]
+          ,parameters
         ]}
         onSend={onInstantiate}
         style={{display:!Object.keys(codes).length?'none':''}}
@@ -128,4 +145,4 @@ const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChainI
   </>)
 }
 
-export default InstantiateModalButton
+export default PlasmInstantiateModalButton

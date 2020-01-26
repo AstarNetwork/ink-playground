@@ -4,6 +4,7 @@ import { Abi } from '@polkadot/api-contract';
 import { RootStore } from './Root';
 import PutCodeModalButton from './PutCodeModalButton';
 import InstantiateModalButton from './InstantiateModalButton';
+import PlasmInstantiateModalButton from './PlasmInstantiateModalButton';
 import CallContractModalButton from './CallContractModalButton';
 import { ApiPromise } from '@polkadot/api';
 import LocalWasmTesterModalButton from '../components/LocalWasmTesterModalButton'
@@ -75,13 +76,23 @@ const ChainStatus = ( {api, apiIsReady, wasm, metadata}:propType ) => {
         ?<LocalWasmTesterModalButton label="Test wasm in local" abi={abi} wasm={wasm} />
         :[]
       }
-    {Object.keys(codes).length>0?<InstantiateModalButton
-        api={api}
-        codes={codes}
-        instances={instances}
-        setInstances={setInstances}
-        selectedChainId={selectedChainId}
-      />:[]}
+    {Object.keys(codes).length>0?
+      (selectedChainId==="Plasm"
+      ?<InstantiateModalButton
+          api={api}
+          codes={codes}
+          instances={instances}
+          setInstances={setInstances}
+          selectedChainId={selectedChainId}
+      />
+      :<PlasmInstantiateModalButton
+          api={api}
+          codes={codes}
+          instances={instances}
+          setInstances={setInstances}
+          selectedChainId={selectedChainId}
+      />)
+    :[]}
     {Object.keys(instances).length>0?<CallContractModalButton
         api={api}
         codes={codes}
