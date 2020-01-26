@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button'
 import Modal, { ModalTemplateHandler } from './ModalTemplate'
 import { Abi } from '@polkadot/api-contract'
+import { TypeRegistry } from '@polkadot/types'
 import { ImportObject } from '../wasmExecuter'
 import ConstructorDropdown from './ConstructorDropdown'
 import CallContractDropdown from './CallContractDropdown'
@@ -10,20 +11,32 @@ import CallContractDropdown from './CallContractDropdown'
 type PropType = {
     label: string;
     wasm: Uint8Array | null;
-    abi: Abi | null;
+    metadata: string | null;
 }
 
-const LocalWasmTesterModalButton = ({ label, wasm, abi }: PropType) => {
+const registry = new TypeRegistry();
 
+const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
+
+    const [abi, setAbi] = useState<Abi | null>(null);
     const [importObject,setImportObject] = useState<ImportObject | null>(null);
     const [wasmInstance, setWasmInstance] = useState<WebAssembly.WebAssemblyInstantiatedSource | null>(null);
     const [constructorMessage, setConstructorMessage] = useState<Uint8Array | null>(null)
     const [callContractMessage, setCallContractMessage] = useState<Uint8Array | null>(null)
-
     // const [gasLimit, setGasLimit] = useState(500000)
     // const [endowment,setEndowment] = useState(0);
-  
+
     const modalRef = useRef({} as ModalTemplateHandler);
+
+    useEffect(()=>{
+        if(metadata!=null){
+            const _abi = new Abi(registry,JSON.parse(metadata));
+            console.log(_abi);
+            setAbi(_abi);
+        }
+    },[metadata])
+  
+
 
     useEffect(() => {
         async function main() {

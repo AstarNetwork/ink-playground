@@ -7,7 +7,6 @@ import InstantiateModalButton from './InstantiateModalButton';
 import PlasmInstantiateModalButton from './PlasmInstantiateModalButton';
 import CallContractModalButton from './CallContractModalButton';
 import { ApiPromise } from '@polkadot/api';
-import LocalWasmTesterModalButton from '../components/LocalWasmTesterModalButton'
 
 export type CodesObject = {
   [s: string]: {
@@ -68,10 +67,6 @@ const ChainStatus = ( {api, apiIsReady, wasm, metadata}:propType ) => {
   }else {
     return (<>
       <p>Able to use contract module.</p>
-      {(!!abi&&!!wasm)
-        ?<LocalWasmTesterModalButton label="Test wasm in local" abi={abi} wasm={wasm} />
-        :[]
-      }
       {(!!abi&&!!wasm)
         ?<PutCodeModalButton api={api} abi={abi} wasm={wasm} codes={codes} setCodes={setCodes} />
         :[]
