@@ -69,11 +69,11 @@ const ChainStatus = ( {api, apiIsReady, wasm, metadata}:propType ) => {
     return (<>
       <p>Able to use contract module.</p>
       {(!!abi&&!!wasm)
-        ?<PutCodeModalButton api={api} abi={abi} wasm={wasm} codes={codes} setCodes={setCodes} />
+        ?<LocalWasmTesterModalButton label="Test wasm in local" abi={abi} wasm={wasm} />
         :[]
       }
       {(!!abi&&!!wasm)
-        ?<LocalWasmTesterModalButton label="Test wasm in local" abi={abi} wasm={wasm} />
+        ?<PutCodeModalButton api={api} abi={abi} wasm={wasm} codes={codes} setCodes={setCodes} />
         :[]
       }
     {Object.keys(codes).length>0?

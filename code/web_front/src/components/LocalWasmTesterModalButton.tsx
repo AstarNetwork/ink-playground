@@ -56,7 +56,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, abi }: PropType) => {
     }
 
     return (<>
-        <Button style={{ marginBottom: "10px", width: "100%" }} color="primary" variant="contained" onClick={() => modalRef.current.handleOpen()}>
+        <Button style={{ marginBottom: "10px", width: "100%" }} color="secondary" variant="contained" onClick={() => modalRef.current.handleOpen()}>
             {label}
         </Button>
         <Modal ref={modalRef}>
