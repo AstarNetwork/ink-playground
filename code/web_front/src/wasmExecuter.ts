@@ -1,23 +1,24 @@
-const bytesPerPage = 64 * 1024;
-
-function growif(mem : WebAssembly.Memory,byteLength: number){
-    var growPages = Math.ceil(byteLength / bytesPerPage) - mem.buffer.byteLength / bytesPerPage;
-    if(growPages > 0){
-        mem.grow(growPages);
-        console.log('grow '+growPages+' pages');
-        return true;
-    }
-    return false;
-}
+// const bytesPerPage = 64 * 1024;
+// function growif(mem : WebAssembly.Memory,byteLength: number){
+//     var growPages = Math.ceil(byteLength / bytesPerPage) - mem.buffer.byteLength / bytesPerPage;
+//     if(growPages > 0){
+//         mem.grow(growPages);
+//         console.log('grow '+growPages+' pages');
+//         return true;
+//     }
+//     return false;
+// }
 
 export class ImportObject {
     scratch_buf_len: number;
     ctx_storage:{[x:string]: Uint8Array};
     env:any;
+    init: boolean;
 
     constructor(){
         this.scratch_buf_len = 0;
         this.ctx_storage = {};
+        this.init = false;
         this.env = {
             memory: new WebAssembly.Memory({initial:2, maximum:16}),
             //from here

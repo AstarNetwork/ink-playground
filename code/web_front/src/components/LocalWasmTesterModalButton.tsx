@@ -55,6 +55,14 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
         async function main() {
             console.log("`"+funcName+"` is called")
             if (abi !== null && wasmInstance !== null && importObject !== null) {
+                if ( funcName === 'deploy' ){
+                    if (!importObject.init){
+                        importObject.init = true;
+                    }else{
+                        console.log('already deployed');
+                        return;
+                    }
+                }
                 const wasmI = wasmInstance;
                 const exportedFunc = wasmI.instance.exports[funcName] as Function;
                 const scratch_buf = new Uint8Array(importObject.env.memory.buffer);
