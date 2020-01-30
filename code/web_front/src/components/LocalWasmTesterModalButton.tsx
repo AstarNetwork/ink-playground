@@ -30,25 +30,24 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
 
     useEffect(()=>{
         if(metadata!=null){
-            const _abi = new Abi(registry,JSON.parse(metadata));
+            const _abi = new Abi(registry, JSON.parse(metadata));
             console.log(_abi);
             setAbi(_abi);
         }
     },[metadata])
-  
 
+    async function createWasmInstance() {
+        if (wasm !== null) {
+            var _importObject = new ImportObject("");
+            const _wasmInstance = await WebAssembly.instantiate(wasm, _importObject as any);
+            setImportObject(_importObject)
+            console.log('wasm instance created');
+            setWasmInstance(_wasmInstance);
+        }
+    }
 
     useEffect(() => {
-        async function main() {
-            if (wasm !== null) {
-                var _importObject = new ImportObject();
-                const _wasmInstance = await WebAssembly.instantiate(wasm, _importObject as any);
-                setImportObject(_importObject)
-                console.log('wasm instance created');
-                setWasmInstance(_wasmInstance);
-            }
-        }
-        main();
+        createWasmInstance();
     }, [wasm])
 
     function exported_func(funcName: 'call'|'deploy', message: Uint8Array) {
@@ -65,9 +64,8 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
                 }
                 const wasmI = wasmInstance;
                 const exportedFunc = wasmI.instance.exports[funcName] as Function;
-                const scratch_buf = new Uint8Array(importObject.env.memory.buffer);
-                scratch_buf.set(message);
-                importObject.scratch_buf_len = message.length;
+                importObject.scratch_buf.set(message.subarray(1,message.length));
+                importObject.scratch_buf_len = message.length-1;
                 const result = exportedFunc();
                 console.log(importObject.env.memory.buffer);
                 console.log('instance.exports.'+funcName+': '+result);
@@ -82,6 +80,9 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
         </Button>
         <Modal ref={modalRef}>
             <div style={{width:"50vh"}} ><span>instantiate</span></div>
+            <Button style={{ marginBottom: "10px", width: "100%" }} color="secondary" variant="contained" onClick={()=>createWasmInstance()} >
+                reset
+            </Button>
             {!!abi?
             <ConstructorDropdown
                 abi={abi}
