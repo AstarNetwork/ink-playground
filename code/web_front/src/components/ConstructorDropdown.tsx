@@ -54,7 +54,6 @@ const ConstructorDropdown = ({abi,setConstructorMessage}: PropType) =>  {
       for (var i = 0; i < len;i++){
         array.push(params[i]);
       }
-      console.log(array)
       const encodeFunc = abi.constructors[constructorIndex];
       const _constructorMessage = encodeFunc(...array);
       setConstructorMessage(_constructorMessage)

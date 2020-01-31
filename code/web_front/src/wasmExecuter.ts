@@ -1,7 +1,11 @@
 import { GenericEvent as Event } from '@polkadot/types';
-import { TypeRegistry } from '@polkadot/types';
+import { createType, TypeRegistry } from '@polkadot/types';
 
 const registry = new TypeRegistry();
+const id = createType(registry, 'AccountId');
+type AccountId = typeof id;
+
+console.log(registry);
 
 const bytesPerPage = 64 * 1024;
 
@@ -18,13 +22,13 @@ const bytesPerPage = 64 * 1024;
 export class ImportObject {
     scratch_buf_len: number;
     scratch_buf: Uint8Array;
-    caller: string;
+    caller: AccountId;
     balance: number;
     ctx_storage: {[x:string]: Uint8Array};
     env: any;
     init: boolean;
 
-    constructor(caller: string, balance = 0){
+    constructor(caller: AccountId, balance = 0){
         this.scratch_buf_len = 0;
         this.scratch_buf = new Uint8Array(bytesPerPage);
         this.balance = balance;
@@ -119,15 +123,23 @@ export class ImportObject {
                 data_ptr: number,
                 data_len: number,
             )=>{
-                console.log(`[CALLED] ext_println(topics_ptr: ${topics_ptr}, topics_len: ${topics_len}, data_len: ${data_len}, data_ptr: ${data_ptr})`);
+                console.log(`[CALLED] ext_deposit_event(topics_ptr: ${topics_ptr}, topics_len: ${topics_len}, data_ptr: ${data_ptr}), data_len: ${data_len}`);
                 const local = new Uint8Array(this.env.memory.buffer);
-                if(topics_len === 0){
-                    var topics = Event.decodeEvent(registry);
-                }else{
-                    const buffer = local.subarray(topics_ptr,topics_ptr+topics_len);
-                    //Decode from buffer to event
-                    var topics = Event.decodeEvent(registry,buffer);
-                }
+                // if(topics_len === 0){
+                //     var topics = Event.decodeEvent(registry);
+                // }else{
+                //     const buffer = local.subarray(topics_ptr,topics_ptr+topics_len);
+                //     //Decode from buffer to event
+                //     topics = Event.decodeEvent(registry,buffer);
+                // }
+                const topics = local.subarray(topics_ptr,topics_ptr+topics_len);
+                const event_data = local.subarray(data_ptr,data_ptr+data_len);
+                console.log(`[EVENT] topics: ${topics}, event_data: ${event_data}`);
+            },
+            ext_caller: ()=>{
+                var callerBuffer = this.caller.toU8a();
+                this.scratch_buf.set(callerBuffer)
+                this.scratch_buf_len=callerBuffer.length;
             },
     
             // until here
@@ -167,9 +179,7 @@ export class ImportObject {
                 delta_count: number,
             )=>{},
             ext_dispatch_call:(call_ptr: number, call_len: number)=>{},
-            ext_caller: ()=>{
-    
-            },
+
             ext_block_number: ()=>{
     
             },

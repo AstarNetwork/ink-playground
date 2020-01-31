@@ -1,11 +1,13 @@
 import React, { useRef, useState, useEffect } from 'react'
 import Button from '@material-ui/core/Button'
-import Modal, { ModalTemplateHandler } from './ModalTemplate'
+import Modal, { ModalTemplateHandler } from '../components/ModalTemplate'
 import { Abi } from '@polkadot/api-contract'
-import { TypeRegistry } from '@polkadot/types'
+import { createType, TypeRegistry } from '@polkadot/types'
 import { ImportObject } from '../wasmExecuter'
-import ConstructorDropdown from './ConstructorDropdown'
-import CallContractDropdown from './CallContractDropdown'
+import ConstructorDropdown from '../components/ConstructorDropdown'
+import CallContractDropdown from '../components/CallContractDropdown'
+import { useSelector } from 'react-redux'
+import { RootStore } from './Root'
 
 
 type PropType = {
@@ -17,6 +19,8 @@ type PropType = {
 const registry = new TypeRegistry();
 
 const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
+
+    const account = useSelector((state: RootStore) => state.account.selectedAccount);
 
     const [abi, setAbi] = useState<Abi | null>(null);
     const [importObject,setImportObject] = useState<ImportObject | null>(null);
@@ -36,39 +40,46 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
         }
     },[metadata])
 
-    async function createWasmInstance() {
-        if (wasm !== null) {
-            var _importObject = new ImportObject("");
-            const _wasmInstance = await WebAssembly.instantiate(wasm, _importObject as any);
-            setImportObject(_importObject)
-            console.log('wasm instance created');
-            setWasmInstance(_wasmInstance);
+    function deploy(message){
+        async function main() {
+            if (abi !== null && wasm !== null && account !== null) {
+                console.log(createType(registry,'AccountId',account.publicKey));
+                var _importObject = new ImportObject(createType(registry,'AccountId',account.publicKey));
+                setImportObject(_importObject)
+                const _wasmInstance = await WebAssembly.instantiate(wasm, _importObject as any);
+                console.log('wasm instance created');
+                setWasmInstance(_wasmInstance);
+                if (!!importObject){
+                    console.log('already deployed');
+                    return;
+                }
+                const exportedFunc = _wasmInstance.instance.exports.deploy as Function;
+                _importObject.scratch_buf.set(message.subarray(1,message.length));
+                _importObject.scratch_buf_len = message.length-1;
+                const result = exportedFunc();
+                console.log('scratch_buf:');
+                console.log(_importObject.scratch_buf.subarray(0,_importObject.scratch_buf_len));
+                console.log('deploy: '+result);
+            }
         }
+        main();
     }
 
-    useEffect(() => {
-        createWasmInstance();
-    }, [wasm])
-
-    function exported_func(funcName: 'call'|'deploy', message: Uint8Array) {
+    function call(message){
         async function main() {
-            console.log("`"+funcName+"` is called")
-            if (abi !== null && wasmInstance !== null && importObject !== null) {
-                if ( funcName === 'deploy' ){
-                    if (!importObject.init){
-                        importObject.init = true;
-                    }else{
-                        console.log('already deployed');
-                        return;
-                    }
+            if (abi !== null && wasm !== null && account !== null) {
+                if (wasmInstance === null || importObject === null){
+                    console.log('you have to deploy before calling');
+                    return;
+                }else{
+                    const exportedFunc = wasmInstance.instance.exports.deploy as Function;
+                    importObject.scratch_buf.set(message.subarray(1,message.length));
+                    importObject.scratch_buf_len = message.length-1;
+                    const result = exportedFunc();
+                    console.log('scratch_buf:');
+                    console.log(importObject.scratch_buf.subarray(0,importObject.scratch_buf_len));
+                    console.log('call: '+result);
                 }
-                const wasmI = wasmInstance;
-                const exportedFunc = wasmI.instance.exports[funcName] as Function;
-                importObject.scratch_buf.set(message.subarray(1,message.length));
-                importObject.scratch_buf_len = message.length-1;
-                const result = exportedFunc();
-                console.log(importObject.env.memory.buffer);
-                console.log('instance.exports.'+funcName+': '+result);
             }
         }
         main();
@@ -80,7 +91,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
         </Button>
         <Modal ref={modalRef}>
             <div style={{width:"50vh"}} ><span>instantiate</span></div>
-            <Button style={{ marginBottom: "10px", width: "100%" }} color="secondary" variant="contained" onClick={()=>createWasmInstance()} >
+            <Button style={{ marginBottom: "10px", width: "100%" }} color="secondary" variant="contained" onClick={()=>{setImportObject(null);setWasmInstance(null);}} >
                 reset
             </Button>
             {!!abi?
@@ -94,7 +105,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
                 variant="contained"
                 onClick={()=>{
                     if(constructorMessage!==null){
-                        exported_func("deploy",constructorMessage);
+                        deploy(constructorMessage);
                         modalRef.current.handleClose();
                     }
                 }}
@@ -111,7 +122,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
                 variant="contained"
                 onClick={()=>{
                     if(callContractMessage!==null){
-                        exported_func("call",callContractMessage);
+                        call(callContractMessage);
                         modalRef.current.handleClose();
                     }
                 }}
