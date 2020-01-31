@@ -62,6 +62,7 @@
   },
   "resolutions": {
     "@polkadot/api": "0.100.1",
+    "@polkadot/api-contract": "0.100.1",
     "@polkadot/util": "1.8.1",
     "@polkadot/ui-keyring": "0.47.1",
     "@polkadot/extension-dapp": "0.20.1"
