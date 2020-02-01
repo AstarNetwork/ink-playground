@@ -1,4 +1,4 @@
-import { web3Accounts, web3Enable } from '@polkadot/extension-dapp';
+import { web3Accounts } from '@polkadot/extension-dapp';
 import keyring from '@polkadot/ui-keyring';
 import { KeyringPair } from '@polkadot/keyring/types';
 import { Dispatch } from 'redux';
@@ -33,10 +33,7 @@ const loadAccounts = (injectedAccounts : KeyringPair[]) => {
 export const getAccounts = (): ThunkAction<void,RootStore,undefined,RootActions> => {
   return (dispatch: Dispatch<Actions>, getState: any) => {
     console.log("called getAccounts.")
-    dispatch(requestAccounts());
-    web3Enable('ink-playground')
-    .then((extensions) => {
-      web3Accounts()
+    web3Accounts()
       .then((accounts) => {
         return accounts.map(({ address, meta }) => ({
           address,
@@ -46,7 +43,6 @@ export const getAccounts = (): ThunkAction<void,RootStore,undefined,RootActions>
       .then((injectedAccounts) => {
         dispatch(receiveAccounts(loadAccounts(injectedAccounts as any)));
       }).catch(console.error);
-    }).catch(console.error);
   }
 }
 
