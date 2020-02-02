@@ -9,6 +9,8 @@ import getInitValue from '@polkadot/react-params/initValue';
 import '@polkadot/react-params/Params.css'
 import GlobalStyle from '@polkadot/react-components/styles'
 import { Abi } from '@polkadot/api-contract';
+import { camelCase } from '../util/ChangeCase'
+
 
 type ActionType = {
   index: number;
@@ -48,7 +50,7 @@ const CallContractDropdown = ({abi,setCallMessage}: PropType) =>  {
 
   useEffect(()=>{
     if(!!abi&&!!abi.abi.contract.messages[index]){
-      var name = abi.abi.contract.messages[index].name;
+      var name = camelCase(abi.abi.contract.messages[index].name);
     }else{return}
     if(!!abi.messages[name]){
       var func = abi.messages[name];

@@ -77,7 +77,7 @@ export class ImportObject {
                 }
             },
             ext_scratch_size:(): number => {
-                console.log('ext_scratch_size()');
+                console.log('[CALLED] ext_scratch_size()');
                 console.log(`[DEBUG] return ${this.scratch_buf_len}`);
                 return this.scratch_buf_len;
             },
@@ -98,6 +98,7 @@ export class ImportObject {
                 //     local = new Uint8Array(this.env.memory.buffer);
                 // }
                 const src = this.scratch_buf.subarray(offset,offset+len);
+                console.log(`[DEBUG] data: ${src}`);
                 local.set(src,dst_ptr);
                 console.log('result: 0');
                 return 0;
@@ -137,6 +138,7 @@ export class ImportObject {
                 console.log(`[EVENT] topics: ${topics}, event_data: ${event_data}`);
             },
             ext_caller: ()=>{
+                console.log(`[CALLED] ext_caller()`);
                 var callerBuffer = this.caller.toU8a();
                 this.scratch_buf.set(callerBuffer)
                 this.scratch_buf_len=callerBuffer.length;

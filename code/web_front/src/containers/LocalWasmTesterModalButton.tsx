@@ -56,8 +56,10 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
                 const exportedFunc = _wasmInstance.instance.exports.deploy as Function;
                 _importObject.scratch_buf.set(message.subarray(1,message.length));
                 _importObject.scratch_buf_len = message.length-1;
+                console.log('[INPUT] scratch_buf:');
+                console.log(_importObject.scratch_buf.subarray(0,_importObject.scratch_buf_len));
                 const result = exportedFunc();
-                console.log('scratch_buf:');
+                console.log('[OUTPUT] scratch_buf:');
                 console.log(_importObject.scratch_buf.subarray(0,_importObject.scratch_buf_len));
                 console.log('deploy: '+result);
             }
@@ -75,8 +77,10 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
                     const exportedFunc = wasmInstance.instance.exports.deploy as Function;
                     importObject.scratch_buf.set(message.subarray(1,message.length));
                     importObject.scratch_buf_len = message.length-1;
+                    console.log('[INPUT] scratch_buf:');
+                    console.log(importObject.scratch_buf.subarray(0,importObject.scratch_buf_len));
                     const result = exportedFunc();
-                    console.log('scratch_buf:');
+                    console.log('[OUTPUT] scratch_buf:');
                     console.log(importObject.scratch_buf.subarray(0,importObject.scratch_buf_len));
                     console.log('call: '+result);
                 }
