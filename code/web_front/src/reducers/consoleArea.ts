@@ -1,7 +1,8 @@
 import { combineReducers } from 'redux'
 import { CLEAR_CONSOLE, ADD_CONSOLE } from '../actions'
+import { Actions } from '../actions/consoleArea'
 
-const value = (state="",action) => {
+const value = (state: string = "",action: Actions) => {
   switch(action.type){
     case CLEAR_CONSOLE:
       return ""

@@ -1,45 +1,71 @@
 import React, { useState, useReducer, useEffect } from 'react';
-import PropTypes from 'prop-types'
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
+import { TypeDef } from '@polkadot/types/codec/types';
 import Param from '@polkadot/react-params/Param';
 import getInitValue from '@polkadot/react-params/initValue';
 import '@polkadot/react-params/Params.css'
 import 'semantic-ui-css/semantic.min.css'
 import GlobalStyle from '@polkadot/react-components/styles'
+import { RawParamValue, RawParamOnChangeValue, RawParamValues } from '@polkadot/react-params/types';
+import { Abi } from '@polkadot/api-contract';
+import { ActionType as ReturnTypeActionType } from '../containers/LocalWasmTesterModalButton';
 
-const paramsReducer = (state,action) => {
+
+type ActionType = {
+  index: number;
+  payload: RawParamValue;
+  type: 'SET';
+} | {
+  type: 'CLEAR';
+}
+
+const paramsReducer = (state:{[index:number]:RawParamValue},action: ActionType) => {
   switch(action.type){
     case 'SET':
-      return {...state,[action.index]:action.payload}
+      return {
+        ...state,
+        [action.index]: action.payload,
+      };
     case 'CLEAR':
       return {}
     default:
-      return state
+      return state;
   }
 }
 
-const ConstructorDropdown = ({abi,setConstructorMessage}) =>  {
+type PropType = {
+  abi: Abi;
+  setConstructorMessage: React.Dispatch<React.SetStateAction<Uint8Array | null> >;
+  setReturnType?: React.Dispatch<ReturnTypeActionType>;
+}
+
+const ConstructorDropdown = ({abi,setConstructorMessage, setReturnType}: PropType) =>  {
 
   const [constructorIndex,setConstructorIndex] = useState(0);
   const [params,setParams] = useReducer(paramsReducer,{});
 
   useEffect(()=>{
-    setParams({type:'CLEAR'})
-    if(constructorIndex!==null&&abi.abi.contract.constructors[constructorIndex].args.length>0){
-      abi.abi.contract.constructors[constructorIndex].args.map((arg,argsIndex)=>{
-        return setParams({type:'SET',index:argsIndex, payload:getInitValue(arg.type)})
-      })
-    }
+    setParams({type:'CLEAR'});
   },[abi,constructorIndex])
 
   useEffect(()=>{
-    if(!!abi&&!!abi.constructors&&!!abi.constructors[constructorIndex]&&abi.constructors[constructorIndex].args.length===Object.keys(params).length){
-      setConstructorMessage(abi.constructors[constructorIndex](...Object.values(params)))
+    var len = Object.keys(params).length
+    if(!!abi&&abi.constructors.length > constructorIndex&&abi.constructors[constructorIndex].args.length===len){
+      var array: RawParamValues = [];
+      for (var i = 0; i < len;i++){
+        array.push(params[i]);
+      }
+      const encodeFunc = abi.constructors[constructorIndex];
+      const _constructorMessage = encodeFunc(...array);
+      setConstructorMessage(_constructorMessage)
+      if(!!setReturnType){
+        setReturnType({type:'deploy', payload: abi.abi.contract.constructors[constructorIndex].returnType});
+      }
     }
-  },[params,abi,setConstructorMessage,constructorIndex])
+  },[params,abi,setConstructorMessage,setReturnType,constructorIndex])
 
   return (
 		<div>
@@ -48,7 +74,7 @@ const ConstructorDropdown = ({abi,setConstructorMessage}) =>  {
 				<InputLabel>{"constructor"}</InputLabel>
 				<Select
 					value={constructorIndex}
-					onChange={(e)=>{setConstructorIndex(e.target.value)}}
+					onChange={(e:any)=>{setConstructorIndex(e.target.value)}}
 				>
 					{abi.abi.contract.constructors.map((_constructor, index) => (
 							<MenuItem key={index} value={index}>
@@ -64,21 +90,16 @@ const ConstructorDropdown = ({abi,setConstructorMessage}) =>  {
           <div className="ui--Param-composite">
             <Param
               name={arg.name}
-              onChange={(e)=>{setParams({type:'ADD',index:argsIndex,payload:true})}}
+              onChange={(e:RawParamOnChangeValue)=>{setParams({type:'SET',index:argsIndex,payload:e.value})}}
               onEnter={()=>{}}
-              defaultValue={true}
               type={arg.type}
+              defaultValue={getInitValue(arg.type)}
             />
           </div>
         </div>
       ):[]}
 		</div>
   );
-}
-
-ConstructorDropdown.propTypes = {
-  abi: PropTypes.object.isRequired,
-  setConstructorMessage: PropTypes.func.isRequired,
 }
 
 export default ConstructorDropdown;

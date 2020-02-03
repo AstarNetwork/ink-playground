@@ -1,0 +1,383 @@
+{
+    "registry": {
+      "strings": [
+        "StorageAndEnv",
+        "sample",
+        "__ink_private",
+        "__ink_storage",
+        "__storage",
+        "Storage",
+        "value",
+        "Value",
+        "ink_core",
+        "storage",
+        "cell",
+        "SyncCell",
+        "sync_cell",
+        "Key",
+        "key",
+        "__env",
+        "EnvAccess",
+        "env2",
+        "env_access",
+        "immutable",
+        "TestEnv",
+        "test",
+        "accessor",
+        "DefaultSrmlTypes",
+        "types",
+        "access",
+        "EnvAccessMut",
+        "mutable",
+        "env",
+        "PhantomData",
+        "buffer",
+        "Vec",
+        "elems",
+        "has_interacted",
+        "has_returned_value",
+        "new",
+        "init_value",
+        "bool",
+        "default",
+        "flip",
+        "get"
+      ],
+      "types": [
+        {
+          "id": {
+            "custom.name": 1,
+            "custom.namespace": [
+              2,
+              2,
+              3,
+              4
+            ],
+            "custom.params": []
+          },
+          "def": {
+            "struct.fields": [
+              {
+                "name": 5,
+                "type": 2
+              },
+              {
+                "name": 16,
+                "type": 9
+              }
+            ]
+          }
+        },
+        {
+          "id": {
+            "custom.name": 6,
+            "custom.namespace": [
+              2,
+              2,
+              3,
+              4
+            ],
+            "custom.params": []
+          },
+          "def": {
+            "struct.fields": [
+              {
+                "name": 7,
+                "type": 3
+              }
+            ]
+          }
+        },
+        {
+          "id": {
+            "custom.name": 8,
+            "custom.namespace": [
+              9,
+              10,
+              7
+            ],
+            "custom.params": [
+              4
+            ]
+          },
+          "def": {
+            "struct.fields": [
+              {
+                "name": 11,
+                "type": 5
+              }
+            ]
+          }
+        },
+        {
+          "id": "bool",
+          "def": "builtin"
+        },
+        {
+          "id": {
+            "custom.name": 12,
+            "custom.namespace": [
+              9,
+              10,
+              11,
+              13
+            ],
+            "custom.params": [
+              4
+            ]
+          },
+          "def": {
+            "struct.fields": [
+              {
+                "name": 11,
+                "type": 6
+              }
+            ]
+          }
+        },
+        {
+          "id": {
+            "custom.name": 14,
+            "custom.namespace": [
+              9,
+              10,
+              15
+            ],
+            "custom.params": []
+          },
+          "def": {
+            "tuple_struct.types": [
+              7
+            ]
+          }
+        },
+        {
+          "id": {
+            "array.len": 32,
+            "array.type": 8
+          },
+          "def": "builtin"
+        },
+        {
+          "id": "u8",
+          "def": "builtin"
+        },
+        {
+          "id": {
+            "custom.name": 17,
+            "custom.namespace": [
+              9,
+              18,
+              19,
+              20
+            ],
+            "custom.params": [
+              10
+            ]
+          },
+          "def": {
+            "struct.fields": [
+              {
+                "name": 26,
+                "type": 12
+              }
+            ]
+          }
+        },
+        {
+          "id": {
+            "custom.name": 21,
+            "custom.namespace": [
+              9,
+              18,
+              22,
+              23
+            ],
+            "custom.params": [
+              11
+            ]
+          },
+          "def": {
+            "struct.fields": []
+          }
+        },
+        {
+          "id": {
+            "custom.name": 24,
+            "custom.namespace": [
+              9,
+              18,
+              25
+            ],
+            "custom.params": []
+          },
+          "def": {
+            "clike_enum.variants": []
+          }
+        },
+        {
+          "id": {
+            "custom.name": 27,
+            "custom.namespace": [
+              9,
+              18,
+              19,
+              28
+            ],
+            "custom.params": [
+              10
+            ]
+          },
+          "def": {
+            "struct.fields": [
+              {
+                "name": 29,
+                "type": 13
+              },
+              {
+                "name": 31,
+                "type": 14
+              },
+              {
+                "name": 34,
+                "type": 4
+              },
+              {
+                "name": 35,
+                "type": 4
+              }
+            ]
+          }
+        },
+        {
+          "id": {
+            "custom.name": 30,
+            "custom.namespace": [],
+            "custom.params": [
+              10
+            ]
+          },
+          "def": {
+            "tuple_struct.types": []
+          }
+        },
+        {
+          "id": {
+            "custom.name": 32,
+            "custom.namespace": [],
+            "custom.params": [
+              8
+            ]
+          },
+          "def": {
+            "struct.fields": [
+              {
+                "name": 33,
+                "type": 15
+              }
+            ]
+          }
+        },
+        {
+          "id": {
+            "slice.type": 8
+          },
+          "def": "builtin"
+        }
+      ]
+    },
+    "storage": {
+      "struct.type": 1,
+      "struct.fields": [
+        {
+          "name": 10,
+          "layout": {
+            "struct.type": 2,
+            "struct.fields": [
+              {
+                "name": 7,
+                "layout": {
+                  "struct.type": 3,
+                  "struct.fields": [
+                    {
+                      "name": 11,
+                      "layout": {
+                        "range.offset": "0x0000000000000000000000000000000000000000000000000000000000000000",
+                        "range.len": 1,
+                        "range.elem_type": 4
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "contract": {
+      "name": 2,
+      "constructors": [
+        {
+          "name": 36,
+          "selector": "[\"0x5E\",\"0xBD\",\"0x88\",\"0xD6\"]",
+          "args": [
+            {
+              "name": 37,
+              "type": {
+                "ty": 4,
+                "display_name": [
+                  38
+                ]
+              }
+            }
+          ],
+          "docs": [
+            "Constructor that initializes the `bool` value to the given `init_value`."
+          ]
+        },
+        {
+          "name": 39,
+          "selector": "[\"0x02\",\"0x22\",\"0xFF\",\"0x18\"]",
+          "args": [],
+          "docs": [
+            "Constructor that initializes the `bool` value to `false`.",
+            "",
+            "Constructors can delegate to other constructors."
+          ]
+        }
+      ],
+      "messages": [
+        {
+          "name": 40,
+          "selector": "[\"0x8C\",\"0x97\",\"0xDB\",\"0x39\"]",
+          "mutates": true,
+          "args": [],
+          "return_type": null,
+          "docs": [
+            "A message that can be called on instantiated contracts.",
+            "This one flips the value of the stored `bool` from `true`",
+            "to `false` and vice versa."
+          ]
+        },
+        {
+          "name": 41,
+          "selector": "[\"0x25\",\"0x44\",\"0x4A\",\"0xFE\"]",
+          "mutates": false,
+          "args": [],
+          "return_type": {
+            "ty": 4,
+            "display_name": [
+              38
+            ]
+          },
+          "docs": [
+            "Simply returns the current value of our `bool`."
+          ]
+        }
+      ],
+      "events": [],
+      "docs": []
+    }
+  }
+  

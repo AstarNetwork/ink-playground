@@ -1,19 +1,23 @@
 import React, { useState, useRef } from 'react'
-import PropTypes from 'prop-types'
 import { useSelector, useDispatch } from 'react-redux'
 import { Button, TextField } from '@material-ui/core'
 import { setCustom, startSelectedChain, selectChainById } from '../actions'
+import { RootStore } from './Root'
 
-const CustomChainSetting = ({handleClose}) => {
+type PropType = {
+    handleClose: Function;
+}
+
+const CustomChainSetting = ({handleClose}: PropType) => {
 
     const dispatch = useDispatch()
-    const customChain = useSelector(state => state.chain.items.custom);
-    const setCustomWs = (ws) => dispatch(setCustom(ws))
-    const setCustomType = (type) => dispatch(setCustom(customChain.ws_provider,type))
+    const customChain = useSelector((state: RootStore) => state.chain.items.custom);
+    const setCustomWs = (ws:string) => dispatch(setCustom(ws))
+    const setCustomType = (type:object) => dispatch(setCustom(customChain.ws_provider,type))
 
     const [typeInputError,setTypeInputError] = useState(false);
-    const wsInputRef = useRef(null);
-    const typeInputRef = useRef(null);
+    const wsInputRef = useRef({} as HTMLInputElement);
+    const typeInputRef = useRef({} as HTMLInputElement);
 
     const onClick = () => {
         setTypeInputError(false)
@@ -56,10 +60,6 @@ const CustomChainSetting = ({handleClose}) => {
         Set and Connect
     </Button>
     </>)
-}
-
-CustomChainSetting.protoType={
-    handleClose:PropTypes.func.isRequired,
 }
 
 export default CustomChainSetting

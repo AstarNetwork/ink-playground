@@ -1,51 +1,73 @@
 import React, { useState, useReducer, useEffect } from 'react';
-import PropTypes from 'prop-types'
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Param from '@polkadot/react-params/Param';
+import { RawParamOnChangeValue, RawParamValues, RawParamValue } from '@polkadot/react-params/types';
 import getInitValue from '@polkadot/react-params/initValue';
 import '@polkadot/react-params/Params.css'
 import GlobalStyle from '@polkadot/react-components/styles'
+import { Abi } from '@polkadot/api-contract';
+import { camelCase } from '../util/ChangeCase'
+import { ActionType as ReturnTypeActionType } from '../containers/LocalWasmTesterModalButton';
 
-const paramsReducer = (state,action) => {
+
+type ActionType = {
+  index: number;
+  payload: RawParamValue;
+  type: 'SET';
+} | {
+  type: 'CLEAR';
+}
+
+const paramsReducer = (state:{[index:number]:RawParamValue},action: ActionType) => {
   switch(action.type){
     case 'SET':
-      return {...state,[action.index]:action.payload}
+      return {
+        ...state,
+        [action.index]: action.payload,
+      };
     case 'CLEAR':
       return {}
     default:
-      return state
+      return state;
   }
 }
 
-const CallContractDropdown = ({abi,setCallMessage}) =>  {
+type PropType = {
+  abi: Abi;
+  setCallMessage: React.Dispatch<React.SetStateAction<Uint8Array | null>>;
+  setReturnType?: React.Dispatch<ReturnTypeActionType>;
+}
+
+const CallContractDropdown = ({abi, setCallMessage, setReturnType}: PropType) =>  {
 
   const [index,setIndex] = useState(0);
-  const [params,setParams] = useReducer(paramsReducer,{});
+  const [params,setParams] = useReducer(paramsReducer, {});
 
   useEffect(()=>{
     setParams({type:'CLEAR'})
-    if(index!==null&&abi.abi.contract.messages[index].args.length>0){
-      abi.abi.contract.messages[index].args.map((arg,argsIndex)=>{
-        return setParams({type:'SET',index:argsIndex, payload:getInitValue(arg.type)})
-      })
-    }
   },[abi,index])
 
   useEffect(()=>{
-    if(!!abi&&!!abi.abi&&!!abi.abi.contract&&!!abi.abi.contract.messages&&!!abi.abi.contract.messages[index]){
-      var name = abi.abi.contract.messages[index].name;
+    if(!!abi&&!!abi.abi.contract.messages[index]){
+      var name = camelCase(abi.abi.contract.messages[index].name);
     }else{return}
-    if(!!abi.messages&&!!abi.messages[name]){
+    if(!!abi.messages[name]){
       var func = abi.messages[name];
       if(func.args.length===Object.keys(params).length){
-        console.log(func,func(...Object.values(params)))
-        setCallMessage(func(...Object.values(params)))
+        var array: RawParamValues = [];
+        for (var i = 0; i < func.args.length;i++){
+          array.push(params[i]);
+        }
+        setCallMessage(func(...array));
+        if(!!setReturnType){
+          setReturnType({type:'call', payload: abi.abi.contract.messages[index].returnType});
+        }
       }
     }
-  },[params,abi,setCallMessage,index])
+  },[abi,setCallMessage,setReturnType,index,params])
 
   return (
 		<div>
@@ -54,7 +76,7 @@ const CallContractDropdown = ({abi,setCallMessage}) =>  {
 				<InputLabel>{"function"}</InputLabel>
 				<Select
 					value={index}
-					onChange={(e)=>{setIndex(e.target.value)}}
+					onChange={(e:any)=>{setIndex(e.target.value)}}
 				>
 					{abi.abi.contract.messages.map((_message, index) => (
 							<MenuItem key={index} value={index}>
@@ -70,21 +92,16 @@ const CallContractDropdown = ({abi,setCallMessage}) =>  {
           <div className="ui--Param-composite">
             <Param
               name={arg.name}
-              onChange={(e)=>{setParams({type:'ADD',index:argsIndex,payload:true})}}
+              onChange={(e:RawParamOnChangeValue)=>{setParams({type:'SET',index:argsIndex,payload:e.value})}}
               onEnter={()=>{}}
-              defaultValue={true}
               type={arg.type}
+              defaultValue={getInitValue(arg.type)}
             />
           </div>
         </div>
       ):[]}
 		</div>
   );
-}
-
-CallContractDropdown.propTypes = {
-  abi: PropTypes.object.isRequired,
-  setCallMessage: PropTypes.func.isRequired,
 }
 
 export default CallContractDropdown;

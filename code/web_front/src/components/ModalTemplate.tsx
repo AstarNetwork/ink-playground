@@ -1,7 +1,15 @@
 import React, { useImperativeHandle, forwardRef } from 'react';
 import { Dialog, DialogContent } from '@material-ui/core';
 
-const ModalTemplate = forwardRef(({children}, ref) => {
+export interface ModalTemplateHandler{
+  handleOpen():void;
+  handleClose():void;
+}
+
+type PropType = {
+	children: React.ReactNode,
+}
+const ModalTemplate = forwardRef(({children} : PropType, ref) => {
 
   const [open, setOpen] = React.useState(false);
 

@@ -12,8 +12,6 @@ const Loader = (props) => {
 		<div>
 		<FadeLoader
 			css={override}
-			sizeUnit={"px"}
-			size={500}
 			color={'#FFFFFF'}
 			loading={props.flag}
 		/>

@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux'
 import Chains from '../Chains'
 import { SELECT_CHAIN, CREATE_API, CHAIN_API_READY, DISCONNECT_CHAIN, SET_CUSTOM } from '../actions'
+import { Actions } from '../actions/chain'
+import { ApiPromise } from '@polkadot/api'
 
-const selectedChainId = (state='flaming_fir', action) => {
+const selectedChainId = (state: string = 'flaming_fir', action: Actions) => {
   switch(action.type){
     case SELECT_CHAIN:
       return action.payload;
@@ -11,7 +13,7 @@ const selectedChainId = (state='flaming_fir', action) => {
   }
 }
 
-const chainApi = (state=null, action) => {
+const chainApi = (state: (ApiPromise | null) =null, action: Actions) => {
   switch(action.type){
     case CREATE_API:
       return action.payload
@@ -21,7 +23,7 @@ const chainApi = (state=null, action) => {
 }
 
 //disconnect shoud be done only once
-const chainApiDisconnected = (state=true, action) => {
+const chainApiDisconnected = (state: boolean = true, action: Actions) => {
   switch(action.type){
     case CREATE_API:
       return false
@@ -32,7 +34,7 @@ const chainApiDisconnected = (state=true, action) => {
   }
 }
 
-const chainApiIsReady = (state=false, action) => {
+const chainApiIsReady = (state: boolean = false, action : Actions) => {
   switch(action.type){
     case CHAIN_API_READY:
       return action.payload
@@ -41,7 +43,7 @@ const chainApiIsReady = (state=false, action) => {
   }
 }
 
-const customChain = (state={id:"custom",name:"Custom Chain",ws_provider:"ws://localhost:9944",type:{}}, action) => {
+const customChain = (state ={id:"custom",name:"Custom Chain",ws_provider:"ws://localhost:9944",type:{}}, action : Actions) => {
   switch(action.type){
     case SET_CUSTOM:
       return {
@@ -53,7 +55,7 @@ const customChain = (state={id:"custom",name:"Custom Chain",ws_provider:"ws://lo
   }
 }
 
-const items = (state={},action) => {
+const items = (state: any ={},action : Actions) => {
   var custom = customChain(!!state.custom?state.custom:undefined, action);
   return({
       custom,

@@ -1,7 +1,9 @@
 import { combineReducers } from 'redux'
 import { SELECT_ACCOUNT, RECEIVE_ACCOUNTS, REQUEST_ACCOUNTS } from '../actions'
+import { Actions } from '../actions/account'
+import { KeyringPair } from '@polkadot/keyring/types'
 
-const selectedAccount = (state=null, action) => {
+const selectedAccount = (state: (KeyringPair | null) = null, action : Actions) => {
   switch(action.type){
     case SELECT_ACCOUNT:
       return action.payload
@@ -10,7 +12,7 @@ const selectedAccount = (state=null, action) => {
   }
 }
 
-const items = (state=[], action) => {
+const items = (state: KeyringPair[] =[], action: Actions) => {
   switch(action.type){
     case RECEIVE_ACCOUNTS:
       return action.payload
@@ -19,7 +21,7 @@ const items = (state=[], action) => {
   }
 }
 
-const accountsLoaded = (state=false, action) => {
+const accountsLoaded = (state: boolean = false, action: Actions) => {
   switch(action.type){
     case REQUEST_ACCOUNTS:
       return false

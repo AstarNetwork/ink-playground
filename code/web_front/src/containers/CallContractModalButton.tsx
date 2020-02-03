@@ -6,33 +6,45 @@ import AccountDropdown from './AccountDropdown'
 import TxButton from './TxButton'
 import Dropdown from '../components/Dropdown'
 import CallContractDropdown from '../components/CallContractDropdown'
-import Modal from '../components/ModalTemplate'
+import Modal, { ModalTemplateHandler } from '../components/ModalTemplate'
 import { addConsoleLine } from '../actions'
+import { ApiPromise} from '@polkadot/api';
+import { Abi } from '@polkadot/api-contract';
+import { SubmittableResultValue } from '@polkadot/api/types';
+import { CodesObject, InstancesObject } from './ChainStatus'
 
-const CallContractModalButton = ({api,codes,instances}) => {
+type PropType = {
+	api: ApiPromise;
+	codes: CodesObject;
+  instances: InstancesObject;
+  selectedChainId: string;
+}
+
+const CallContractModalButton = ({api,codes,instances, selectedChainId}:PropType) => {
   const dispatch = useDispatch();
-	const setResult = (x) => dispatch(addConsoleLine(x))
+	const setResult = (x: string) => dispatch(addConsoleLine(x))
 
   const [gasLimit, setGasLimit] = useState(500000)
   const [value, setValue] = useState(0)
-  const [instance,setInstance] = useState(null);
-  const [abi,setAbi] = useState();
-  const [callMessage, setCallMessage] = useState();
-  const [returnVal, setReturnVal] = useState(null);
+  const [instance,setInstance] = useState<InstancesObject[keyof InstancesObject] | null>(null);
+  const [abi,setAbi] = useState<Abi | null>(null);
+  const [callMessage, setCallMessage] = useState<Uint8Array | null>(null);
 
-  const modalRef = useRef();
+  const modalRef = useRef({} as ModalTemplateHandler);
+
+  useEffect(()=>{
+    setInstance(null);
+  },[selectedChainId]);
 
   useEffect(() => {
     setCallMessage(null)
-    if(!!instance){
+    if(instance!=null){
       setAbi(codes[instance.codeHash].abi)
     }
   },[instance,codes])
 
-  const onSend = ({ events = [], status}, result ) => {
+  const onSend = ({ events = [], status}: SubmittableResultValue ) => {
     modalRef.current.handleClose()
-
-    setReturnVal(result);
 
     setResult('Transaction status: ' + status.type);
 
@@ -40,15 +52,15 @@ const CallContractModalButton = ({api,codes,instances}) => {
       setResult('Completed at block hash: \n'+ status.asFinalized.toString());
       setResult('Events:');
 
-      events.forEach(({ phase, event: { data, method, section } }) => {
-        setResult('\t'+phase.toString()+`: ${section}.${method} `+data.toString());
+      events.forEach(({ phase , event: { data, method, section } }) => {
+        setResult('\t'+phase.toString()+`: ${section}.${method} `+ data.toString());
       });
       // process.exit(0);
     }
   }
 
   return(<>
-    <Button label="Account" variant="contained" color="primary" style = {{marginBottom:"10px",width:"100%"}} onClick={()=>modalRef.current.handleOpen()}>
+    <Button style = {{marginBottom:"10px",width:"100%"}} color="primary" variant="contained" onClick={()=>modalRef.current.handleOpen()}>
       call contract
     </Button>
     <Modal
@@ -60,7 +72,7 @@ const CallContractModalButton = ({api,codes,instances}) => {
         type="number"
         defaultValue={gasLimit}
         InputLabelProps={{shrink: true}}
-        onChange={e=>{setGasLimit(e.target.value)}}
+        onChange={(e: any)=>{setGasLimit(e.target.value)}}
         variant="filled"
         style = {{marginBottom:"10px",width:"100%"}}
       />
@@ -70,7 +82,7 @@ const CallContractModalButton = ({api,codes,instances}) => {
         type="number"
         defaultValue={value}
         InputLabelProps={{shrink: true}}
-        onChange={e=>{setValue(e.target.value)}}
+        onChange={(e: any)=>{setValue(e.target.value)}}
         variant="filled"
         style = {{marginBottom:"10px",width:"100%"}}
       />
@@ -79,7 +91,7 @@ const CallContractModalButton = ({api,codes,instances}) => {
         label="Instance"
         value={instance}
         valuesList={Object.values(instances)}
-        setValue={setInstance}
+        setValue={(e: any) => setInstance(e.target.value)}
         display={(x)=>{return `${x.name}(${x.address})`}}
       />
 
@@ -89,8 +101,7 @@ const CallContractModalButton = ({api,codes,instances}) => {
         setCallMessage={setCallMessage}
       />:[]}
       
-      {!!returnVal?"Return: "+returnVal.toString():[]}
-      {!!instance?
+      {instance!=null?
       <TxButton
         label={"send"}
         tx={api.tx.contract?'contract.call':'contracts.call'}
@@ -100,7 +111,6 @@ const CallContractModalButton = ({api,codes,instances}) => {
           gasLimit,
           !!callMessage?callMessage:[]
         ]}
-        setReturnVal={setReturnVal}
         onSend={onSend}
         style = {{marginBottom:"10px",width:"100%"}}
       />

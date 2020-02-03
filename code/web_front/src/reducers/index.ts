@@ -3,9 +3,10 @@ import chain from './chain'
 import account from './account'
 import consoleArea from './consoleArea'
 
-
-export default combineReducers({
+const reducers = combineReducers({
   chain,
   account,
   consoleArea,
 })
+
+export default reducers;

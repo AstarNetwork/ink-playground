@@ -4,27 +4,42 @@ import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField';
 import AccountDropdown from './AccountDropdown'
 import TxButton from './TxButton'
-import Modal from '../components/ModalTemplate'
+import Modal, { ModalTemplateHandler } from '../components/ModalTemplate'
 import Dropdown from '../components/Dropdown'
 import ConstructorDropdown from '../components/ConstructorDropdown'
 import { addConsoleLine } from '../actions'
+import { ApiPromise } from '@polkadot/api';
+import { CodesObject, InstancesObject } from './ChainStatus';
+import { SubmittableResultValue } from '@polkadot/api/types';
 
-const InstantiateModalButton = ({api,codes,instances,setInstances}) => {
+type PropType = {
+  api: ApiPromise;
+  codes: CodesObject;
+  instances: InstancesObject;
+  setInstances: React.Dispatch<React.SetStateAction<InstancesObject>>;
+  selectedChainId: string;
+}
+
+const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChainId} : PropType) => {
   const dispatch = useDispatch();
 	const setResult = (x) => dispatch(addConsoleLine(x))
 
   const [gasLimit, setGasLimit] = useState(500000)
-  const [codeHash, setCodeHash] = useState(null)
-  const [constructorMessage, setConstructorMessage] = useState(null)
+  const [codeHash, setCodeHash] = useState<string|null>(null)
+  const [constructorMessage, setConstructorMessage] = useState<Uint8Array|null>(null)
   const [instanceName, setInstanceName] = useState("")
   const [endowment,setEndowment] = useState(0);
 
-  const modalRef = useRef(null);
+  const modalRef = useRef({} as ModalTemplateHandler);
+
+  useEffect(()=>{
+    setCodeHash(null);
+  },[selectedChainId]);
 
   useEffect(()=>{
     if(!api||!api.consts)
       return
-    var contractObj = (!!api.consts.contracts)?api.consts.contracts:api.consts.contract
+    var contractObj = api.consts.contracts;
     setEndowment(contractObj.contractFee.toNumber()+contractObj.creationFee.toNumber())
   },[api]);
 
@@ -32,21 +47,23 @@ const InstantiateModalButton = ({api,codes,instances,setInstances}) => {
     setConstructorMessage(null)
   },[codeHash])
 
-  const onInstantiate = ({ events = [], status }) => {
-    modalRef.current.handleClose()
+  const onInstantiate = ({ events = [], status }: SubmittableResultValue) :void => {
+    if(codeHash!==null && instanceName !== null){
 
-    setResult('Transaction status: ' + status.type);
+      modalRef.current.handleClose()
+      setResult('Transaction status: ' + status.type);
 
-    if (status.isFinalized) {
-      setResult('Completed at block hash: \n'+ status.asFinalized.toString());
-      setResult('Events:');
-
-      events.forEach(({ phase, event: { data, method, section } }) => {
-        if((section==='contract'||section==='contracts')&&method==='Instantiated'){
-          setInstances({...instances, [data[1].toString()] : {address:data[1].toString(),codeHash:codeHash,name:instanceName}});
-        }
-        setResult('\t'+phase.toString()+`: ${section}.${method} `+data.toString());
-      });
+      if (status.isFinalized && (codeHash!==null && instanceName !== null))
+      {
+        setResult('Completed at block hash: \n'+ status.asFinalized.toString());
+        setResult('Events:');
+        events.forEach(({ phase, event: { data, method, section } }) => {
+          if((section==='contract'||section==='contracts')&&method==='Instantiated'){
+            setInstances({...instances, [data[1].toString()] : {address:data[1].toString(),codeHash:codeHash, name:instanceName}});
+          }
+          setResult('\t'+phase.toString()+`: ${section}.${method} `+data.toString());
+        });
+      }
       // process.exit(0);
     }
   }
@@ -64,7 +81,7 @@ const InstantiateModalButton = ({api,codes,instances,setInstances}) => {
         type="number"
         defaultValue={gasLimit}
         InputLabelProps={{shrink: true}}
-        onChange={e=>{setGasLimit(e.target.value)}}
+        onChange={(e:any)=>{setGasLimit(e.target.value)}}
         variant="filled"
         style = {{marginBottom:"10px",width:"100%"}}
       />
@@ -76,7 +93,7 @@ const InstantiateModalButton = ({api,codes,instances,setInstances}) => {
         setValue={setCodeHash}
         display={(x)=>{return `${codes[x].name}(${x})`}}
       />
-      { (!!codes&& !!codes[codeHash]&& !!codes[codeHash].abi &&!!codes[codeHash].abi.abi)?
+      { (codeHash!==null)?
       <ConstructorDropdown
         abi={codes[codeHash].abi}
         setConstructorMessage={setConstructorMessage}
