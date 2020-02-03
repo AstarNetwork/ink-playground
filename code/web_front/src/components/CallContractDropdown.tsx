@@ -10,6 +10,7 @@ import '@polkadot/react-params/Params.css'
 import GlobalStyle from '@polkadot/react-components/styles'
 import { Abi } from '@polkadot/api-contract';
 import { camelCase } from '../util/ChangeCase'
+import { ActionType as ReturnTypeActionType } from '../containers/LocalWasmTesterModalButton';
 
 
 type ActionType = {
@@ -37,9 +38,10 @@ const paramsReducer = (state:{[index:number]:RawParamValue},action: ActionType) 
 type PropType = {
   abi: Abi;
   setCallMessage: React.Dispatch<React.SetStateAction<Uint8Array | null>>;
+  setReturnType?: React.Dispatch<ReturnTypeActionType>;
 }
 
-const CallContractDropdown = ({abi,setCallMessage}: PropType) =>  {
+const CallContractDropdown = ({abi, setCallMessage, setReturnType}: PropType) =>  {
 
   const [index,setIndex] = useState(0);
   const [params,setParams] = useReducer(paramsReducer, {});
@@ -60,26 +62,12 @@ const CallContractDropdown = ({abi,setCallMessage}: PropType) =>  {
           array.push(params[i]);
         }
         setCallMessage(func(...array));
-      }
-    }
-  },[abi,setCallMessage,index,params])
-
-  useEffect(()=>{
-    if(!!abi&&!!abi.abi.contract.messages[index]){
-      var name = abi.abi.contract.messages[index].name;
-    }else{return}
-    if(!!abi.messages&&!!abi.messages[name]){
-      var encodeFunc = abi.messages[name];
-      var len = Object.keys(params).length;
-      if(encodeFunc.args.length===len){
-        var array:Array<RawParamValue> = [];
-        for (var i = 0; i < len;i++){
-          array.push(params[i]);
+        if(!!setReturnType){
+          setReturnType({type:'call', payload: abi.abi.contract.messages[index].returnType});
         }
-        setCallMessage(encodeFunc(...array));
       }
     }
-  },[params,abi,setCallMessage,index])
+  },[abi,setCallMessage,setReturnType,index,params])
 
   return (
 		<div>

@@ -47,7 +47,7 @@ export class ImportObject {
                 console.log(`[CALLED] ext_set_storage(key_ptr: ${key_ptr}, value_non_null: ${value_non_null}, value_ptr: ${value_ptr}, value_len: ${value_len})`);
                 const local = new Uint8Array(this.env.memory.buffer);
                 const key = local.subarray(key_ptr,key_ptr+32);
-                const key_str = key.toString();
+                const key_str = Buffer.from(key).toString('hex');
                 var value;
                 if(value_non_null!==0){
                     value = local.slice(value_ptr,value_ptr+value_len);
@@ -61,7 +61,7 @@ export class ImportObject {
                 console.log(`[CALLED] ext_get_storage(key_ptr: ${key_ptr})`);
                 const local = new Uint8Array(this.env.memory.buffer);
                 const key = local.subarray(key_ptr,key_ptr+32);
-                const key_str = key.toString();
+                const key_str = Buffer.from(key).toString('hex');
                 console.log(`[DEBUG] key:${key_str}`);
                 if(this.ctx_storage.hasOwnProperty(key_str)){
                     var value = this.ctx_storage[key_str];

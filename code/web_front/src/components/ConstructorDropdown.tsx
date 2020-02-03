@@ -3,6 +3,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
+import { TypeDef } from '@polkadot/types/codec/types';
 import Param from '@polkadot/react-params/Param';
 import getInitValue from '@polkadot/react-params/initValue';
 import '@polkadot/react-params/Params.css'
@@ -10,6 +11,8 @@ import 'semantic-ui-css/semantic.min.css'
 import GlobalStyle from '@polkadot/react-components/styles'
 import { RawParamValue, RawParamOnChangeValue, RawParamValues } from '@polkadot/react-params/types';
 import { Abi } from '@polkadot/api-contract';
+import { ActionType as ReturnTypeActionType } from '../containers/LocalWasmTesterModalButton';
+
 
 type ActionType = {
   index: number;
@@ -36,9 +39,10 @@ const paramsReducer = (state:{[index:number]:RawParamValue},action: ActionType) 
 type PropType = {
   abi: Abi;
   setConstructorMessage: React.Dispatch<React.SetStateAction<Uint8Array | null> >;
+  setReturnType?: React.Dispatch<ReturnTypeActionType>;
 }
 
-const ConstructorDropdown = ({abi,setConstructorMessage}: PropType) =>  {
+const ConstructorDropdown = ({abi,setConstructorMessage, setReturnType}: PropType) =>  {
 
   const [constructorIndex,setConstructorIndex] = useState(0);
   const [params,setParams] = useReducer(paramsReducer,{});
@@ -57,8 +61,11 @@ const ConstructorDropdown = ({abi,setConstructorMessage}: PropType) =>  {
       const encodeFunc = abi.constructors[constructorIndex];
       const _constructorMessage = encodeFunc(...array);
       setConstructorMessage(_constructorMessage)
+      if(!!setReturnType){
+        setReturnType({type:'deploy', payload: abi.abi.contract.constructors[constructorIndex].returnType});
+      }
     }
-  },[params,abi,setConstructorMessage,constructorIndex])
+  },[params,abi,setConstructorMessage,setReturnType,constructorIndex])
 
   return (
 		<div>
