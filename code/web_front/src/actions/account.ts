@@ -5,6 +5,7 @@ import { Dispatch } from 'redux';
 import { ThunkAction } from 'redux-thunk'
 import { RootStore } from '../containers/Root'
 import { RootActions } from './'
+import { KeyringJson$Meta } from '@polkadot/ui-keyring/types';
 
 export const SELECT_ACCOUNT = 'SELECT_ACCOUNT' as const;
 export const selectAccount = (account : KeyringPair) => ({
@@ -23,7 +24,7 @@ const receiveAccounts = (accounts : KeyringPair[]) => ({
   payload: accounts,
 })
 
-const loadAccounts = (injectedAccounts : KeyringPair[]) => {
+const loadAccounts = (injectedAccounts? : {address: string; meta: KeyringJson$Meta}[]) => {
   keyring.loadAll({
     isDevelopment: true
   }, injectedAccounts);
@@ -32,7 +33,6 @@ const loadAccounts = (injectedAccounts : KeyringPair[]) => {
 
 export const getAccounts = (): ThunkAction<void,RootStore,undefined,RootActions> => {
   return (dispatch: Dispatch<Actions>, getState: any) => {
-    console.log("called getAccounts.")
     web3Accounts()
       .then((accounts) => {
         return accounts.map(({ address, meta }) => ({
@@ -41,8 +41,11 @@ export const getAccounts = (): ThunkAction<void,RootStore,undefined,RootActions>
         }));
       })
       .then((injectedAccounts) => {
-        dispatch(receiveAccounts(loadAccounts(injectedAccounts as any)));
-      }).catch(console.error);
+        dispatch(receiveAccounts(loadAccounts(injectedAccounts)));
+      })
+      .catch(()=>{
+        dispatch(receiveAccounts(loadAccounts([])));
+      });
   }
 }
 
