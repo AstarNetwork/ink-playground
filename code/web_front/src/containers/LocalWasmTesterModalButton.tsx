@@ -107,7 +107,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
         <Modal ref={modalRef}>
             <div style={{width:"50vh"}} ><span>instantiate</span></div>
             <Button style={{ marginBottom: "10px", width: "100%" }} color="secondary" variant="contained"
-                onClick={()=>{setImportObject(null);setWasmInstance(null);addConsole('insntance deleted \n');}}
+                onClick={()=>{setImportObject(null);setWasmInstance(null);addConsole('wasm instance deleted \n');}}
             >
                 reset
             </Button>

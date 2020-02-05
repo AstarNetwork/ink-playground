@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField';
 import { ApiPromise } from '@polkadot/api';
 import { SubmittableResultValue } from '@polkadot/api/types';
+import { KeyringPair } from '@polkadot/keyring/types'
 import { getTypeDef } from '@polkadot/types';
 import Param from '@polkadot/react-params/Param';
 import { RawParamOnChangeValue } from '@polkadot/react-params/types';
@@ -13,8 +14,9 @@ import TxButton from './TxButton'
 import Modal, { ModalTemplateHandler } from '../components/ModalTemplate'
 import Dropdown from '../components/Dropdown'
 import ConstructorDropdown from '../components/ConstructorDropdown'
-import { addConsoleLine } from '../actions'
+import { addConsoleLine, selectAccount } from '../actions'
 import { CodesObject, InstancesObject } from './ChainStatus';
+import { RootStore } from './Root';
 
 type PropType = {
   api: ApiPromise;
@@ -28,7 +30,9 @@ const ParametersType = getTypeDef('{"canBeNominated": "bool", "optionExpied" : "
 
 const PlasmInstantiateModalButton = ({api,codes,instances,setInstances,selectedChainId} : PropType) => {
   const dispatch = useDispatch();
-	const setResult = (x) => dispatch(addConsoleLine(x))
+  const setResult = (x) => dispatch(addConsoleLine(x))
+  const account = useSelector((state: RootStore) => state.account.selectedAccount);
+  const setAccount = (x: KeyringPair)=>dispatch(selectAccount(x));
 
   const [endowment,setEndowment] = useState(0);
   const [gasLimit, setGasLimit] = useState(500000)
@@ -80,7 +84,10 @@ const PlasmInstantiateModalButton = ({api,codes,instances,setInstances,selectedC
     <Modal
       ref={modalRef}
     >
-      <AccountDropdown/>
+      <AccountDropdown
+        account={account}
+        setAccount={setAccount}
+      />
       <TextField
         label="Gas limit"
         type="number"

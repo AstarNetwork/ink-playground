@@ -1,16 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField';
+import { ApiPromise } from '@polkadot/api';
+import { KeyringPair } from '@polkadot/keyring/types'
+import { SubmittableResultValue } from '@polkadot/api/types';
 import AccountDropdown from './AccountDropdown'
 import TxButton from './TxButton'
 import Modal, { ModalTemplateHandler } from '../components/ModalTemplate'
 import Dropdown from '../components/Dropdown'
 import ConstructorDropdown from '../components/ConstructorDropdown'
-import { addConsoleLine } from '../actions'
-import { ApiPromise } from '@polkadot/api';
+import { addConsoleLine, selectAccount } from '../actions'
 import { CodesObject, InstancesObject } from './ChainStatus';
-import { SubmittableResultValue } from '@polkadot/api/types';
+import { RootStore } from './Root';
 
 type PropType = {
   api: ApiPromise;
@@ -22,7 +24,9 @@ type PropType = {
 
 const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChainId} : PropType) => {
   const dispatch = useDispatch();
-	const setResult = (x) => dispatch(addConsoleLine(x))
+  const setResult = (x) => dispatch(addConsoleLine(x))
+  const account = useSelector((state: RootStore) => state.account.selectedAccount);
+  const setAccount = (x: KeyringPair)=>dispatch(selectAccount(x));
 
   const [gasLimit, setGasLimit] = useState(500000)
   const [codeHash, setCodeHash] = useState<string|null>(null)
@@ -75,7 +79,10 @@ const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChainI
     <Modal
       ref={modalRef}
     >
-      <AccountDropdown/>
+      <AccountDropdown
+        account={account}
+        setAccount={setAccount}
+      />
       <TextField
         label="Gas limit"
         type="number"

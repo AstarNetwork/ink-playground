@@ -1,25 +1,22 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import { KeyringPair } from '@polkadot/keyring/types';
-import { selectAccount } from '../actions';
 import { RootStore } from './Root';
 
 const sliceText = (text) => (text.length > 15 ? (text).slice(0,15)+"…" : text);
 
+type PropType = {
+	account: KeyringPair|null;
+	setAccount: React.Dispatch<React.SetStateAction<KeyringPair|null> > | ((x:KeyringPair) => {type: "SELECT_ACCOUNT";payload: KeyringPair;});
+}
 
-const AccountDropdown = () =>  {
-	const dispatch = useDispatch()
-
-	const account = useSelector((state: RootStore) => state.account.selectedAccount)
+const AccountDropdown = ( {account, setAccount} :PropType) =>  {
 	const accounts = useSelector((state: RootStore) =>  state.account.items)
 	const accountsLoaded = useSelector((state: RootStore) => state.account.accountsLoaded)
-
-	const setAccount = (x: KeyringPair) => dispatch(selectAccount(x));
-
 
   return (
 		<div>
