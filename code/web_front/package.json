@@ -10,6 +10,7 @@
     "@polkadot/api-contract": "^0.100.1",
     "@polkadot/app-contracts": "0.38.1",
     "@polkadot/extension-dapp": "^0.20.1",
+    "@polkadot/metadata": "0.100.1",
     "@polkadot/react-hooks": "^0.38.1",
     "@polkadot/react-params": "^0.38.1",
     "@polkadot/react-signer": "^0.38.1",

@@ -1,23 +1,11 @@
-// import { GenericEvent as Event } from '@polkadot/types';
 import { createType, TypeRegistry } from '@polkadot/types';
+import { Abi } from '@polkadot/api-contract';
 
 const registry = new TypeRegistry();
 const id = createType(registry, 'AccountId');
 type AccountId = typeof id;
 
-console.log(registry);
-
 const bytesPerPage = 64 * 1024;
-
-// function growif(mem : WebAssembly.Memory,byteLength: number){
-//     var growPages = Math.ceil(byteLength / bytesPerPage) - mem.buffer.byteLength / bytesPerPage;
-//     if(growPages > 0){
-//         mem.grow(growPages);
-//         console.log('grow '+growPages+' pages');
-//         return true;
-//     }
-//     return false;
-// }
 
 export class ImportObject {
     scratch_buf_len: number;
@@ -25,14 +13,19 @@ export class ImportObject {
     caller: AccountId;
     balance: number;
     ctx_storage: {[x:string]: Uint8Array};
+    abi: Abi;
     env: any;
     init: boolean;
+    events: {topics:Uint8Array,data:Uint8Array}[];
 
-    constructor(caller: AccountId, balance = 0){
+
+    constructor(caller: AccountId, abi: Abi, balance = 0){
         this.scratch_buf_len = 0;
         this.scratch_buf = new Uint8Array(bytesPerPage);
         this.balance = balance;
         this.caller = caller;
+        this.abi = abi;
+        this.events = [];
         this.ctx_storage = {};
         this.init = false;
         this.env = {
@@ -94,13 +87,10 @@ export class ImportObject {
                     console.log('[DEBUG] return: 1');
                     return 1;
                 }
-                // if(growif(this.env.memory,dst_ptr+len)){
-                //     local = new Uint8Array(this.env.memory.buffer);
-                // }
                 const src = this.scratch_buf.subarray(offset,offset+len);
-                console.log(`[DEBUG] data: ${src}`);
+                // console.log(`[DEBUG] data: ${src}`);
                 local.set(src,dst_ptr);
-                console.log('result: 0');
+                console.log('[DEBUG] result: 0');
                 return 0;
             },
 
@@ -124,19 +114,14 @@ export class ImportObject {
                 data_ptr: number,
                 data_len: number,
             )=>{
-                console.log(`[CALLED] ext_deposit_event(topics_ptr: ${topics_ptr}, topics_len: ${topics_len}, data_ptr: ${data_ptr}), data_len: ${data_len}`);
+                console.log(`[CALLED] ext_deposit_event(topics_ptr: ${topics_ptr}, topics_len: ${topics_len}, data_ptr: ${data_ptr}, data_len: ${data_len})`);
                 const local = new Uint8Array(this.env.memory.buffer);
-                // if(topics_len === 0){
-                //     var topics = Event.decodeEvent(registry);
-                // }else{
-                //     const buffer = local.subarray(topics_ptr,topics_ptr+topics_len);
-                //     //Decode from buffer to event
-                //     topics = Event.decodeEvent(registry,buffer);
-                // }
-                const topics = local.subarray(topics_ptr,topics_ptr+topics_len);
-                const event_data = local.subarray(data_ptr,data_ptr+data_len);
-                console.log(`[EVENT] topics: ${topics}, event_data: ${event_data}`);
+                const topics = local.slice(topics_ptr,topics_ptr+topics_len);
+                const event_data = local.slice(data_ptr,data_ptr+data_len);
+                console.log(`[EVENT] topics: ${topics}\nevent_data:${event_data}\n`);
+                this.events.push({topics:topics,data:event_data})
             },
+            
             ext_caller: ()=>{
                 console.log(`[CALLED] ext_caller()`);
                 var callerBuffer = this.caller.toU8a();

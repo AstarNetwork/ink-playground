@@ -3,8 +3,9 @@ import { useSelector, useDispatch } from 'react-redux'
 import Button from '@material-ui/core/Button'
 import { Abi } from '@polkadot/api-contract'
 import { createType, TypeRegistry, Raw } from '@polkadot/types'
-import { KeyringPair } from '@polkadot/keyring/types'
+import { Struct } from '@polkadot/types/codec';
 import { TypeDef } from '@polkadot/types/codec/types'
+import { KeyringPair } from '@polkadot/keyring/types'
 import { formatData } from '@polkadot/api-contract/util'
 import { ImportObject } from '../wasmExecuter'
 import Modal, { ModalTemplateHandler } from '../components/ModalTemplate'
@@ -46,6 +47,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
 
     const [abi, setAbi] = useState<Abi | null>(null);
     const [importObject,setImportObject] = useState<ImportObject | null>(null);
+    const [eventCount,setEventCount] = useState(0);
     const [wasmInstance, setWasmInstance] = useState<WebAssembly.WebAssemblyInstantiatedSource | null>(null);
     const [constructorMessage, setConstructorMessage] = useState<Uint8Array | null>(null)
     const [callContractMessage, setCallContractMessage] = useState<Uint8Array | null>(null)
@@ -69,10 +71,29 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
         }
     },[account,abi,importObject])
 
+    useEffect(()=>{setEventCount(0)},[importObject,setEventCount]);
+
+    useEffect(()=>{
+        if(!!abi && !!abi.abi.contract.events && !!importObject && importObject.events.length > eventCount) {
+            setEventCount((c)=>c+1);
+            const event_data = importObject.events[importObject.events.length-1].data;
+            const index = event_data[0];
+            if(!!abi.abi.contract.events&&!!abi.abi.contract.events[index]){
+                const eventTypeArgs = abi.abi.contract.events[index].args;
+                const eventTypeObject = eventTypeArgs.reduce((result,current,_index)=>{
+                    result[current.name] = current.type.type;
+                    return result;
+                },{})
+                const eventStruct = new Struct(abi.registry,eventTypeObject,event_data.subarray(1));
+                addConsole(`[EVENT]\n${JSON.stringify(eventStruct,null,' ')}\n`);
+            }
+        }
+    })
+
     function deploy(message :Uint8Array){
         async function main(){
             if (!!abi && !!wasm && !!account && !importObject && !wasmInstance) {
-                const _importObject = new ImportObject(createType(abi.registry,'AccountId',account.publicKey));
+                const _importObject = new ImportObject(createType(abi.registry,'AccountId',account.publicKey),abi);
                 setImportObject(_importObject);
                 const _wasmInstance = await WebAssembly.instantiate(wasm, _importObject as any);
                 setWasmInstance(_wasmInstance);
@@ -91,6 +112,9 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
         async function main() {
             if (!!abi && !!wasm && !!account && !!wasmInstance && !!importObject ) {
                 const exportedFunc = wasmInstance.instance.exports[funcName] as Function;
+                console.log('message');
+                console.log(message);
+                //have to fix. prefix is written by scale codec (compact) and can be longer than 1 byte.
                 importObject.scratch_buf.set(message.subarray(1,message.length));
                 importObject.scratch_buf_len = message.length-1;
                 console.log('[INPUT] scratch_buf:');
@@ -98,11 +122,13 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
                 const result = exportedFunc();
                 addConsole(`[CALLED] ${funcName}: ${result===0?'success':'error'}\n`);
                 const retType = returnType[funcName];
-                if(retType !== null){
+                if(result === 0 && retType !== null){
                     addConsole('[OUTPUT]\n');
                     const rawOutput = new Raw(abi.registry,importObject.scratch_buf.subarray(0,importObject.scratch_buf_len));
                     const output = formatData(abi.registry, rawOutput, retType);
-                    addConsole(`${output.toString()}: ${retType.displayName}\n`);
+                    addConsole(`${output.toString()}: ${retType.displayName}\n\n`);
+                }else{
+                    addConsole('\n');
                 }
             }
         }
