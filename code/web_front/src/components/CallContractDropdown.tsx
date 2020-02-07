@@ -1,39 +1,15 @@
-import React, { useState, useReducer, useEffect } from 'react';
+import React, { useState, useReducer, useEffect, useRef } from 'react';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
-import Param from '@polkadot/react-params/Param';
-import { RawParamOnChangeValue, RawParamValues, RawParamValue } from '@polkadot/react-params/types';
-import getInitValue from '@polkadot/react-params/initValue';
+import { RawParamValues } from '@polkadot/react-params/types';
 import '@polkadot/react-params/Params.css'
 import GlobalStyle from '@polkadot/react-components/styles'
 import { Abi } from '@polkadot/api-contract';
 import { camelCase } from '../util/ChangeCase'
 import { ActionType as ReturnTypeActionType } from '../containers/LocalWasmTesterModalButton';
-
-
-type ActionType = {
-  index: number;
-  payload: RawParamValue;
-  type: 'SET';
-} | {
-  type: 'CLEAR';
-}
-
-const paramsReducer = (state:{[index:number]:RawParamValue},action: ActionType) => {
-  switch(action.type){
-    case 'SET':
-      return {
-        ...state,
-        [action.index]: action.payload,
-      };
-    case 'CLEAR':
-      return {}
-    default:
-      return state;
-  }
-}
+import InputParams, { paramsReducer } from '../containers/InputParams'
 
 type PropType = {
   abi: Abi;
@@ -46,15 +22,21 @@ const CallContractDropdown = ({abi, setCallMessage, setReturnType}: PropType) =>
   const [index,setIndex] = useState(0);
   const [params,setParams] = useReducer(paramsReducer, {});
 
+  const prevParamsRef = useRef<typeof params>();
+  useEffect(() => {
+    prevParamsRef.current = params;
+  });
+  const prevParams = prevParamsRef.current;
+
   useEffect(()=>{
-    setParams({type:'CLEAR'})
+    setParams({type:'CLEAR'});
   },[abi,index])
 
   useEffect(()=>{
     if(!!abi&&!!abi.abi.contract.messages[index]){
       var name = camelCase(abi.abi.contract.messages[index].name);
     }else{return}
-    if(!!abi.messages[name]){
+    if(!!abi.messages[name] && prevParams !== params){
       var func = abi.messages[name];
       if(func.args.length===Object.keys(params).length){
         var array: RawParamValues = [];
@@ -67,7 +49,7 @@ const CallContractDropdown = ({abi, setCallMessage, setReturnType}: PropType) =>
         }
       }
     }
-  },[abi,setCallMessage,setReturnType,index,params])
+  },[abi,setCallMessage,setReturnType,index,params,prevParams])
 
   return (
 		<div>
@@ -80,26 +62,17 @@ const CallContractDropdown = ({abi, setCallMessage, setReturnType}: PropType) =>
 				>
 					{abi.abi.contract.messages.map((_message, index) => (
 							<MenuItem key={index} value={index}>
-               {!(_message)?'':`${_message.name}(${_message.args.map((arg,index)=>(arg.name+':'+arg.type.displayName+', '))})`}
+               {!(_message)?'':`${_message.name}(${_message.args.map((arg,index)=>(arg.name+':'+arg.type.displayName))})`}
               </MenuItem>
 					))}
 
 				</Select>
 			</FormControl>
-      {index!==null?
-        abi.abi.contract.messages[index].args.map((arg,argsIndex)=>
-        <div className="ui--Params-Content" key={argsIndex}>
-          <div className="ui--Param-composite">
-            <Param
-              name={arg.name}
-              onChange={(e:RawParamOnChangeValue)=>{setParams({type:'SET',index:argsIndex,payload:e.value})}}
-              onEnter={()=>{}}
-              type={arg.type}
-              defaultValue={getInitValue(arg.type)}
-            />
-          </div>
-        </div>
-      ):[]}
+      <InputParams
+        args={(index!==null)?abi.abi.contract.messages[index].args:null}
+        params={params}
+        setParams={setParams}
+      />
 		</div>
   );
 }

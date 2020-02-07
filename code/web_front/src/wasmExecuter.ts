@@ -1,4 +1,4 @@
-import { GenericEvent as Event } from '@polkadot/types';
+// import { GenericEvent as Event } from '@polkadot/types';
 import { createType, TypeRegistry } from '@polkadot/types';
 
 const registry = new TypeRegistry();

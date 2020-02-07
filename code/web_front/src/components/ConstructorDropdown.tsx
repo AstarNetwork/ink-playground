@@ -3,7 +3,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
-import { TypeDef } from '@polkadot/types/codec/types';
 import Param from '@polkadot/react-params/Param';
 import getInitValue from '@polkadot/react-params/initValue';
 import '@polkadot/react-params/Params.css'

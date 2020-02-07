@@ -3,14 +3,16 @@ import { useSelector, useDispatch } from 'react-redux'
 import Button from '@material-ui/core/Button'
 import { Abi } from '@polkadot/api-contract'
 import { createType, TypeRegistry, Raw } from '@polkadot/types'
+import { KeyringPair } from '@polkadot/keyring/types'
 import { TypeDef } from '@polkadot/types/codec/types'
 import { formatData } from '@polkadot/api-contract/util'
 import { ImportObject } from '../wasmExecuter'
 import Modal, { ModalTemplateHandler } from '../components/ModalTemplate'
 import ConstructorDropdown from '../components/ConstructorDropdown'
 import CallContractDropdown from '../components/CallContractDropdown'
-import { addConsole as _addConsole } from '../actions'
+import { addConsole as _addConsole, selectAccount } from '../actions'
 import { RootStore } from './Root'
+import AccountDropdown from './AccountDropdown'
 
 type ExportedFuncName = 'deploy'|'call' ;
 type ContractReturnType = { [x in ExportedFuncName] : (TypeDef | null ) };
@@ -40,6 +42,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
 
     const addConsole = (x:string) => dispatch(_addConsole(x));
     const account = useSelector((state: RootStore) => state.account.selectedAccount);
+    const setAccount = (x:KeyringPair)=>dispatch(selectAccount(x))
 
     const [abi, setAbi] = useState<Abi | null>(null);
     const [importObject,setImportObject] = useState<ImportObject | null>(null);
@@ -59,6 +62,12 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
             setAbi(_abi);
         }
     },[metadata])
+
+    useEffect(()=>{
+        if(!!importObject&&!!account&&!!abi){
+            importObject.caller = createType(abi.registry,'AccountId',account.publicKey);
+        }
+    },[account,abi,importObject])
 
     function deploy(message :Uint8Array){
         async function main(){
@@ -105,7 +114,12 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
             {label}
         </Button>
         <Modal ref={modalRef}>
-            <div style={{width:"50vh"}} ><span>instantiate</span></div>
+            <h3>caller</h3>
+            <AccountDropdown
+                account={account}
+                setAccount={setAccount}
+            />
+            <div style={{width:"50vh"}} ><h3>instantiate</h3></div>
             <Button style={{ marginBottom: "10px", width: "100%" }} color="secondary" variant="contained"
                 onClick={()=>{setImportObject(null);setWasmInstance(null);addConsole('wasm instance deleted \n');}}
             >
@@ -133,7 +147,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
                     }
                 }}
             >deploy</Button>
-            <span>call</span>
+            <h3>call</h3>
             {!!abi?
             <CallContractDropdown
                 abi={abi}

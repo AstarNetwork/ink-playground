@@ -50,4 +50,3 @@ export const getAccounts = (): ThunkAction<void,RootStore,undefined,RootActions>
 }
 
 export type Actions = ReturnType<typeof selectAccount | typeof requestAccounts | typeof receiveAccounts　>
-
