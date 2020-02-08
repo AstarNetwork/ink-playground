@@ -13,6 +13,7 @@ import ConstructorDropdown from '../components/ConstructorDropdown'
 import CallContractDropdown from '../components/CallContractDropdown'
 import { addConsole as _addConsole, selectAccount } from '../actions'
 import { RootStore } from './Root'
+import { getBodyFromMessage } from '../util/Decode'
 import AccountDropdown from './AccountDropdown'
 
 type ExportedFuncName = 'deploy'|'call' ;
@@ -115,9 +116,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
             if (!!abi && !!wasm && !!account && !!wasmInstance && !!importObject ) {
                 const exportedFunc = wasmInstance.instance.exports[funcName] as Function;
                 //prefix is written by scale codec (compact)
-                let vec: Vec<u8> = new Vec(abi.registry, 'u8', message);
-                let messageBody = new Uint8Array(vec.length);
-                vec.forEach((e,i)=>{messageBody[i] = e.toNumber()});
+                let messageBody = getBodyFromMessage(message,abi.registry);
                 importObject.scratch_buf.set(messageBody);
                 importObject.scratch_buf_len = messageBody.length;
                 console.log('[INPUT] scratch_buf:');
