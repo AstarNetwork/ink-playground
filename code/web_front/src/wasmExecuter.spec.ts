@@ -27,6 +27,7 @@ describe('WasmExecuter', () =>{
         const bob = keyring.addFromUri('//Bob');    
         let importObject = new ImportObject(createType(abi.registry,'AccountId',alice.publicKey),abi,0);
         const instance = await WebAssembly.instantiate(wasm, importObject as any)
+        const [exports_deploy, exports_call] = [instance.instance.exports.deploy as Function, instance.instance.exports.call as Function]
         const func_new = abi.constructors[0];
         let message_new = func_new(true);
         expect(message_new).toEqual(Uint8Array.from([20,94,189,136,214,1]));
@@ -34,18 +35,29 @@ describe('WasmExecuter', () =>{
         expect(messageBody_new).toEqual(Uint8Array.from([94,189,136,214,1]));
         importObject.scratch_buf.set(messageBody_new);
         importObject.scratch_buf_len=messageBody_new.length;
-        expect(instance.instance.exports.deploy()).toEqual(0);
+        expect(exports_deploy()).toEqual(0);
 
-        //get()
+        //get() -> true
         let message_get = getBodyFromMessage(abi.messages.get(),abi.registry);
         expect(message_get).toEqual(Uint8Array.from([37,68,74,254]));
         importObject.scratch_buf.set(message_get);
         importObject.scratch_buf_len=message_get.length;
-        expect(instance.instance.exports.call()).toEqual(0);
+        expect(exports_call()).toEqual(0);
+        //result: true
         expect(importObject.scratch_buf.subarray(0,importObject.scratch_buf_len))
             .toEqual(Uint8Array.from([1]));
 
-        //flip(), get()
+        //flip(), get()->false
+        let message_flip = getBodyFromMessage(abi.messages.flip(),abi.registry);
+        importObject.scratch_buf.set(message_flip);
+        importObject.scratch_buf_len=message_flip.length;
+        expect(exports_call()).toEqual(0);
+        importObject.scratch_buf.set(message_get);
+        importObject.scratch_buf_len=message_get.length;
+        expect(exports_call()).toEqual(0);
+        //result: false
+        expect(importObject.scratch_buf.subarray(0,importObject.scratch_buf_len))
+            .toEqual(Uint8Array.from([0]));
 
     })
 })
