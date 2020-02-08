@@ -2,8 +2,8 @@ import React, { useRef, useState, useEffect, useReducer } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Button from '@material-ui/core/Button'
 import { Abi } from '@polkadot/api-contract'
-import { createType, TypeRegistry, Raw } from '@polkadot/types'
-import { Struct } from '@polkadot/types/codec';
+import { createType, TypeRegistry, Raw, u8 } from '@polkadot/types'
+import { Vec, Struct } from '@polkadot/types/codec';
 import { TypeDef } from '@polkadot/types/codec/types'
 import { KeyringPair } from '@polkadot/keyring/types'
 import { formatData } from '@polkadot/api-contract/util'
@@ -112,11 +112,12 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
         async function main() {
             if (!!abi && !!wasm && !!account && !!wasmInstance && !!importObject ) {
                 const exportedFunc = wasmInstance.instance.exports[funcName] as Function;
-                console.log('message');
-                console.log(message);
-                //have to fix. prefix is written by scale codec (compact) and can be longer than 1 byte.
-                importObject.scratch_buf.set(message.subarray(1,message.length));
-                importObject.scratch_buf_len = message.length-1;
+                //prefix is written by scale codec (compact)
+                let vec: Vec<u8> = new Vec(abi.registry, 'u8', message);
+                let messageBody = new Uint8Array(vec.length);
+                vec.forEach((e,i)=>{messageBody[i] = e.toNumber()});
+                importObject.scratch_buf.set(messageBody);
+                importObject.scratch_buf_len = messageBody.length;
                 console.log('[INPUT] scratch_buf:');
                 console.log(importObject.scratch_buf.subarray(0,importObject.scratch_buf_len));
                 const result = exportedFunc();
