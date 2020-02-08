@@ -8,6 +8,7 @@ import { ContractABIArgBase } from "@polkadot/api-contract/types"
 import { KeyringPair } from '@polkadot/keyring/types';
 import AccountDropdown from './AccountDropdown';
 import { RootStore } from './Root';
+import { u8aToHex } from '@polkadot/util';
 
 type ActionType = {
     index: number;
@@ -40,9 +41,9 @@ type PropType = {
 const InputParams = ({args, setParams, params}: PropType) => {
     const accounts = useSelector((state: RootStore) => state.account.items);
 
-    const searchFromAccountId = (accounts:KeyringPair[],address:Uint8Array)=>{
+    const searchFromAccountId = (accounts:KeyringPair[],address:Uint8Array | string)=>{
         for(var i = 0; i < accounts.length; i++){
-            if(accounts[i].publicKey===address){
+            if(accounts[i].publicKey===address || u8aToHex(accounts[i].publicKey)===address){
                 return accounts[i];
             }
         }
@@ -64,7 +65,7 @@ const InputParams = ({args, setParams, params}: PropType) => {
             />
             :<div style={{paddingLeft: "2rem"}}><AccountDropdown
               account = {!!params[argsIndex]?searchFromAccountId(accounts,params[argsIndex]):null}
-              setAccount = {(a:KeyringPair)=>{setParams({type:'SET',index:argsIndex,payload:a.publicKey})}}
+              setAccount = {(a:KeyringPair)=>{setParams({type:'SET',index:argsIndex,payload:u8aToHex(a.publicKey)})}}
             /></div>
             }
           </div>

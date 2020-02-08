@@ -51,6 +51,8 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
     const [wasmInstance, setWasmInstance] = useState<WebAssembly.WebAssemblyInstantiatedSource | null>(null);
     const [constructorMessage, setConstructorMessage] = useState<Uint8Array | null>(null)
     const [callContractMessage, setCallContractMessage] = useState<Uint8Array | null>(null)
+    const [constructorDisplay, setConstructorDisplay] = useState<string>('')
+    const [callContractDisplay, setCallContractDipslay] = useState<string>('')
     const [returnType, setReturnType] = useReducer(contractReturnTypeReducer,{deploy:null, call:null});
     // const [gasLimit, setGasLimit] = useState(500000)
     // const [endowment,setEndowment] = useState(0);
@@ -85,7 +87,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
                     return result;
                 },{})
                 const eventStruct = new Struct(abi.registry,eventTypeObject,event_data.subarray(1));
-                addConsole(`[EVENT]\n${JSON.stringify(eventStruct,null,' ')}\n`);
+                addConsole(`[EVENT]\n${JSON.stringify(eventStruct,null,'  ')}\n`);
             }
         }
     })
@@ -121,7 +123,11 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
                 console.log('[INPUT] scratch_buf:');
                 console.log(importObject.scratch_buf.subarray(0,importObject.scratch_buf_len));
                 const result = exportedFunc();
-                addConsole(`[CALLED] ${funcName}: ${result===0?'success':'error'}\n`);
+                if(funcName === 'deploy'){
+                    addConsole(`[DEPLOY] : ${result===0?'success':'error'}\n${constructorDisplay}`);
+                }else{
+                    addConsole(`[CALL]   : ${result===0?'success':'error'}\n${callContractDisplay}`);
+                }
                 const retType = returnType[funcName];
                 if(result === 0 && retType !== null){
                     addConsole('[OUTPUT]\n');
@@ -156,6 +162,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
             <ConstructorDropdown
                 abi={abi}
                 setConstructorMessage={setConstructorMessage}
+                setDisplay={setConstructorDisplay}
                 setReturnType={setReturnType}
             />:["Abi is not set"]}
             <Button
@@ -179,6 +186,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
             <CallContractDropdown
                 abi={abi}
                 setCallMessage={setCallContractMessage}
+                setDisplay={setCallContractDipslay}
                 setReturnType={setReturnType}
             />:["Abi is not set"]}
             <Button

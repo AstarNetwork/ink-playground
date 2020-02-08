@@ -14,10 +14,11 @@ import InputParams, { paramsReducer } from '../containers/InputParams'
 type PropType = {
   abi: Abi;
   setCallMessage: React.Dispatch<React.SetStateAction<Uint8Array | null>>;
+  setDisplay?: React.Dispatch<React.SetStateAction<string>>;
   setReturnType?: React.Dispatch<ReturnTypeActionType>;
 }
 
-const CallContractDropdown = ({abi, setCallMessage, setReturnType}: PropType) =>  {
+const CallContractDropdown = ({abi, setCallMessage, setDisplay, setReturnType}: PropType) =>  {
 
   const [index,setIndex] = useState(0);
   const [params,setParams] = useReducer(paramsReducer, {});
@@ -47,9 +48,15 @@ const CallContractDropdown = ({abi, setCallMessage, setReturnType}: PropType) =>
         if(!!setReturnType){
           setReturnType({type:'call', payload: abi.abi.contract.messages[index].returnType});
         }
+        if(!!setDisplay){
+          const paramsDisplay = (array.length===0)
+            ?`()`
+            :`(${array.map((e,i)=>{return`\n  ${abi.abi.contract.messages[index].args[i].name}: ${e.toString()}`})}\n)`
+          setDisplay(`${abi.abi.contract.messages[index].name}${paramsDisplay}\n`)
+        }
       }
     }
-  },[abi,setCallMessage,setReturnType,index,params,prevParams])
+  },[abi,setCallMessage,setReturnType,setDisplay,index,params,prevParams])
 
   return (
 		<div>
