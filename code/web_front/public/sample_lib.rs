@@ -5,9 +5,9 @@ use ink_core::storage;
 use ink_lang2 as ink;
 
 #[ink::contract(version = "0.1.0")]
-mod erc20 {
+mod sample {
     #[ink(storage)]
-    struct Erc20 {
+    struct Sample {
         total_supply: storage::Value<Balance>,
         balances: storage::HashMap<AccountId, Balance>,
         allowances: storage::HashMap<(AccountId, AccountId), Balance>,
@@ -33,7 +33,7 @@ mod erc20 {
         value: Balance,
     }
 
-    impl Erc20 {
+    impl Sample {
         #[ink(constructor)]
         fn new(&mut self, initial_supply: Balance) {
             let caller = self.env().caller();

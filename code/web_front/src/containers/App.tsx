@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux';
 import path from 'path';
@@ -13,7 +13,6 @@ import ChainStatus from './ChainStatus';
 import { RootStore } from './Root';
 import LocalWasmSelectModalButton from '../components/LocalWasmSelectModalButton';
 import LocalWasmTesterModalButton from './LocalWasmTesterModalButton';
-import codeTemplate from '!!raw-loader!../sample_lib.rs.txt';
 
 const WEBSOCKET_URL = (process.env.REACT_APP_TLS === 'TRUE' ? 'wss://' : 'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
 
@@ -27,6 +26,14 @@ const base64ToBuffer = (base64: string) => {
 }
 
 const App = () => {
+	const [codeTemplate,setCodeTemplate] = useState("");
+	useEffect(()=>{
+		fetch('sample_lib.rs')
+		.then((response)=>response.text())
+		.then((text)=>{
+			setCodeTemplate(text);
+		})
+	},[])
 	const dispatch = useDispatch();
 
 	const [wasm, setWasm] = useState<Uint8Array | null>(null);
