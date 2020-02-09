@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Button } from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux';
-
+import path from 'path';
 import AppHeader from './AppHeader';
 import Editor, { EditorHandler } from './Editor';
 import ResultArea from './ResultArea';
@@ -9,14 +9,13 @@ import Loader from './Loader';
 import DownloadButton from '../components/DownloadButton';
 import { addConsole } from '../actions'
 import '../App.css';
-import codeTemplate from '../CodeTemplate';
 import ChainStatus from './ChainStatus';
 import { RootStore } from './Root';
 import LocalWasmSelectModalButton from '../components/LocalWasmSelectModalButton';
 import LocalWasmTesterModalButton from './LocalWasmTesterModalButton';
+const codeTemplate = require('raw-loader!../sample_lib.rs.txt');
 
-
-export const WEBSOCKET_URL = (process.env.REACT_APP_TLS === 'TRUE' ? 'wss://' : 'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
+const WEBSOCKET_URL = (process.env.REACT_APP_TLS === 'TRUE' ? 'wss://' : 'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
 
 const base64ToBuffer = (base64: string) => {
 	var bin = atob(base64.replace(/^.*,/, ''));

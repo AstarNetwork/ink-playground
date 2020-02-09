@@ -10,7 +10,6 @@
     "@polkadot/api-contract": "^0.100.1",
     "@polkadot/app-contracts": "0.38.1",
     "@polkadot/extension-dapp": "^0.20.1",
-    "@polkadot/metadata": "0.100.1",
     "@polkadot/react-hooks": "^0.38.1",
     "@polkadot/react-params": "^0.38.1",
     "@polkadot/react-signer": "^0.38.1",
@@ -30,7 +29,8 @@
     "react-spinners": "^0.8.0",
     "redux": "^4.0.4",
     "redux-logger": "^3.0.6",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "require-text": "^0.0.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -60,6 +60,7 @@
     "@types/react-dom": "^16.9.5",
     "@types/react-redux": "^7.1.7",
     "json-loader": "^0.5.7",
+    "raw-loader": "^4.0.0",
     "typescript": "^3.7.5"
   },
   "resolutions": {
