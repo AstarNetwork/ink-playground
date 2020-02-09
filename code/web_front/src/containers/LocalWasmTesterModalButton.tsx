@@ -2,8 +2,8 @@ import React, { useRef, useState, useEffect, useReducer } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Button from '@material-ui/core/Button'
 import { Abi } from '@polkadot/api-contract'
-import { createType, TypeRegistry, Raw, u8 } from '@polkadot/types'
-import { Vec, Struct } from '@polkadot/types/codec';
+import { createType, TypeRegistry, Raw } from '@polkadot/types'
+import { Struct } from '@polkadot/types/codec';
 import { TypeDef } from '@polkadot/types/codec/types'
 import { KeyringPair } from '@polkadot/keyring/types'
 import { formatData } from '@polkadot/api-contract/util'
