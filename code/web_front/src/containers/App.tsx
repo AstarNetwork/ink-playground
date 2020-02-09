@@ -13,7 +13,7 @@ import ChainStatus from './ChainStatus';
 import { RootStore } from './Root';
 import LocalWasmSelectModalButton from '../components/LocalWasmSelectModalButton';
 import LocalWasmTesterModalButton from './LocalWasmTesterModalButton';
-const codeTemplate = require('raw-loader!../sample_lib.rs.txt');
+import codeTemplate from '!!raw-loader!../sample_lib.rs.txt';
 
 const WEBSOCKET_URL = (process.env.REACT_APP_TLS === 'TRUE' ? 'wss://' : 'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
 
