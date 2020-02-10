@@ -3,9 +3,9 @@ FROM buildpack-deps:buster
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH \
-    RUST_VERSION=1.39.0 \
-    CARGO_CONTRACT_VERSION="bedf3fd43b9f1ff7d502ed2be003765b02c9998c" \
-    NIGHTLY_VERSION="nightly-2019-11-11"
+    RUST_VERSION=1.41.0 \
+    CARGO_CONTRACT_VERSION="164ecde994a308e9b34ae145e9e3bfe8f600ebc0" \
+    NIGHTLY_VERSION="nightly-2020-01-20"
 
 SHELL ["/bin/bash","-c"]
 
@@ -31,7 +31,7 @@ RUN set -eux; \
 
 RUN set -eux;\
     \
-    apt-get update && apt-get install -y curl jq; \
+    apt-get update && apt-get install -y curl jq cmake; \
     JQ_URL="https://circle-downloads.s3.amazonaws.com/circleci-images/cache/linux-amd64/jq-latest"; \
     curl --silent --show-error --location --fail --retry 3 --output /usr/bin/jq $JQ_URL; \
     chmod +x /usr/bin/jq; \
@@ -40,7 +40,13 @@ RUN set -eux;\
 
 RUN set -eux;\
     \ 
-    cargo install --force --git https://github.com/paritytech/cargo-contract --rev $CARGO_CONTRACT_VERSION cargo-contract;
+    cargo install --force --git https://github.com/paritytech/cargo-contract --rev $CARGO_CONTRACT_VERSION cargo-contract; \
+    git clone https://github.com/WebAssembly/binaryen.git; \
+    pushd binaryen; \
+    cmake . && make; \
+    cp bin/wasm-opt /usr/local/bin; \
+    popd; \
+    rm -rf binaryen;
 
 RUN set -eux; \
     \
