@@ -87,7 +87,7 @@ const PutCodeModal = ({api,abi,wasm,codes,setCodes}: PropType) => {
       {(!!(api.tx))?
       <TxButton
         label={"send"}
-        tx={api.tx.contract?'contract.putCode':'contracts.putCode'}
+        tx={'contracts.putCode'}
         params={[gasLimit,compactAddLength(wasm)]}
         onSend={onPutCode}
         style = {{marginBottom:"10px",width:"100%"}}

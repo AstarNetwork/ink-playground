@@ -138,7 +138,7 @@ const PlasmInstantiateModalButton = ({api,codes,instances,setInstances,selectedC
 
       <TxButton
         label={"send"}
-        tx={'contracts.instantiate'}
+        tx={'operator.instantiate'}
         params={[
           endowment
           ,gasLimit
