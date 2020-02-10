@@ -72,7 +72,7 @@ const ChainStatus = ( {api, apiIsReady, wasm, metadata}:propType ) => {
         :[]
       }
     {Object.keys(codes).length>0?
-      (selectedChainId==="Plasm"
+      (!api.tx.hasOwnProperty('operator')
       ?<InstantiateModalButton
           api={api}
           codes={codes}
