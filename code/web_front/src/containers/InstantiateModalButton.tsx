@@ -1,40 +1,45 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField';
+import { ApiPromise } from '@polkadot/api';
+import { KeyringPair } from '@polkadot/keyring/types'
+import { SubmittableResultValue } from '@polkadot/api/types';
 import AccountDropdown from './AccountDropdown'
 import TxButton from './TxButton'
 import Modal, { ModalTemplateHandler } from '../components/ModalTemplate'
 import Dropdown from '../components/Dropdown'
 import ConstructorDropdown from '../components/ConstructorDropdown'
-import { addConsoleLine } from '../actions'
-import { ApiPromise } from '@polkadot/api';
+import { addConsoleLine, selectAccount } from '../actions'
 import { CodesObject, InstancesObject } from './ChainStatus';
-import { SubmittableResultValue } from '@polkadot/api/types';
+import { RootStore } from './Root';
+import { ChainSetting } from '../Chains';
 
 type PropType = {
   api: ApiPromise;
   codes: CodesObject;
   instances: InstancesObject;
   setInstances: React.Dispatch<React.SetStateAction<InstancesObject>>;
-  selectedChainId: string;
+  selectedChain: ChainSetting;
 }
 
-const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChainId} : PropType) => {
+const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChain} : PropType) => {
   const dispatch = useDispatch();
-	const setResult = (x) => dispatch(addConsoleLine(x))
+  const setResult = (x) => dispatch(addConsoleLine(x))
+  const account = useSelector((state: RootStore) => state.account.selectedAccount);
+  const setAccount = (x: KeyringPair)=>dispatch(selectAccount(x));
 
+  const [endowment,setEndowment] = useState(1000000000000000);
   const [gasLimit, setGasLimit] = useState(500000)
   const [codeHash, setCodeHash] = useState<string|null>(null)
   const [constructorMessage, setConstructorMessage] = useState<Uint8Array|null>(null)
   const [instanceName, setInstanceName] = useState("")
-  const [endowment,setEndowment] = useState(0);
 
   const modalRef = useRef({} as ModalTemplateHandler);
 
   useEffect(()=>{
     setCodeHash(null);
-  },[selectedChainId]);
+  },[selectedChain]);
 
   useEffect(()=>{
     if(!api||!api.consts)
@@ -75,7 +80,19 @@ const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChainI
     <Modal
       ref={modalRef}
     >
-      <AccountDropdown/>
+      <AccountDropdown
+        account={account}
+        setAccount={setAccount}
+      />
+      <TextField
+        label="Endowment"
+        type="number"
+        defaultValue={endowment}
+        InputLabelProps={{shrink: true}}
+        onChange={(e:any)=>{setEndowment(e.target.value)}}
+        variant="filled"
+        style = {{marginBottom:"10px",width:"100%"}}
+      />
       <TextField
         label="Gas limit"
         type="number"

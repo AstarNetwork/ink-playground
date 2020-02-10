@@ -37,12 +37,12 @@ const ChainStatus = ( {api, apiIsReady, wasm, metadata}:propType ) => {
   const [instances,setInstances] = useState({})
   const [abi,setAbi] = useState<Abi | null>(null);
 
-  const selectedChainId = useSelector((state: RootStore) => state.chain.selectedChainId);
+  const selectedChain = useSelector((state: RootStore) => state.chain.selectedChain);
 
   useEffect(()=>{
     setCodes({});
     setInstances({});
-  },[selectedChainId])
+  },[selectedChain])
 
   useEffect(()=>{
     console.log("new codes:\n",codes)
@@ -72,27 +72,27 @@ const ChainStatus = ( {api, apiIsReady, wasm, metadata}:propType ) => {
         :[]
       }
     {Object.keys(codes).length>0?
-      (selectedChainId==="Plasm"
+      (!api.tx.hasOwnProperty('operator')
       ?<InstantiateModalButton
           api={api}
           codes={codes}
           instances={instances}
           setInstances={setInstances}
-          selectedChainId={selectedChainId}
+          selectedChain={selectedChain}
       />
       :<PlasmInstantiateModalButton
           api={api}
           codes={codes}
           instances={instances}
           setInstances={setInstances}
-          selectedChainId={selectedChainId}
+          selectedChain={selectedChain}
       />)
     :[]}
     {Object.keys(instances).length>0?<CallContractModalButton
         api={api}
         codes={codes}
         instances={instances}
-        selectedChainId={selectedChainId}
+        selectedChain={selectedChain}
     />:[]}
     </>)
   }

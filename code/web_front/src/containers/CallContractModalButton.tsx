@@ -1,28 +1,33 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField';
 import AccountDropdown from './AccountDropdown'
+import { KeyringPair } from '@polkadot/keyring/types';
 import TxButton from './TxButton'
 import Dropdown from '../components/Dropdown'
 import CallContractDropdown from '../components/CallContractDropdown'
 import Modal, { ModalTemplateHandler } from '../components/ModalTemplate'
-import { addConsoleLine } from '../actions'
+import { addConsoleLine, selectAccount } from '../actions'
 import { ApiPromise} from '@polkadot/api';
 import { Abi } from '@polkadot/api-contract';
 import { SubmittableResultValue } from '@polkadot/api/types';
 import { CodesObject, InstancesObject } from './ChainStatus'
+import { RootStore } from './Root';
+import { ChainSetting } from '../Chains';
 
 type PropType = {
 	api: ApiPromise;
 	codes: CodesObject;
   instances: InstancesObject;
-  selectedChainId: string;
+  selectedChain: ChainSetting;
 }
 
-const CallContractModalButton = ({api,codes,instances, selectedChainId}:PropType) => {
+const CallContractModalButton = ({api,codes,instances, selectedChain}:PropType) => {
   const dispatch = useDispatch();
-	const setResult = (x: string) => dispatch(addConsoleLine(x))
+  const setResult = (x: string) => dispatch(addConsoleLine(x))
+  const account = useSelector((state: RootStore) => state.account.selectedAccount);
+  const setAccount = (x: KeyringPair)=>dispatch(selectAccount(x));
 
   const [gasLimit, setGasLimit] = useState(500000)
   const [value, setValue] = useState(0)
@@ -34,7 +39,7 @@ const CallContractModalButton = ({api,codes,instances, selectedChainId}:PropType
 
   useEffect(()=>{
     setInstance(null);
-  },[selectedChainId]);
+  },[selectedChain]);
 
   useEffect(() => {
     setCallMessage(null)
@@ -66,7 +71,10 @@ const CallContractModalButton = ({api,codes,instances, selectedChainId}:PropType
     <Modal
       ref={modalRef}
     >
-      <AccountDropdown/>
+      <AccountDropdown
+        account={account}
+        setAccount={setAccount}
+      />
       <TextField
         label="Gas limit"
         type="number"
@@ -91,7 +99,7 @@ const CallContractModalButton = ({api,codes,instances, selectedChainId}:PropType
         label="Instance"
         value={instance}
         valuesList={Object.values(instances)}
-        setValue={(e: any) => setInstance(e.target.value)}
+        setValue={setInstance}
         display={(x)=>{return `${x.name}(${x.address})`}}
       />
 

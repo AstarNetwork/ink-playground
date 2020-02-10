@@ -3,14 +3,18 @@ import { useSelector, useDispatch } from 'react-redux'
 import Button from '@material-ui/core/Button'
 import { Abi } from '@polkadot/api-contract'
 import { createType, TypeRegistry, Raw } from '@polkadot/types'
+import { Struct } from '@polkadot/types/codec';
 import { TypeDef } from '@polkadot/types/codec/types'
+import { KeyringPair } from '@polkadot/keyring/types'
 import { formatData } from '@polkadot/api-contract/util'
 import { ImportObject } from '../wasmExecuter'
 import Modal, { ModalTemplateHandler } from '../components/ModalTemplate'
 import ConstructorDropdown from '../components/ConstructorDropdown'
 import CallContractDropdown from '../components/CallContractDropdown'
-import { addConsole as _addConsole } from '../actions'
+import { addConsole as _addConsole, selectAccount } from '../actions'
 import { RootStore } from './Root'
+import { getBodyFromMessage } from '../util/Decode'
+import AccountDropdown from './AccountDropdown'
 
 type ExportedFuncName = 'deploy'|'call' ;
 type ContractReturnType = { [x in ExportedFuncName] : (TypeDef | null ) };
@@ -40,12 +44,16 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
 
     const addConsole = (x:string) => dispatch(_addConsole(x));
     const account = useSelector((state: RootStore) => state.account.selectedAccount);
+    const setAccount = (x:KeyringPair)=>dispatch(selectAccount(x))
 
     const [abi, setAbi] = useState<Abi | null>(null);
     const [importObject,setImportObject] = useState<ImportObject | null>(null);
+    const [eventCount,setEventCount] = useState(0);
     const [wasmInstance, setWasmInstance] = useState<WebAssembly.WebAssemblyInstantiatedSource | null>(null);
     const [constructorMessage, setConstructorMessage] = useState<Uint8Array | null>(null)
     const [callContractMessage, setCallContractMessage] = useState<Uint8Array | null>(null)
+    const [constructorDisplay, setConstructorDisplay] = useState<string>('')
+    const [callContractDisplay, setCallContractDipslay] = useState<string>('')
     const [returnType, setReturnType] = useReducer(contractReturnTypeReducer,{deploy:null, call:null});
     // const [gasLimit, setGasLimit] = useState(500000)
     // const [endowment,setEndowment] = useState(0);
@@ -60,10 +68,35 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
         }
     },[metadata])
 
+    useEffect(()=>{
+        if(!!importObject&&!!account&&!!abi){
+            importObject.caller = createType(abi.registry,'AccountId',account.publicKey);
+        }
+    },[account,abi,importObject])
+
+    useEffect(()=>{setEventCount(0)},[importObject,setEventCount]);
+
+    useEffect(()=>{
+        if(!!abi && !!abi.abi.contract.events && !!importObject && importObject.events.length > eventCount) {
+            setEventCount((c)=>c+1);
+            const event_data = importObject.events[importObject.events.length-1].data;
+            const index = event_data[0];
+            if(!!abi.abi.contract.events&&!!abi.abi.contract.events[index]){
+                const eventTypeArgs = abi.abi.contract.events[index].args;
+                const eventTypeObject = eventTypeArgs.reduce((result,current,_index)=>{
+                    result[current.name] = current.type.type;
+                    return result;
+                },{})
+                const eventStruct = new Struct(abi.registry,eventTypeObject,event_data.subarray(1));
+                addConsole(`[EVENT]\n${JSON.stringify(eventStruct,null,'  ')}\n`);
+            }
+        }
+    })
+
     function deploy(message :Uint8Array){
         async function main(){
             if (!!abi && !!wasm && !!account && !importObject && !wasmInstance) {
-                const _importObject = new ImportObject(createType(abi.registry,'AccountId',account.publicKey));
+                const _importObject = new ImportObject(createType(abi.registry,'AccountId',account.publicKey),abi);
                 setImportObject(_importObject);
                 const _wasmInstance = await WebAssembly.instantiate(wasm, _importObject as any);
                 setWasmInstance(_wasmInstance);
@@ -82,18 +115,26 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
         async function main() {
             if (!!abi && !!wasm && !!account && !!wasmInstance && !!importObject ) {
                 const exportedFunc = wasmInstance.instance.exports[funcName] as Function;
-                importObject.scratch_buf.set(message.subarray(1,message.length));
-                importObject.scratch_buf_len = message.length-1;
+                //prefix is written by scale codec (compact)
+                let messageBody = getBodyFromMessage(message,abi.registry);
+                importObject.scratch_buf.set(messageBody);
+                importObject.scratch_buf_len = messageBody.length;
                 console.log('[INPUT] scratch_buf:');
                 console.log(importObject.scratch_buf.subarray(0,importObject.scratch_buf_len));
                 const result = exportedFunc();
-                addConsole(`[CALLED] ${funcName}: ${result===0?'success':'error'}\n`);
+                if(funcName === 'deploy'){
+                    addConsole(`[DEPLOY] : ${result===0?'success':'error'}\n${constructorDisplay}`);
+                }else{
+                    addConsole(`[CALL]   : ${result===0?'success':'error'}\n${callContractDisplay}`);
+                }
                 const retType = returnType[funcName];
-                if(retType !== null){
+                if(result === 0 && retType !== null){
                     addConsole('[OUTPUT]\n');
                     const rawOutput = new Raw(abi.registry,importObject.scratch_buf.subarray(0,importObject.scratch_buf_len));
                     const output = formatData(abi.registry, rawOutput, retType);
-                    addConsole(`${output.toString()}: ${retType.displayName}\n`);
+                    addConsole(`${output.toString()}: ${retType.displayName}\n\n`);
+                }else{
+                    addConsole('\n');
                 }
             }
         }
@@ -105,9 +146,14 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
             {label}
         </Button>
         <Modal ref={modalRef}>
-            <div style={{width:"50vh"}} ><span>instantiate</span></div>
+            <h3>caller</h3>
+            <AccountDropdown
+                account={account}
+                setAccount={setAccount}
+            />
+            <div style={{width:"50vh"}} ><h3>instantiate</h3></div>
             <Button style={{ marginBottom: "10px", width: "100%" }} color="secondary" variant="contained"
-                onClick={()=>{setImportObject(null);setWasmInstance(null);addConsole('insntance deleted \n');}}
+                onClick={()=>{setImportObject(null);setWasmInstance(null);addConsole('wasm instance deleted \n');}}
             >
                 reset
             </Button>
@@ -115,6 +161,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
             <ConstructorDropdown
                 abi={abi}
                 setConstructorMessage={setConstructorMessage}
+                setDisplay={setConstructorDisplay}
                 setReturnType={setReturnType}
             />:["Abi is not set"]}
             <Button
@@ -133,11 +180,12 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
                     }
                 }}
             >deploy</Button>
-            <span>call</span>
+            <h3>call</h3>
             {!!abi?
             <CallContractDropdown
                 abi={abi}
                 setCallMessage={setCallContractMessage}
+                setDisplay={setCallContractDipslay}
                 setReturnType={setReturnType}
             />:["Abi is not set"]}
             <Button

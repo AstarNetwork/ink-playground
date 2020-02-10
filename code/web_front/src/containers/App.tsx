@@ -1,7 +1,6 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux';
-
 import AppHeader from './AppHeader';
 import Editor, { EditorHandler } from './Editor';
 import ResultArea from './ResultArea';
@@ -9,14 +8,12 @@ import Loader from './Loader';
 import DownloadButton from '../components/DownloadButton';
 import { addConsole } from '../actions'
 import '../App.css';
-import codeTemplate from '../CodeTemplate';
 import ChainStatus from './ChainStatus';
 import { RootStore } from './Root';
 import LocalWasmSelectModalButton from '../components/LocalWasmSelectModalButton';
 import LocalWasmTesterModalButton from './LocalWasmTesterModalButton';
 
-
-export const WEBSOCKET_URL = (process.env.REACT_APP_TLS === 'TRUE' ? 'wss://' : 'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
+const WEBSOCKET_URL = (process.env.REACT_APP_TLS === 'TRUE' ? 'wss://' : 'ws://') + process.env.REACT_APP_PUBLIC_DNS + '/api/compile/';
 
 const base64ToBuffer = (base64: string) => {
 	var bin = atob(base64.replace(/^.*,/, ''));
@@ -28,6 +25,14 @@ const base64ToBuffer = (base64: string) => {
 }
 
 const App = () => {
+	const [codeTemplate,setCodeTemplate] = useState("");
+	useEffect(()=>{
+		fetch('sample_lib.rs')
+		.then((response)=>response.text())
+		.then((text)=>{
+			setCodeTemplate(text);
+		})
+	},[])
 	const dispatch = useDispatch();
 
 	const [wasm, setWasm] = useState<Uint8Array | null>(null);

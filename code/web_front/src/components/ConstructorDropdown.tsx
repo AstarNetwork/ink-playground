@@ -3,13 +3,12 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
-import { TypeDef } from '@polkadot/types/codec/types';
 import Param from '@polkadot/react-params/Param';
 import getInitValue from '@polkadot/react-params/initValue';
 import '@polkadot/react-params/Params.css'
 import 'semantic-ui-css/semantic.min.css'
 import GlobalStyle from '@polkadot/react-components/styles'
-import { RawParamValue, RawParamOnChangeValue, RawParamValues } from '@polkadot/react-params/types';
+import { RawParamValue, RawParamOnChangeValue } from '@polkadot/react-params/types';
 import { Abi } from '@polkadot/api-contract';
 import { ActionType as ReturnTypeActionType } from '../containers/LocalWasmTesterModalButton';
 
@@ -39,33 +38,40 @@ const paramsReducer = (state:{[index:number]:RawParamValue},action: ActionType) 
 type PropType = {
   abi: Abi;
   setConstructorMessage: React.Dispatch<React.SetStateAction<Uint8Array | null> >;
+  setDisplay?: React.Dispatch<React.SetStateAction<string>>;
   setReturnType?: React.Dispatch<ReturnTypeActionType>;
 }
 
-const ConstructorDropdown = ({abi,setConstructorMessage, setReturnType}: PropType) =>  {
+const ConstructorDropdown = ({abi,setConstructorMessage,setDisplay, setReturnType}: PropType) =>  {
 
-  const [constructorIndex,setConstructorIndex] = useState(0);
+  const [index,setIndex] = useState(0);
   const [params,setParams] = useReducer(paramsReducer,{});
 
   useEffect(()=>{
     setParams({type:'CLEAR'});
-  },[abi,constructorIndex])
+  },[abi,index])
 
   useEffect(()=>{
     var len = Object.keys(params).length
-    if(!!abi&&abi.constructors.length > constructorIndex&&abi.constructors[constructorIndex].args.length===len){
-      var array: RawParamValues = [];
+    if(!!abi&&abi.constructors.length > index&&abi.constructors[index].args.length===len){
+      var array: RawParamValue[] = [];
       for (var i = 0; i < len;i++){
         array.push(params[i]);
       }
-      const encodeFunc = abi.constructors[constructorIndex];
+      const encodeFunc = abi.constructors[index];
       const _constructorMessage = encodeFunc(...array);
       setConstructorMessage(_constructorMessage)
       if(!!setReturnType){
-        setReturnType({type:'deploy', payload: abi.abi.contract.constructors[constructorIndex].returnType});
+        setReturnType({type:'deploy', payload: abi.abi.contract.constructors[index].returnType});
+      }
+      if(!!setDisplay){
+        const paramsDisplay = (array.length===0)
+          ?`()`
+          :`(${array.map((e,i)=>{return `\n  ${abi.constructors[index].args[i].name}: ${e.toString()}`})}\n)`
+        setDisplay(`${abi.abi.contract.constructors[index].name}${paramsDisplay}\n`)
       }
     }
-  },[params,abi,setConstructorMessage,setReturnType,constructorIndex])
+  },[params,abi,setConstructorMessage,setReturnType,setDisplay,index])
 
   return (
 		<div>
@@ -73,8 +79,8 @@ const ConstructorDropdown = ({abi,setConstructorMessage, setReturnType}: PropTyp
 			<FormControl variant="filled" style={{width:"100%",marginBottom:"10px",marginLeft:"20px"}}>
 				<InputLabel>{"constructor"}</InputLabel>
 				<Select
-					value={constructorIndex}
-					onChange={(e:any)=>{setConstructorIndex(e.target.value)}}
+					value={index}
+					onChange={(e:any)=>{setIndex(e.target.value)}}
 				>
 					{abi.abi.contract.constructors.map((_constructor, index) => (
 							<MenuItem key={index} value={index}>
@@ -84,8 +90,8 @@ const ConstructorDropdown = ({abi,setConstructorMessage, setReturnType}: PropTyp
 
 				</Select>
 			</FormControl>
-      {constructorIndex!==null?
-        abi.abi.contract.constructors[constructorIndex].args.map((arg,argsIndex)=>
+      {index!==null?
+        abi.abi.contract.constructors[index].args.map((arg,argsIndex)=>
         <div className="ui--Params-Content" key={argsIndex}>
           <div className="ui--Param-composite">
             <Param

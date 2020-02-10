@@ -1,13 +1,20 @@
 import { combineReducers } from 'redux'
-import Chains from '../Chains'
-import { SELECT_CHAIN, CREATE_API, CHAIN_API_READY, DISCONNECT_CHAIN, SET_CUSTOM } from '../actions'
+import Chains, { ChainSetting } from '../Chains'
+import { SELECT_CHAIN, CREATE_API, CHAIN_API_READY, DISCONNECT_CHAIN, SET_CUSTOM, SET_CUSTOM_ENDPOINT } from '../actions/chain'
 import { Actions } from '../actions/chain'
 import { ApiPromise } from '@polkadot/api'
 
-const selectedChainId = (state: string = 'flaming_fir', action: Actions) => {
+const selectedChain = (state: ChainSetting = Chains['local'], action: Actions) => {
   switch(action.type){
     case SELECT_CHAIN:
+      return Chains[action.payload];
+    case SET_CUSTOM:
       return action.payload;
+    case SET_CUSTOM_ENDPOINT:
+      return {
+        ...state,
+        ws_provider:action.payload
+      } as ChainSetting
     default:
       return state
   }
@@ -43,28 +50,12 @@ const chainApiIsReady = (state: boolean = false, action : Actions) => {
   }
 }
 
-const customChain = (state ={id:"custom",name:"Custom Chain",ws_provider:"ws://localhost:9944",type:{}}, action : Actions) => {
-  switch(action.type){
-    case SET_CUSTOM:
-      return {
-        ...state,
-        ...action.payload,
-      }
-    default:
-      return state;
-  }
-}
-
-const items = (state: any ={},action : Actions) => {
-  var custom = customChain(!!state.custom?state.custom:undefined, action);
-  return({
-      custom,
-      ...Chains,
-  })
+const items = (state: any = {},action : Actions) => {
+  return Chains
 }
 
 const chain = combineReducers({
-  selectedChainId,
+  selectedChain,
   chainApi,
   chainApiDisconnected,
   chainApiIsReady,
