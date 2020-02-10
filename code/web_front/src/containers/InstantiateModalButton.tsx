@@ -13,16 +13,17 @@ import ConstructorDropdown from '../components/ConstructorDropdown'
 import { addConsoleLine, selectAccount } from '../actions'
 import { CodesObject, InstancesObject } from './ChainStatus';
 import { RootStore } from './Root';
+import { ChainSetting } from '../Chains';
 
 type PropType = {
   api: ApiPromise;
   codes: CodesObject;
   instances: InstancesObject;
   setInstances: React.Dispatch<React.SetStateAction<InstancesObject>>;
-  selectedChainId: string;
+  selectedChain: ChainSetting;
 }
 
-const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChainId} : PropType) => {
+const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChain} : PropType) => {
   const dispatch = useDispatch();
   const setResult = (x) => dispatch(addConsoleLine(x))
   const account = useSelector((state: RootStore) => state.account.selectedAccount);
@@ -38,7 +39,7 @@ const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChainI
 
   useEffect(()=>{
     setCodeHash(null);
-  },[selectedChainId]);
+  },[selectedChain]);
 
   useEffect(()=>{
     if(!api||!api.consts)

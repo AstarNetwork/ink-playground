@@ -2,6 +2,7 @@ import { ApiPromise, WsProvider } from '@polkadot/api';
 import { RootActions } from './'
 import { Dispatch } from 'redux';
 import { RootStore } from '../containers/Root';
+import { ChainSetting } from '../Chains';
 
 export const SELECT_CHAIN = 'SELECT_CHAIN' as const;
 export const selectChainById = (chainId: string) => ({
@@ -10,12 +11,15 @@ export const selectChainById = (chainId: string) => ({
 })
 
 export const SET_CUSTOM = "SET_CUSTOM" as const;
-export const setCustom = (ws_provider: string, type: object = {}) => ({
+export const setCustom = (custom: ChainSetting) => ({
   type:SET_CUSTOM,
-  payload: {
-    ws_provider,
-    type,
-  },
+  payload:custom,
+})
+
+export const SET_CUSTOM_ENDPOINT = "SET_CUSTOM_ENDPOINT" as const;
+export const setCustomEndpoint = (ws_provider: string) => ({
+  type:SET_CUSTOM_ENDPOINT,
+  payload: ws_provider
 })
 
 export const CHAIN_API_READY = 'CHAIN_API_READY' as const;;
@@ -33,8 +37,8 @@ const createApi = (chainApi: ApiPromise) => ({
 export const startSelectedChain = () => ((dispatch: Dispatch<RootActions>, getState: (()=>RootStore)) => {
   const state: RootStore = getState();
   stopChain(dispatch, state);
-  const { selectedChainId } = state.chain
-  const selectedChain = state.chain.items[selectedChainId]
+  const chain = state.chain
+  const selectedChain = chain.selectedChain;
   const provider = new WsProvider(selectedChain.ws_provider);
   dispatch(chainApiReady(false))
   const chainApi = new ApiPromise({provider, types:selectedChain.types })
@@ -58,4 +62,4 @@ const stopChain = (dispatch: Dispatch<RootActions> ,state: RootStore):void => {
   }
 }
 
-export type Actions = ReturnType<typeof selectChainById | typeof setCustom | typeof chainApiReady | typeof createApi | typeof disconnectChain >
+export type Actions = ReturnType<typeof selectChainById | typeof setCustom | typeof setCustomEndpoint | typeof chainApiReady | typeof createApi | typeof disconnectChain >

@@ -1,7 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Button } from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux';
-import path from 'path';
 import AppHeader from './AppHeader';
 import Editor, { EditorHandler } from './Editor';
 import ResultArea from './ResultArea';

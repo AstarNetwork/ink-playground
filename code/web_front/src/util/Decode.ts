@@ -1,4 +1,4 @@
-import { Vec, u8, TypeRegistry } from '@polkadot/types'
+import { Vec, u8 } from '@polkadot/types'
 import { Registry } from '@polkadot/types/types';
 
 export function getBodyFromMessage(message: Uint8Array,registry: Registry){

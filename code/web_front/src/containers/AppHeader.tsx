@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import { selectAccount, selectChainById, startSelectedChain } from '../actions';
+import { selectAccount } from '../actions';
 import Modal, { ModalTemplateHandler } from '../components/ModalTemplate'
 import About from '../components/About'
 import GitHubIcon from '../images/GitHub.png'
@@ -19,44 +19,28 @@ const AppHeader = () =>  {
 	const account = useSelector((state: RootStore) => state.account.selectedAccount)
 	const accounts = useSelector((state: RootStore) =>  state.account.items)
 	const accountsLoaded = useSelector((state: RootStore) => state.account.accountsLoaded)
-	const chain = useSelector((state: RootStore) => state.chain.items[state.chain.selectedChainId])
-	const chains = useSelector((state: RootStore) => state.chain.items)
+	const chain = useSelector((state: RootStore) => state.chain.selectedChain)
+	const chainApiDisconnected = useSelector((state: RootStore) => state.chain.chainApiDisconnected)
 	const customModalRef = useRef({} as ModalTemplateHandler)
 	const aboutModalRef = useRef({} as ModalTemplateHandler)
 
-	const setChain = (x) => {dispatch(selectChainById(x));dispatch(startSelectedChain());}
 	const setAccount = (x) => dispatch(selectAccount(x));
 
-	const [anchorElChain, setAnchorElChain] = useState(null);
 	const [anchorElAccount, setAnchorElAccount] = useState(null);
 
 	const handleClick = (setAnchorEl) => (event => {setAnchorEl(event.currentTarget);});
 	const handleClose = (setAnchorEl,setVal,newVal) => (()=>{setVal(newVal);setAnchorEl(null);});
 
-	const handleModal = () => {setAnchorElChain(null);customModalRef.current.handleOpen()};
+	const handleModal = () => {customModalRef.current.handleOpen()};
 
   return (
 		<div className="App-header">
 		<div style={{flex: "1", "textAlign":"left"}}>
 			<h1 style={{margin:'5px', display:'inline'}}>ink! playground</h1>
 		</div>
-		<Button aria-controls="chain-menu" aria-haspopup="true" onClick={handleClick(setAnchorElChain)} style={{color:"#FFF"}}>
-			{chain != null ? chain.name : "select chain"}
+		<Button aria-haspopup="true" onClick={handleModal} style={{color:"#FFF"}}>
+			{chain !== null && !chainApiDisconnected ? chain.name : "select chain"}
 		</Button>
-		<Menu
-			id="chain-menu"
-			anchorEl={anchorElChain}
-			keepMounted
-			open={Boolean(anchorElChain)}
-			onClose={()=>{setAnchorElChain(null)}}
-		>
-		{Object.values(chains).map((chain_, index) => {
-			if(chain_.id!=='custom'){return (
-				<MenuItem key={index} onClick={handleClose(setAnchorElChain,setChain,chain_.id)} >{chain_.name}</MenuItem>
-			)}else{return([])}
-		})}
-			<MenuItem onClick={handleModal}> {chains.custom.name} </MenuItem>
-		</Menu>
 
 		<Button aria-controls="account-menu" aria-haspopup="true" onClick={handleClick(setAnchorElAccount)} style={{color:"#FFF"}}>
 			{(account!=null&&account.meta!=null)?account.meta.name:'choose account'}

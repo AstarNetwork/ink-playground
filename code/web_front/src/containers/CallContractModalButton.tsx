@@ -14,15 +14,16 @@ import { Abi } from '@polkadot/api-contract';
 import { SubmittableResultValue } from '@polkadot/api/types';
 import { CodesObject, InstancesObject } from './ChainStatus'
 import { RootStore } from './Root';
+import { ChainSetting } from '../Chains';
 
 type PropType = {
 	api: ApiPromise;
 	codes: CodesObject;
   instances: InstancesObject;
-  selectedChainId: string;
+  selectedChain: ChainSetting;
 }
 
-const CallContractModalButton = ({api,codes,instances, selectedChainId}:PropType) => {
+const CallContractModalButton = ({api,codes,instances, selectedChain}:PropType) => {
   const dispatch = useDispatch();
   const setResult = (x: string) => dispatch(addConsoleLine(x))
   const account = useSelector((state: RootStore) => state.account.selectedAccount);
@@ -38,7 +39,7 @@ const CallContractModalButton = ({api,codes,instances, selectedChainId}:PropType
 
   useEffect(()=>{
     setInstance(null);
-  },[selectedChainId]);
+  },[selectedChain]);
 
   useEffect(() => {
     setCallMessage(null)
