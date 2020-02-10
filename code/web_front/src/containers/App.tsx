@@ -27,7 +27,7 @@ const base64ToBuffer = (base64: string) => {
 const App = () => {
 	const [codeTemplate,setCodeTemplate] = useState("");
 	useEffect(()=>{
-		fetch('sample_lib.rs')
+		fetch('incrementer_lib.rs')
 		.then((response)=>response.text())
 		.then((text)=>{
 			setCodeTemplate(text);
