@@ -5,7 +5,7 @@ import TextField from '@material-ui/core/TextField';
 import { ApiPromise } from '@polkadot/api';
 import { SubmittableResultValue } from '@polkadot/api/types';
 import { KeyringPair } from '@polkadot/keyring/types'
-import { getTypeDef } from '@polkadot/types';
+import { Struct, Bytes, getTypeDef } from '@polkadot/types';
 import Param from '@polkadot/react-params/Param';
 import { RawParamOnChangeValue } from '@polkadot/react-params/types';
 import getInitValue from '@polkadot/react-params/initValue';
@@ -27,7 +27,7 @@ type PropType = {
   selectedChain: ChainSetting;
 }
 
-const ParametersType = getTypeDef('{"canBeNominated": "bool", "optionExpied" : "u128", "optionP" : "u32" }')
+const ParametersType = getTypeDef('{"canBeNominated": "bool", "optionExpired" : "u128", "optionP" : "u32" }')
 
 const PlasmInstantiateModalButton = ({api,codes,instances,setInstances,selectedChain} : PropType) => {
   const dispatch = useDispatch();
@@ -35,7 +35,7 @@ const PlasmInstantiateModalButton = ({api,codes,instances,setInstances,selectedC
   const account = useSelector((state: RootStore) => state.account.selectedAccount);
   const setAccount = (x: KeyringPair)=>dispatch(selectAccount(x));
 
-  const [endowment,setEndowment] = useState(0);
+  const [endowment,setEndowment] = useState(1000000000000000);
   const [gasLimit, setGasLimit] = useState(500000)
   const [codeHash, setCodeHash] = useState<string|null>(null)
   const [parameters, setParameters] = useState(null);
@@ -48,10 +48,10 @@ const PlasmInstantiateModalButton = ({api,codes,instances,setInstances,selectedC
     setCodeHash(null);
   },[selectedChain]);
 
-  useEffect(()=>{
-    var contractObj = api.consts.contracts;
-    setEndowment(contractObj.contractFee.toNumber()+contractObj.creationFee.toNumber())  
-  },[api]);
+  // useEffect(()=>{
+  //   var contractObj = api.consts.contracts;
+  //   setEndowment(contractObj.contractFee.toNumber()+contractObj.creationFee.toNumber())  
+  // },[api]);
 
   useEffect(()=>{
     setConstructorMessage(null)
@@ -88,6 +88,15 @@ const PlasmInstantiateModalButton = ({api,codes,instances,setInstances,selectedC
       <AccountDropdown
         account={account}
         setAccount={setAccount}
+      />
+      <TextField
+        label="Endowment"
+        type="number"
+        defaultValue={endowment}
+        InputLabelProps={{shrink: true}}
+        onChange={(e:any)=>{setEndowment(e.target.value)}}
+        variant="filled"
+        style = {{marginBottom:"10px",width:"100%"}}
       />
       <TextField
         label="Gas limit"
@@ -135,7 +144,7 @@ const PlasmInstantiateModalButton = ({api,codes,instances,setInstances,selectedC
           />
         </div>
       </div>
-
+      {parameters!==null?
       <TxButton
         label={"send"}
         tx={'operator.instantiate'}
@@ -143,12 +152,13 @@ const PlasmInstantiateModalButton = ({api,codes,instances,setInstances,selectedC
           endowment
           ,gasLimit
           ,Object.keys(codes)[0]
-          ,!!constructorMessage?constructorMessage:[]
-          ,parameters
+          ,!!constructorMessage?new Bytes(api.registry,constructorMessage):[]
+          ,new Struct(api.registry, {canBeNominated: 'bool',optionExpired: 'u128',optionP: 'u32'}, parameters as any)
         ]}
         onSend={onInstantiate}
         style={{display:!Object.keys(codes).length?'none':''}}
       />
+      :[]}
     </Modal>
   </>)
 }

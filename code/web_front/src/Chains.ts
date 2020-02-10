@@ -30,7 +30,7 @@ const Chains:{[chainId:string]: ChainSetting}  ={
 			Parameters: {
 				canBeNominated : "bool",
 				optionExpired : "u128",
-				optionP: "u128"
+				optionP: "u32"
 			},
 			BTreeSet: {}
 		},

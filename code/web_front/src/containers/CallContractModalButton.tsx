@@ -99,7 +99,7 @@ const CallContractModalButton = ({api,codes,instances, selectedChain}:PropType) 
         label="Instance"
         value={instance}
         valuesList={Object.values(instances)}
-        setValue={(e: any) => setInstance(e.target.value)}
+        setValue={setInstance}
         display={(x)=>{return `${x.name}(${x.address})`}}
       />
 

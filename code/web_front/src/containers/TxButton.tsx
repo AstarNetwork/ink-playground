@@ -30,22 +30,22 @@ var TxButton = ({label,tx,params,onSend,style}: PropType) => {
 		const [section, method] = tx.split('.');
 
 		const main = async () => {
-			if(chainApiIsReady && account != null){
+			if(chainApiIsReady && account != null && !!chainApi){
 				let fromParam
 				if (account && account.meta && account.meta.isInjected) {
 			    	const injected = await web3FromSource(account.meta.source);
 			    	fromParam = account.address;
-			    	chainApi!.setSigner(injected.signer);
-					} else {
+			    	chainApi.setSigner(injected.signer);
+				} else {
 			    	fromParam = account;
 				}
 
-				if(!(chainApi!.tx[section] && chainApi!.tx[section][method])){setResult(`Unable to find api.tx.${section}.${method}`);}
+				if(!(chainApi.tx[section] && chainApi.tx[section][method])){setResult(`Unable to find api.tx.${section}.${method}`);}
 
-				const nonce = await chainApi!.query.system.accountNonce(account.address);
+				const nonce = await chainApi.query.system.accountNonce(account.address);
 
-				
-				(chainApi!.tx[section][method](...params) as any)
+				console.log(params);
+				(chainApi.tx[section][method](...params) as any)
 					.signAndSend(fromParam, { nonce }, onSend ).catch((e) => {
         				setResult(e.toString());
 					});

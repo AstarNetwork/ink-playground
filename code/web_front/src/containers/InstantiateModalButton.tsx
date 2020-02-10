@@ -29,11 +29,11 @@ const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChain}
   const account = useSelector((state: RootStore) => state.account.selectedAccount);
   const setAccount = (x: KeyringPair)=>dispatch(selectAccount(x));
 
+  const [endowment,setEndowment] = useState(1000000000000000);
   const [gasLimit, setGasLimit] = useState(500000)
   const [codeHash, setCodeHash] = useState<string|null>(null)
   const [constructorMessage, setConstructorMessage] = useState<Uint8Array|null>(null)
   const [instanceName, setInstanceName] = useState("")
-  const [endowment,setEndowment] = useState(0);
 
   const modalRef = useRef({} as ModalTemplateHandler);
 
@@ -83,6 +83,15 @@ const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChain}
       <AccountDropdown
         account={account}
         setAccount={setAccount}
+      />
+      <TextField
+        label="Endowment"
+        type="number"
+        defaultValue={endowment}
+        InputLabelProps={{shrink: true}}
+        onChange={(e:any)=>{setEndowment(e.target.value)}}
+        variant="filled"
+        style = {{marginBottom:"10px",width:"100%"}}
       />
       <TextField
         label="Gas limit"
