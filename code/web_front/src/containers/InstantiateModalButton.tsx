@@ -42,13 +42,6 @@ const InstantiateModalButton = ({api,codes,instances,setInstances,selectedChain}
   },[selectedChain]);
 
   useEffect(()=>{
-    if(!api||!api.consts)
-      return
-    var contractObj = api.consts.contracts;
-    setEndowment(contractObj.contractFee.toNumber()+contractObj.creationFee.toNumber())
-  },[api]);
-
-  useEffect(()=>{
     setConstructorMessage(null)
   },[codeHash])
 
