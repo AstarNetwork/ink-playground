@@ -11,9 +11,13 @@ It doesn't require installing Substrate or running Substrate node. This is very 
 For the future works, ink! playground also provides high level security audits. This is for developer who wants to make high secured smart contracts like for enterprise use.
 
 # Demo
-you can try from [here](https://ink-playground.com/)
+You can try from [here](https://ink-playground.com/)
 
 ![Imgur](https://i.imgur.com/1RDpCOz.png)
+
+# Usage
+Refer this page fow the usage of ink! playground.
+https://www.notion.so/staketechnologies/beaa0bab965a4b809b6f649b0db3b232
 
 # Specification
 ## overview
