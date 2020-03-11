@@ -42,7 +42,15 @@ var TxButton = ({label,tx,params,onSend,style}: PropType) => {
 
 				if(!(chainApi.tx[section] && chainApi.tx[section][method])){setResult(`Unable to find api.tx.${section}.${method}`);}
 
-				const nonce = await chainApi.query.system.accountNonce(account.address);
+				let nonce;
+				if(!!chainApi.query.system.account){
+					nonce = await chainApi.query.system.account(account.address);
+				}else if(!!chainApi.query.system.accountNonce){
+					nonce = await chainApi.query.system.accountNonce(account.address);
+				}else{
+					return;
+				}
+
 
 				console.log(params);
 				(chainApi.tx[section][method](...params) as any)
