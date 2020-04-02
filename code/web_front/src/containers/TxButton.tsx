@@ -6,6 +6,7 @@ import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Button } from '@material-ui/core'
 import { web3FromSource } from '@polkadot/extension-dapp';
+import keyring from '@polkadot/ui-keyring';
 import { addConsoleLine } from '../actions'
 import { RootStore } from './Root'
 
@@ -44,18 +45,18 @@ var TxButton = ({label,tx,params,onSend,style}: PropType) => {
 
 				let nonce;
 				if(!!chainApi.query.system.account){
-					nonce = await chainApi.query.system.account(account.address);
+					nonce = (await chainApi.query.system.account(account.address)).nonce;
 				}else if(!!chainApi.query.system.accountNonce){
 					nonce = await chainApi.query.system.accountNonce(account.address);
 				}else{
 					return;
 				}
 
-
+				
 				console.log(params);
 				(chainApi.tx[section][method](...params) as any)
-					.signAndSend(fromParam, { nonce }, onSend ).catch((e) => {
-        				setResult(e.toString());
+				.signAndSend(fromParam, { nonce }, onSend ).catch((e) => {
+					setResult(e.toString());
 					});
 			}
 		}

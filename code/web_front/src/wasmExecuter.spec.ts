@@ -3,7 +3,6 @@ import path from 'path';
 import { TypeRegistry } from '@polkadot/types';
 import { Abi } from '@polkadot/api-contract';
 import { cryptoWaitReady } from '@polkadot/util-crypto';
-import { createType } from '@polkadot/types';
 import { ImportObject } from './wasmExecuter';
 import { Keyring } from '@polkadot/api';
 import { bufferToU8a } from '@polkadot/util';
@@ -25,7 +24,7 @@ describe('WasmExecuter', () =>{
         await cryptoWaitReady();
         const alice = keyring.addFromUri('//Alice');
         const bob = keyring.addFromUri('//Bob');    
-        let importObject = new ImportObject(createType(abi.registry,'AccountId',alice.publicKey),abi,0);
+        let importObject = new ImportObject(abi.registry.createType('AccountId',alice.publicKey),abi,0);
         const instance = await WebAssembly.instantiate(wasm, importObject as any)
         const [exports_deploy, exports_call] = [instance.instance.exports.deploy as Function, instance.instance.exports.call as Function]
         const func_new = abi.constructors[0];

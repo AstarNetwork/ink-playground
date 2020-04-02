@@ -1,8 +1,8 @@
-import { createType, TypeRegistry } from '@polkadot/types';
+import { TypeRegistry } from '@polkadot/types';
 import { Abi } from '@polkadot/api-contract';
 
 const registry = new TypeRegistry();
-const id = createType(registry, 'AccountId');
+const id = registry.createType('AccountId');
 type AccountId = typeof id;
 
 const bytesPerPage = 64 * 1024;

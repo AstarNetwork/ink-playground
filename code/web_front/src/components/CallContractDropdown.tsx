@@ -4,7 +4,7 @@ import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import { RawParamValues } from '@polkadot/react-params/types';
-import '@polkadot/react-params/Params.css'
+import '@polkadot/react-params'
 import GlobalStyle from '@polkadot/react-components/styles'
 import { Abi } from '@polkadot/api-contract';
 import { camelCase } from '../util/ChangeCase'
