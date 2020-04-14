@@ -1,8 +1,8 @@
-import { createType, TypeRegistry } from '@polkadot/types';
+import { TypeRegistry } from '@polkadot/types';
 import { Abi } from '@polkadot/api-contract';
 
 const registry = new TypeRegistry();
-const id = createType(registry, 'AccountId');
+const id = registry.createType('AccountId');
 type AccountId = typeof id;
 
 const bytesPerPage = 64 * 1024;
@@ -33,20 +33,15 @@ export class ImportObject {
             //from here
             ext_set_storage:(
                 key_ptr: number,
-                value_non_null: number,
                 value_ptr: number,
                 value_len: number,
             )=>{
-                console.log(`[CALLED] ext_set_storage(key_ptr: ${key_ptr}, value_non_null: ${value_non_null}, value_ptr: ${value_ptr}, value_len: ${value_len})`);
+                console.log(`[CALLED] ext_set_storage(key_ptr: ${key_ptr}, value_ptr: ${value_ptr}, value_len: ${value_len})`);
                 const local = new Uint8Array(this.env.memory.buffer);
                 const key = local.subarray(key_ptr,key_ptr+32);
                 const key_str = Buffer.from(key).toString('hex');
                 var value;
-                if(value_non_null!==0){
-                    value = local.slice(value_ptr,value_ptr+value_len);
-                }else{
-                    value = null;
-                }
+                value = local.slice(value_ptr,value_ptr+value_len);
                 console.log(`[DEBUG] key:${key_str}, value:${value.toString()}`);
                 this.ctx_storage[key_str]=value;
             },
@@ -90,7 +85,7 @@ export class ImportObject {
                 const src = this.scratch_buf.subarray(offset,offset+len);
                 // console.log(`[DEBUG] data: ${src}`);
                 local.set(src,dst_ptr);
-                console.log('[DEBUG] result: 0');
+                console.log('[DEBUG] return: 0');
                 return 0;
             },
 
@@ -128,7 +123,16 @@ export class ImportObject {
                 this.scratch_buf.set(callerBuffer)
                 this.scratch_buf_len=callerBuffer.length;
             },
-    
+
+            ext_clear_storage: (key_ptr: number)=>{
+                console.log(`[CALLED] ext_clear_storage(key_ptr: ${key_ptr})`);
+                const local = new Uint8Array(this.env.memory.buffer);
+                const key = local.subarray(key_ptr,key_ptr+32);
+                const key_str = Buffer.from(key).toString('hex');
+                console.log(`[DEBUG] key:${key_str}`);
+                delete this.ctx_storage[key_str];
+            },
+
             // until here
             ext_instantiate: (
                 code_hash_ptr: number,

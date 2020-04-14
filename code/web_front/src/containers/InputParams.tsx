@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import Param from '@polkadot/react-params/Param';
 import { RawParamOnChangeValue,RawParamValue } from '@polkadot/react-params/types';
 import getInitValue from '@polkadot/react-params/initValue';
-import '@polkadot/react-params/Params.css'
+import '@polkadot/react-params'
 import { ContractABIArgBase } from "@polkadot/api-contract/types"
 import { KeyringPair } from '@polkadot/keyring/types';
 import AccountDropdown from './AccountDropdown';

@@ -2,9 +2,9 @@ import React, { useRef, useState, useEffect, useReducer } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import Button from '@material-ui/core/Button'
 import { Abi } from '@polkadot/api-contract'
-import { createType, TypeRegistry, Raw } from '@polkadot/types'
+import { TypeRegistry, Raw } from '@polkadot/types'
 import { Struct } from '@polkadot/types/codec';
-import { TypeDef } from '@polkadot/types/codec/types'
+import { TypeDef } from '@polkadot/types/create/types'
 import { KeyringPair } from '@polkadot/keyring/types'
 import { formatData } from '@polkadot/api-contract/util'
 import { ImportObject } from '../wasmExecuter'
@@ -70,7 +70,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
 
     useEffect(()=>{
         if(!!importObject&&!!account&&!!abi){
-            importObject.caller = createType(abi.registry,'AccountId',account.publicKey);
+            importObject.caller = abi.registry.createType('AccountId',account.publicKey);
         }
     },[account,abi,importObject])
 
@@ -96,7 +96,7 @@ const LocalWasmTesterModalButton = ({ label, wasm, metadata }: PropType) => {
     function deploy(message :Uint8Array){
         async function main(){
             if (!!abi && !!wasm && !!account && !importObject && !wasmInstance) {
-                const _importObject = new ImportObject(createType(abi.registry,'AccountId',account.publicKey),abi);
+                const _importObject = new ImportObject(abi.registry.createType('AccountId',account.publicKey),abi);
                 setImportObject(_importObject);
                 const _wasmInstance = await WebAssembly.instantiate(wasm, _importObject as any);
                 setWasmInstance(_wasmInstance);

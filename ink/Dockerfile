@@ -4,7 +4,7 @@ ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH \
     RUST_VERSION=1.41.0 \
-    CARGO_CONTRACT_VERSION="164ecde994a308e9b34ae145e9e3bfe8f600ebc0" \
+    CARGO_CONTRACT_VERSION="v0.6.0" \
     NIGHTLY_VERSION="nightly-2020-01-20"
 
 SHELL ["/bin/bash","-c"]
@@ -51,7 +51,8 @@ RUN set -eux;\
 RUN set -eux; \
     \
     rustup default $NIGHTLY_VERSION; \
-    rustup target add wasm32-unknown-unknown --toolchain $NIGHTLY_VERSION;\
+    rustup target add wasm32-unknown-unknown --toolchain $NIGHTLY_VERSION; \
+    rustup component add rust-src; \
     mkdir /projects; \
     cd /projects; \
     cargo contract new sample; \

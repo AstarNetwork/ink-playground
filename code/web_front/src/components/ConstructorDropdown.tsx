@@ -5,7 +5,7 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Param from '@polkadot/react-params/Param';
 import getInitValue from '@polkadot/react-params/initValue';
-import '@polkadot/react-params/Params.css'
+import '@polkadot/react-params'
 import 'semantic-ui-css/semantic.min.css'
 import GlobalStyle from '@polkadot/react-components/styles'
 import { RawParamValue, RawParamOnChangeValue } from '@polkadot/react-params/types';
