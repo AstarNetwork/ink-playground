@@ -34,7 +34,7 @@ const Chains:{[chainId:string]: ChainSetting}  ={
 			},
 			BTreeSet: {}
 		},
-		name : "Plasm Testnet V3",
+		name : "Dusty Plasm",
 	},
 }
 
