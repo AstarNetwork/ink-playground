@@ -12,6 +12,7 @@ import { addConsoleLine, selectAccount } from '../actions'
 import { ApiPromise} from '@polkadot/api';
 import { Abi } from '@polkadot/api-contract';
 import { SubmittableResultValue } from '@polkadot/api/types';
+import RpcButton from './RpcButton';
 import { CodesObject, InstancesObject } from './ChainStatus'
 import { RootStore } from './Root';
 import { ChainSetting } from '../Chains';
@@ -31,6 +32,7 @@ const CallContractModalButton = ({api,codes,instances, selectedChain}:PropType) 
 
   const [gasLimit, setGasLimit] = useState(500000)
   const [value, setValue] = useState(0)
+  const [isConstant, setIsConstant] = useState(false)
   const [instance,setInstance] = useState<InstancesObject[keyof InstancesObject] | null>(null);
   const [abi,setAbi] = useState<Abi | null>(null);
   const [callMessage, setCallMessage] = useState<Uint8Array | null>(null);
@@ -107,22 +109,39 @@ const CallContractModalButton = ({api,codes,instances, selectedChain}:PropType) 
       <CallContractDropdown
         abi={abi}
         setCallMessage={setCallMessage}
+        setIsConstant={setIsConstant}
       />:[]}
       
-      {instance!=null?
-      <TxButton
-        label={"send"}
-        tx={api.tx.contract?'contract.call':'contracts.call'}
-        params={[
-          instance.address,
-          value,
-          gasLimit,
-          !!callMessage?callMessage:[]
-        ]}
-        onSend={onSend}
-        style = {{marginBottom:"10px",width:"100%"}}
-      />
-      :["cannot send"]}
+      {instance!=null?(
+        isConstant
+        ?<RpcButton
+          label={"send rpc"}
+          rpc={api.rpc.contracts?'contracts.call':'contract.call'}
+          params={[
+            api.registry.createType('ContractCallRequest', {
+              dest: instance.address,
+              gasLimit,
+              inputData: !!callMessage?callMessage:[],
+              origin: account?.address,
+              value
+            })
+          ]}
+          onSend={onSend}
+          style = {{marginBottom:"10px",width:"100%"}}
+        />
+        :<TxButton
+          label={"send tx"}
+          tx={api.tx.contract?'contract.call':'contracts.call'}
+          params={[
+            instance.address,
+            value,
+            gasLimit,
+            !!callMessage?callMessage:[]
+          ]}
+          onSend={onSend}
+          style = {{marginBottom:"10px",width:"100%"}}
+        />
+      ):["cannot send"]}
     </Modal>
   </>)
 }

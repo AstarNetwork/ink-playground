@@ -16,9 +16,10 @@ type PropType = {
   setCallMessage: React.Dispatch<React.SetStateAction<Uint8Array | null>>;
   setDisplay?: React.Dispatch<React.SetStateAction<string>>;
   setReturnType?: React.Dispatch<ReturnTypeActionType>;
+  setIsConstant? : React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const CallContractDropdown = ({abi, setCallMessage, setDisplay, setReturnType}: PropType) =>  {
+const CallContractDropdown = ({abi, setCallMessage, setDisplay, setReturnType, setIsConstant}: PropType) =>  {
 
   const [index,setIndex] = useState(0);
   const [params,setParams] = useReducer(paramsReducer, {});
@@ -45,6 +46,9 @@ const CallContractDropdown = ({abi, setCallMessage, setDisplay, setReturnType}: 
           array.push(params[i]);
         }
         setCallMessage(func(...array));
+        if(!!setIsConstant){
+          setIsConstant(func.isConstant);
+        }
         if(!!setReturnType){
           setReturnType({type:'call', payload: abi.abi.contract.messages[index].returnType});
         }
@@ -56,7 +60,7 @@ const CallContractDropdown = ({abi, setCallMessage, setDisplay, setReturnType}: 
         }
       }
     }
-  },[abi,setCallMessage,setReturnType,setDisplay,index,params,prevParams])
+  },[abi,setCallMessage,setReturnType,setDisplay,setIsConstant,index,params,prevParams])
 
   return (
 		<div>
