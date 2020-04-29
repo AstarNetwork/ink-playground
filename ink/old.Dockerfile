@@ -46,25 +46,22 @@ RUN set -eux;\
     cmake . && make; \
     cp bin/wasm-opt /usr/local/bin; \
     popd; \
-    rm -rf binaryen; \
-    rustup default $NIGHTLY_VERSION; \
-    rustup target add wasm32-unknown-unknown --toolchain $NIGHTLY_VERSION; \
-    rustup component add rust-src;
-
-RUN set -eux;\
-    \
-    mkdir -p /projects/sample;
-
-COPY ./sample/ /projects/sample
-
-WORKDIR /projects/sample
+    rm -rf binaryen;
 
 RUN set -eux; \
     \
+    rustup default $NIGHTLY_VERSION; \
+    rustup target add wasm32-unknown-unknown --toolchain $NIGHTLY_VERSION; \
+    rustup component add rust-src; \
+    mkdir /projects; \
+    cd /projects; \
+    cargo contract new sample; \
+    cd sample; \
     cargo contract build; \
     cargo contract generate-metadata; \
     rm target/sample* target/metadata.json;
 
+WORKDIR /projects/sample
 
 CMD rm ./lib.rs; \
     cp -f "/share/${NONCE}.rs" ./lib.rs; \
