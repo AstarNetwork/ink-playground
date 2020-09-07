@@ -43,7 +43,7 @@ const AppHeader = () =>  {
 		</Button>
 
 		<Button aria-controls="account-menu" aria-haspopup="true" onClick={handleClick(setAnchorElAccount)} style={{color:"#FFF"}}>
-			{(account!=null&&account.meta!=null)?account.meta.name:'choose account'}
+			{account?.meta?.name as string || 'choose account' }
 		</Button>
 		<Menu
 			id="account-menu"

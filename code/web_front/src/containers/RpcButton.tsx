@@ -34,7 +34,7 @@ var RpcButton = ({label,rpc,params,onSend,style}: PropType) => {
 			if(chainApiIsReady && account != null && !!chainApi){
 				let fromParam
 				if (account && account.meta && account.meta.isInjected) {
-			    	const injected = await web3FromSource(account.meta.source);
+			    	const injected = await web3FromSource(account.meta.source as string);
 			    	fromParam = account.address;
 			    	chainApi.setSigner(injected.signer);
 				} else {
