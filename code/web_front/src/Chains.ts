@@ -25,14 +25,38 @@ const Chains:{[chainId:string]: ChainSetting}  ={
 	},
 	plasm_testnet: {
 		id: 'plasm_testnet',
-		ws_provider: "wss://testnet.plasmnet.io",
+		ws_provider: "wss://rpc.dusty.plasmnet.io",
 		types: {
-			Parameters: {
-				canBeNominated : "bool",
-				optionExpired : "u128",
-				optionP: "u32"
+			AuthorityId: 'AccountId',
+			AuthorityVote: 'u32',
+			Claim: {
+			  amount: 'u128',
+			  approve: 'BTreeSet<AuthorityId>',
+			  complete: 'bool',
+			  decline: 'BTreeSet<AuthorityId>',
+			  params: 'Lockdrop'
 			},
-			BTreeSet: {}
+			ClaimId: 'H256',
+			ClaimVote: {
+			  approve: 'bool',
+			  authority: 'u16',
+			  claim_id: 'ClaimId'
+			},
+			DollarRate: 'u128',
+			Keys: 'SessionKeys2',
+			Lockdrop: {
+			  duration: 'u64',
+			  public_key: '[u8; 33]',
+			  transaction_hash: 'H256',
+			  type: 'u8',
+			  value: 'u128'
+			},
+			PredicateHash: 'H256',
+			TickerRate: {
+			  authority: 'u16',
+			  btc: 'u128',
+			  eth: 'u128'
+			}
 		},
 		name : "Dusty Plasm",
 	},
