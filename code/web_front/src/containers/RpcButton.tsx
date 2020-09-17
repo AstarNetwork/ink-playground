@@ -13,12 +13,12 @@ import { RootStore } from './Root'
 type PropType = {
 	label?: string,
 	display?: boolean,
-	tx: string,
+	rpc: string,
 	params: Array<any>,
 	style?: any,
 	onSend?: Function,
 }
-var TxButton = ({label,tx,params,onSend,style}: PropType) => {
+var RpcButton = ({label,rpc,params,onSend,style}: PropType) => {
 	const dispatch = useDispatch();
 	const setResult = (x) => dispatch(addConsoleLine(x))
 
@@ -28,7 +28,7 @@ var TxButton = ({label,tx,params,onSend,style}: PropType) => {
 
 	const onClick = () => {
 
-		const [section, method] = tx.split('.');
+		const [section, method] = rpc.split('.');
 
 		const main = async () => {
 			if(chainApiIsReady && account != null && !!chainApi){
@@ -41,23 +41,10 @@ var TxButton = ({label,tx,params,onSend,style}: PropType) => {
 			    	fromParam = account;
 				}
 
-				if(!(chainApi.tx[section] && chainApi.tx[section][method])){setResult(`Unable to find api.tx.${section}.${method}`);}
+				if(!(chainApi.rpc[section] && chainApi.rpc[section][method])){setResult(`Unable to find api.rpc.${section}.${method}`);}
 
-				let nonce;
-				if(!!chainApi.query.system.account){
-					nonce = (await chainApi.query.system.account(account.address)).nonce;
-				}else if(!!chainApi.query.system.accountNonce){
-					nonce = await chainApi.query.system.accountNonce(account.address);
-				}else{
-					return;
-				}
-
-				
 				console.log(params);
-				(chainApi.tx[section][method](...params) as any)
-				.signAndSend(fromParam, { nonce }, onSend ).catch((e) => {
-					setResult(e.toString());
-					});
+				setResult((await chainApi.rpc[section][method](...params)).toString());
 			}
 		}
 		return main();
@@ -70,4 +57,4 @@ var TxButton = ({label,tx,params,onSend,style}: PropType) => {
 	);
 }
 
-export default TxButton;
+export default RpcButton;

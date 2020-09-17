@@ -31,12 +31,12 @@ const AccountDropdown = ( {account, setAccount} :PropType) =>  {
 				>
 					{(accountsLoaded)?accounts.map((account, index) => {
 						return (
-							<MenuItem key={index} value={account as any} >
+							<MenuItem key={index} value={account.meta.name as string} >
 								<div style={{width:"100%",display:"flex"}}>
 									<div
 										style={{flex:2,paddingRight:"5px",overflow:"hidden",textOverflow:"ellipsis"}}
 									>
-										{account.meta.name}
+										{account.meta.name as string}
 									</div>
 									<div style={{flex:5,overflow:"hidden",textOverflow:"ellipsis"}}>
 										{account.address}
