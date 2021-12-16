@@ -1,3 +1,7 @@
+# Deprecation
+
+This project is no longer actively maintained by the team.
+For the active version, please visit the new ink! Playground [maintained by Parity Technologies](https://github.com/paritytech/ink-playground).
 
 # ink! playground
 
